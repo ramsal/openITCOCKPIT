@@ -39,59 +39,56 @@
                 <header>
                     <div class="tabsContainer">
                         <ul class="nav nav-tabs pull-left">
-                            <?php foreach ($tabs as $_tab): ?>
-                                <?php $isActive = ($_tab['DashboardTab']['id'] == $tab['DashboardTab']['id']); ?>
-                                <?php if ($isActive): ?>
-                                    <li class="active dropdown-toggle"
-                                        data-tab-id="<?php echo $_tab['DashboardTab']['id']; ?>">
-                                        <a class="pointer" data-toggle="dropdown" href="javascript:void(0);">
-                                            <span class="text <?php echo ($_tab['DashboardTab']['shared'] == 1) ? 'text-primary' : ''; ?>"><?php echo h($_tab['DashboardTab']['name']); ?></span>
-                                            <b class="caret"></b>
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <a class="tab-select-menu-fix" href="javascript:void(0)"
-                                                   data-toggle="modal" data-target="#renameTabModal">
-                                                    <i class="fa fa-pencil-square-o"></i>
-                                                    <?php echo __('Rename'); ?>
-                                                </a>
-                                            </li>
-                                            <?php if (!$_tab['DashboardTab']['shared']): ?>
-                                                <li>
-                                                    <a class="tab-select-menu-fix" href="<?php echo Router::url([
-                                                        'controller' => 'dashboards',
-                                                        'action'     => 'startSharing',
-                                                        $_tab['DashboardTab']['id']]); ?>">
-                                                        <i class="fa fa-code-fork"></i>
-                                                        <?php echo __('Start sharing'); ?>
-                                                    </a>
-                                                </li>
-                                            <?php else: ?>
-                                                <li>
-                                                    <a class="tab-select-menu-fix" href="<?php echo Router::url([
-                                                        'controller' => 'dashboards',
-                                                        'action'     => 'stopSharing',
-                                                        $_tab['DashboardTab']['id']]); ?>">
-                                                        <i class="fa fa-ban"></i>
-                                                        <?php echo __('Stop sharing'); ?>
-                                                    </a>
-                                                </li>
-                                            <?php endif ?>
-                                            <li class="divider"></li>
-                                            <li>
-                                                <?php echo $this->Form->postLink('<i class="fa fa-trash-o"></i> '.__('Delete'), ['controller' => 'dashboards', 'action' => 'deleteTab', $_tab['DashboardTab']['id']], ['class' => 'txt-color-red', 'escape' => false]); ?>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                <?php else: ?>
-                                    <li data-tab-id="<?php echo $_tab['DashboardTab']['id']; ?>">
-                                        <a class="pointer"
-                                           href="<?php echo Router::url(['action' => 'index', $_tab['DashboardTab']['id']]); ?>">
-                                            <span class="text <?php echo ($_tab['DashboardTab']['shared'] == 1) ? 'text-primary' : ''; ?>"><?php echo h($_tab['DashboardTab']['name']); ?></span>
+
+                            <li class="active dropdown-toggle" ng-repeat-start="_tab in tabs"
+                                data-tab-id="{{ _tab.DashboardTab.id }}"
+                                ng-if="tab.id == _tab.DashboardTab.id">
+                                <a class="pointer" data-toggle="dropdown" href="javascript:void(0);">
+                                    <span ng-class="_tab.DashboardTab.shared ? 'text-primary' : ''" class="text">{{ _tab.DashboardTab.name }}</span>
+                                    <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="pointer tab-select-menu-fix"
+                                           ng-click="openEditModal(); tab.name = _tab.DashboardTab.name">
+                                            <i class="fa fa-pencil-square-o"></i>
+                                            <?php echo __('Rename'); ?>
                                         </a>
                                     </li>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
+                                    <li ng-if="!_tab.DashboardTab.shared">
+                                        <a class="pointer tab-select-menu-fix"
+                                           ng-click="startSharing()">
+                                            <i class="fa fa-code-fork"></i>
+                                            <?php echo __('Start sharing'); ?>
+                                        </a>
+                                    </li>
+                                    <li ng-if="_tab.DashboardTab.shared">
+                                        <a class="pointer tab-select-menu-fix"
+                                           ng-click="stopSharing()">
+                                            <i class="fa fa-code-fork"></i>
+                                            <?php echo __('Stop sharing'); ?>
+                                        </a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <a class="pointer txt-color-red"
+                                           ng-click="openEditModal(); tab.name = _tab.DashboardTab.name">
+                                            <i class="fa fa-trash-o"></i>
+                                            <?php echo __('Delete'); ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li ng-repeat-end
+                                data-tab-id="{{ _tab.DashboardTab.id }}"
+                                ng-if="tab.id != _tab.DashboardTab.id">
+                                <a class="pointer"
+                                   ng-click="tab.id = _tab.DashboardTab.id; tab.name = _tab.DashboardTab.name">
+                                    <span ng-class="_tab.DashboardTab.shared ? 'text-primary' : ''" class="text">{{ _tab.DashboardTab.name }}</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </div>
 
@@ -101,18 +98,16 @@
                                 <?php echo __('Add Widget') ?> <i class="fa fa-caret-down"></i>
                             </button>
                             <ul class="dropdown-menu pull-right">
-                                <?php foreach ($allWidgets as $_widget): ?>
-                                    <li>
-                                        <a href="javascript:void(0);" class="addWidget"
-                                           data-type-id="<?php echo h($_widget['typeId']); ?>">
-                                            <i class="fa <?php echo h($_widget['icon']); ?>"></i>&nbsp;
-                                            <?php echo h($_widget['title']); ?>
-                                        </a>
-                                    </li>
-                                <?php endforeach; ?>
+                                <li ng-repeat="widget in allWidgets">
+                                    <a href="javascript:void(0);" class="addWidget"
+                                       data-type-id="{{ widget.typeId }}">
+                                        <i class="fa {{ widget.icon }}"></i>&nbsp;
+                                        {{ widget.title }}
+                                    </a>
+                                </li>
                                 <li class="divider"></li>
                                 <li>
-                                    <a href="<?php echo Router::url(['controller' => 'dashboards', 'action' => 'restoreDefault', $tab['DashboardTab']['id']]); ?>">
+                                    <a href="/dashboards/restoreDefault/{{ tab.id }}">
                                         <i class="fa fa-recycle"></i>&nbsp;
                                         <?php echo __('Restore default'); ?>
                                     </a>
@@ -126,22 +121,56 @@
                         </button>
                     </div>
                     <div class="widget-toolbar" rile="menu">
-                        <button class="btn btn-xs btn-success" data-toggle="modal" data-target="#addWidgetModal">
+                        <button class="btn btn-xs btn-success" data-toggle="modal" ng-click='openNewTabModal()'>
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>
 
                 </header>
                 <div>
+
                     <div class="widget-body no-padding padding-top-10">
                         <div class="padding-bottom-10">
-                            <div class="grid-stack">
-                                <?php
-                                foreach ($preparedWidgets as $widget):
-                                    echo $this->Dashboard->render($widget);
-                                endforeach;
-                                ?>
+
+                            <?php /*                    <div class="grid-stack">
+                                <div data-gs-height="4"
+                                     data-gs-width="4"
+                                     data-gs-x="5"
+                                     data-gs-y="4"
+                                     data-widget-id="2"
+                                     data-widget-type-id="1"
+                                     class="grid-stack-item ui-draggable ui-resizable">
+                                    <div class="grid-stack-item-content">
+                                        <div id="widget-color-1"
+                                             class="jarviswidget jarviswidget-color-blueDark"
+                                             data-widget-attstyle="jarviswidget-color-blueDark" role="widget" dashboard-widget-welcome="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div ng-repeat="w in preparedWidgets"
+                                     data-gs-height="{{w.Widget.height}}"
+                                     data-gs-width="{{w.Widget.width}}"
+                                     data-gs-x="{{w.Widget.row}}"
+                                     data-gs-y="{{w.Widget.col}}"
+                                     data-widget-id="{{w.Widget.id}}"
+                                     data-widget-type-id="{{w.Widget.type_id}}"
+                                     ng-if="w.Widget.type_id == 1"
+                                     class="grid-stack-item ui-draggable ui-resizable">
+                                    <div class="grid-stack-item-content">
+                                        <div id="widget-color-{{w.Widget.id}}"
+                                             class="jarviswidget jarviswidget-color-blueDark"
+                                             data-widget-attstyle="jarviswidget-color-blueDark" role="widget" dashboard-widget-welcome="">
+                                        </div>
+                                    </div>
+                                </div>
+ </div>
+*/ ?>
+
+                            <div class="grid-stack" id="grid-stack" data-gs-width="0">
+
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -150,8 +179,8 @@
     </div>
 </section>
 
-<div class="modal fade" id="addWidgetModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+
+<div class="modal fade" id="addTabModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -161,49 +190,43 @@
                 <h4 class="modal-title" id="myModalLabel"><?php echo __('Create new Tab'); ?></h4>
             </div>
             <div class="modal-body">
-                <div>
-                    <?php
-                    echo $this->Form->create('dashboard', [
-                        'class' => 'form-horizontal clear',
-                        'url'   => 'createTab',
-                    ]);
-                    echo $this->Form->input('name');
-                    ?>
+                <div ng-class="{'has-error': errors.name}">
+                    <input type="text"
+                           class="form-control"
+                           maxlength="255"
+                           required="required"
+                           placeholder="<?php echo __('Tab name'); ?>"
+                           ng-model="tab.newname"
+                    >
+                    <div ng-repeat="error in errors.name">
+                        <div class="help-block text-danger">{{ error }}</div>
+                    </div>
                     <div style="height:35px;">
-                        <?php
-                        echo $this->Form->submit(__('Save'), [
-                            'class' => [
-                                'btn btn-primary pull-right',
-                            ],
-                        ]);
-                        echo $this->Form->end();
-                        ?>
+                        <button type="submit" class="btn btn-primary pull-right margin-top-10" ng-click="newTab()">
+                            <?php echo __('Save'); ?>
+                        </button>
                     </div>
                 </div>
-                <div>
+                <div ng-class="{'has-error': errors.source_tab}">
                     <hr/>
                     <h3><?php echo __('Create from shared tab'); ?></h3>
-                    <?php
-                    echo $this->Form->create('dashboard', [
-                        'class' => 'form-horizontal clear',
-                        'url'   => 'createTabFromSharing',
-                    ]);
-                    echo $this->Form->input('source_tab', [
-                        'options' => $sharedTabs,
-                        'label'   => __('Shared tabs'),
-                        'class'   => 'chosen',
-                        'style'   => 'width:100%',
-                    ]);
-                    ?>
+                    <select
+                            id="sharedTabSelect"
+                            data-placeholder="<?php echo __('Shared tabs'); ?>"
+                            class="form-control chosen"
+                            chosen="sharedTabs"
+                            ng-options="key as value for (key, value) in sharedTabs"
+                            ng-model="tab.selectedSharedTab"
+                    >
+                    </select>
+                    <div ng-repeat="error in errors.source_tab">
+                        <div class="help-block text-danger">{{ error }}</div>
+                    </div>
                     <div style="height:35px;">
-                        <?php
-                        echo $this->Form->submit(__('Create'), [
-                            'class' => [
-                                'btn btn-primary pull-right',
-                            ],
-                        ]);
-                        echo $this->Form->end();
-                        ?>
+                        <button type="submit" class="btn btn-primary pull-right margin-top-10"
+                                ng-click="newSharedTab()">
+                            <?php echo __('Save'); ?>
+                        </button>
                     </div>
                     <br/>
                     <br/>
@@ -218,48 +241,47 @@
     </div>
 </div>
 
-<div class="modal fade" id="renameTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="editTabModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                    &times;
-                </button>
-                <h4 class="modal-title" id="myModalLabel"><?php echo __('Rename tab'); ?></h4>
-            </div>
-            <div class="modal-body">
-                <div>
-                    <?php
-                    echo $this->Form->create('dashboard', [
-                        'class' => 'form-horizontal clear',
-                        'url'   => 'renameTab',
-                    ]);
-                    echo $this->Form->input('name', [
-                        'value' => $tab['DashboardTab']['name'],
-                    ]);
-                    echo $this->Form->input('id', [
-                        'value' => $tab['DashboardTab']['id'],
-                        'type'  => 'hidden',
-                    ]);
-                    ?>
-                    <div style="height:35px;">
-                        <?php
-                        echo $this->Form->submit(__('Save'), [
-                            'class' => [
-                                'btn btn-primary pull-right',
-                            ],
-                        ]);
-                        echo $this->Form->end();
-                        ?>
+            <form onsubmit="return false;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel"><?php echo __('Edit tab'); ?></h4>
+                </div>
+                <div class="modal-body" ng-class="{'has-error': errors.name}">
+                    <div>
+                        <input type="text"
+                               class="form-control"
+                               maxlength="255"
+                               required="required"
+                               placeholder="<?php echo __('Tab name'); ?>"
+                               ng-model="tab.name"
+                        >
+                        <div ng-repeat="error in errors.name">
+                            <div class="help-block text-danger">{{ error }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                    <?php echo __('Close'); ?>
-                </button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger pull-left" ng-click="deleteTab()"
+                            ng-class="{'has-error': errors.id}">
+                        <i class="fa fa-refresh fa-spin" ng-show="isDeleting"></i>
+                        <?php echo __('Delete'); ?>
+                    </button>
+                    <div class="pull-left" ng-repeat="error in errors.id">
+                        <div class="help-block text-danger">{{ error }}</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" ng-click="renameTab()">
+                        <?php echo __('Save'); ?>
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <?php echo __('Cancel'); ?>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -345,15 +367,15 @@
                                 >
                             </div>
                             <div class="col">
-								<span class="note" id="TabRotationInterval_human">
-									<?php
+                                <span class="note" id="TabRotationInterval_human">
+                                    <?php
                                     if ($tabRotateInterval == 0):
                                         echo __('disabled');
                                     else:
                                         echo $this->Utils->secondsInWords($tabRotateInterval);
                                     endif;
                                     ?>
-								</span>
+                                </span>
                             </div>
                         </div>
                     </div>

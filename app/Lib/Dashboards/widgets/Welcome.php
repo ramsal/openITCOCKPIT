@@ -30,7 +30,7 @@ class Welcome extends Widget
     public $icon = 'fa-comment';
     public $element = 'welcome';
     public $width = 5;
-    public $height = 11;
+    public $height = 10;
 
     public function __construct(\Controller $controller, $QueryCache)
     {
@@ -55,7 +55,7 @@ class Welcome extends Widget
             'row'              => 0,
             'col'              => 0,
             'width'            => 5,
-            'height'           => 11,
+            'height'           => 9,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
         ];

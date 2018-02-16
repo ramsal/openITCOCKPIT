@@ -23,15 +23,16 @@
 //	License agreement and license key will be shipped with the order
 //	confirmation.
 
-class DashboardsController extends AppController
-{
-    public $layout = 'Admin.default';
+class DashboardsController extends AppController {
+    //public $layout = 'Admin.default';
+    public $layout = 'angularjs';
     public $helpers = [
         'PieChart',
         'Status',
         'Monitoring',
         'Bbcode',
         'Dashboard',
+        'Html'
     ];
     public $components = [
         'Bbcode',
@@ -61,9 +62,8 @@ class DashboardsController extends AppController
     const CHECK_FOR_UPDATES = 1;
     const AUTO_UPDATE = 2;
 
-    public function beforeFilter()
-    {
-        require_once APP.'Lib'.DS.'Dashboards'.DS.'DashboardHandler.php';
+    public function beforeFilter () {
+        require_once APP . 'Lib' . DS . 'Dashboards' . DS . 'DashboardHandler.php';
         //Dashboard is allays allowed
         if ($this->Auth->loggedIn() === true) {
             $this->Auth->allow();
@@ -74,8 +74,50 @@ class DashboardsController extends AppController
         }
     }
 
-    public function index($tabId = null)
-    {
+    public function widget_hosts_piechart () {
+        $this->layout = 'plain';
+        return;
+    }
+
+    public function widget_welcome () {
+        if ($this->isApiRequest()) {
+
+            $welcome = [];
+
+
+            /*
+            if ($this->Auth->user('image') != null && $this->Auth->user('image') != '') {
+                if (file_exists(WWW_ROOT.'userimages'.DS.$this->Auth->user('image'))) {
+                    $welcome['image'] = $this->Html->image('/userimages'.DS.$this->Auth->user('image'), ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
+                } else {
+                    $welcome['image'] =  $this->Html->image('fallback_user.png', ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
+                }
+            } else {
+                $welcome['image'] =  $this->Html->image('fallback_user.png', ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
+            }
+            */
+
+            $UserTime = new \itnovum\openITCOCKPIT\Core\Views\UserTime($this->Auth->user('timezone'), $this->Auth->user('dateformat'));
+            $welcome['date'] = $UserTime->format(time());
+            $welcome['timezone'] = h($this->Auth->user('timezone'));
+            $welcome['hosts'] = 1337;
+            $welcome['services'] = 1337;
+
+            $this->set(compact(['welcome']));
+            $this->set('_serialize', ['welcome']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function getPreparedWidgets ($tabId = null) {
+        if (!$this->isApiRequest()) {
+            //throw new MethodNotAllowedException();
+            return;
+        }
+
         $userId = $this->Auth->user('id');
         $tab = [];
         if ($tabId !== null && is_numeric($tabId)) {
@@ -112,6 +154,19 @@ class DashboardsController extends AppController
         } else {
             $tabId = $tab['DashboardTab']['id'];
         }
+        $preparedWidgets = $this->DashboardHandler->prepareForRender($tab);
+
+        $this->set(compact(['preparedWidgets']));
+        $this->set('_serialize', ['preparedWidgets']);
+    }
+
+    public function index ($tabId = null) {
+        if (!$this->isApiRequest()) {
+            //throw new MethodNotAllowedException();
+            return;
+        }
+
+        $allWidgets = $this->DashboardHandler->getAllWidgets();
 
         //Find all tabs of the user, to create tab bar
         $tabs = $this->DashboardTab->find('all', [
@@ -124,13 +179,6 @@ class DashboardsController extends AppController
                 'position' => 'ASC',
             ],
         ]);
-
-        $allWidgets = $this->DashboardHandler->getAllWidgets();
-
-        $preparedWidgets = $this->DashboardHandler->prepareForRender($tab);
-
-        $this->Frontend->setJson('lang', ['newTitle' => __('New title')]);
-        $this->Frontend->setJson('tabId', $tabId);
 
         //Find shared tabs
         $this->DashboardTab->bindModel([
@@ -163,8 +211,36 @@ class DashboardsController extends AppController
         ]);
         $sharedTabs = [];
         foreach ($_sharedTabs as $sharedTab) {
-            $sharedTabs[$sharedTab['DashboardTab']['id']] = $sharedTab['User']['firstname'].' '.$sharedTab['User']['lastname'].DS.$sharedTab['DashboardTab']['name'];
+            $sharedTabs[$sharedTab['DashboardTab']['id']] = $sharedTab['User']['firstname'] . ' ' . $sharedTab['User']['lastname'] . DS . $sharedTab['DashboardTab']['name'];
         }
+
+
+        $this->set(compact(['allWidgets', 'tabs', 'sharedTabs']));
+        $this->set('_serialize', ['allWidgets', 'tabs', 'sharedTabs']);
+
+        return;
+
+
+        /*
+                //Find all tabs of the user, to create tab bar
+                $tabs = $this->DashboardTab->find('all', [
+                    'recursive'  => -1,
+                    'contain'    => [],
+                    'conditions' => [
+                        'user_id' => $this->Auth->user('id'),
+                    ],
+                    'order'      => [
+                        'position' => 'ASC',
+                    ],
+                ]);
+        */
+        //$allWidgets = $this->DashboardHandler->getAllWidgets();
+
+        //$preparedWidgets = $this->DashboardHandler->prepareForRender($tab);
+
+        $this->Frontend->setJson('lang', ['newTitle' => __('New title')]);
+        $this->Frontend->setJson('tabId', $tabId);
+
 
         //Was this tab created from a shared tab?
         $updateAvailable = false;
@@ -246,8 +322,7 @@ class DashboardsController extends AppController
     }
 
     //Will redirect the user to the next tab
-    public function next($currentTabId)
-    {
+    public function next ($currentTabId) {
         $userId = $this->Auth->user('id');
         $tabs = $this->DashboardTab->find('all', [
             'recursive'  => -1,
@@ -277,10 +352,10 @@ class DashboardsController extends AppController
         ]);
     }
 
-    public function add()
-    {
+    public function add () {
+        $this->autoRender = false;
         $widget = [];
-        if (!$this->request->is('ajax')) {
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
         if (isset($this->request->data['typeId']) && isset($this->request->data['tabId'])) {
@@ -319,35 +394,41 @@ class DashboardsController extends AppController
             }
         }
         //Set the widget or an empty array
-        $this->set('widget', $widget);
+        //$this->set('widget', $widget);
     }
 
-    public function createTab()
-    {
+    public function createTab () {
+        $error = ['Post or put request is needed'];
         if ($this->request->is('post') || $this->request->is('put')) {
+            $error = ['name' => ['Required fields are not transmitted']];
             if (isset($this->request->data['dashboard']['name'])) {
                 $tabName = $this->request->data['dashboard']['name'];
                 $userId = $this->Auth->user('id');
+                $error = ['name' => ['Name is not valid']];
                 if (mb_strlen($tabName) > 0) {
                     $result = $this->DashboardTab->createNewTab($userId, [
                         'name' => $tabName,
                     ]);
                     if (isset($result['DashboardTab']['id'])) {
-                        $this->redirect([
+                        /*$this->redirect([
                             'action' => 'index',
                             $result['DashboardTab']['id'],
-                        ]);
+                        ]);*/
+                        $action = true;
+                        $this->set(compact(['action']));
+                        $this->set('_serialize', ['action']);
+                        return;
                     }
                 }
             }
         }
-        $this->redirect([
-            'action' => 'index',
-        ]);
+        $this->set(compact(['error']));
+        $this->set('_serialize', ['error']);
+        return;
     }
 
-    public function createTabFromSharing()
-    {
+    public function createTabFromSharing () {
+        $error = null;
         $sourceTabId = $this->request->data('dashboard.source_tab');
         $sourceTab = $this->DashboardTab->find('first', [
             'recursive'  => -1,
@@ -358,31 +439,33 @@ class DashboardsController extends AppController
             ],
         ]);
         if (empty($sourceTab)) {
-            throw new NotFoundException(__('Invalid tab'));
-        }
-        $userId = $this->Auth->user('id');
-        $newTab = $this->DashboardTab->createNewTab($userId, [
-            'name'              => $sourceTab['DashboardTab']['name'],
-            'source_tab_id'     => $sourceTab['DashboardTab']['id'],
-            'check_for_updates' => 1,
-        ]);
-
-        $error = $this->Widget->copySharedWidgets($sourceTab, $newTab, $userId);
-
-        if ($error === false) {
-            $this->setFlash(__('Tab copied successfully'));
-            $this->redirect([
-                'action' => 'index',
-                $newTab['DashboardTab']['id'],
+            $error = ['source_tab' => [__('Invalid tab')]];
+            //throw new NotFoundException(__('Invalid tab'));
+        } else {
+            $userId = $this->Auth->user('id');
+            $newTab = $this->DashboardTab->createNewTab($userId, [
+                'name'              => $sourceTab['DashboardTab']['name'],
+                'source_tab_id'     => $sourceTab['DashboardTab']['id'],
+                'check_for_updates' => 1,
             ]);
-        }
 
-        $this->setFlash(__('Could not use shared tab'), false);
-        $this->redirect(['action' => 'index']);
+            if ($this->Widget->copySharedWidgets($sourceTab, $newTab, $userId) === false) {
+                //$this->setFlash(__('Tab copied successfully'));
+                $action = true;
+                $this->set(compact(['action']));
+                $this->set('_serialize', ['action']);
+                return;
+            }
+            $error = ['source_tab' => [__('Could not use shared tab')]];
+            /*$this->setFlash(__('Could not use shared tab'), false);
+            $this->redirect(['action' => 'index']);*/
+        }
+        $this->set(compact(['error']));
+        $this->set('_serialize', ['error']);
+        return;
     }
 
-    public function updateSharedTab()
-    {
+    public function updateSharedTab () {
         if ($this->request->is('post') || $this->request->is('put')) {
             $tabId = $this->request->data('dashboard.tabId');
             $askAgain = $this->request->data('dashboard.ask_again');
@@ -435,8 +518,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function disableUpdate()
-    {
+    public function disableUpdate () {
         if (!$this->request->is('post')) {
             throw new MethodNotAllowedException();
         }
@@ -460,10 +542,11 @@ class DashboardsController extends AppController
         }
     }
 
-    public function renameTab()
-    {
-        if ($this->request->is('post') || $this->request->is('put')) {
+    public function renameTab () {
+        if (($this->request->is('post') || $this->request->is('put')) && $this->isApiRequest()) {
+            $error = ['name' => ['Required fields are not transmitted']];
             if (isset($this->request->data['dashboard']['name']) && isset($this->request->data['dashboard']['id'])) {
+                $error = ['name' => ['Name is not valid']];
                 $tabName = $this->request->data['dashboard']['name'];
                 $tabId = $this->request->data['dashboard']['id'];
                 $userId = $this->Auth->user('id');
@@ -479,29 +562,35 @@ class DashboardsController extends AppController
                     if (!empty($result)) {
                         $this->DashboardTab->id = $tabId;
                         if ($this->DashboardTab->saveField('name', $tabName)) {
-                            $this->redirect([
+                            /*$this->redirect([
                                 'action' => 'index',
                                 $tabId,
-                            ]);
+                            ]);*/
+                            $action = true;
+                            $this->set(compact(['action']));
+                            $this->set('_serialize', ['action']);
+                            return;
                         }
                     }
                 }
             }
+
+            $this->set(compact(['error']));
+            $this->set('_serialize', ['error']);
         }
-        $this->setFlash(__('Could not rename tab'), false);
+        /* $this->setFlash(__('Could not rename tab'), false);
         $this->redirect([
             'action' => 'index',
             $tabId,
-        ]);
+        ]); */
     }
 
-    public function deleteTab($tabId = null)
-    {
+    public function deleteTab ($tabId = null) {
         if (!$this->DashboardTab->exists($tabId)) {
             throw new NotFoundException(__('Invalid tab'));
         }
 
-        if (!$this->request->is('post')) {
+        if (!$this->request->is('post') || !$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
 
@@ -510,17 +599,20 @@ class DashboardsController extends AppController
         if ($tab['DashboardTab']['user_id'] == $userId) {
             $this->DashboardTab->id = $tab['DashboardTab']['id'];
             if ($this->DashboardTab->delete()) {
-                $this->setFlash(__('Tab deleted'));
-                $this->redirect(['action' => 'index']);
+                $action = true;
+                $this->set(compact(['action']));
+                $this->set('_serialize', ['action']);
+                return;
             }
         }
 
-        $this->setFlash(__('Could not delete tab'), false);
-        $this->redirect(['action' => 'index']);
+        $action = false;
+        $this->set(compact(['action']));
+        $this->set('_serialize', ['action']);
+        return;
     }
 
-    public function restoreDefault($tabId = null)
-    {
+    public function restoreDefault ($tabId = null) {
         $tab = $this->DashboardTab->find('first', [
             'conditions' => [
                 'user_id' => $this->Auth->user('id'),
@@ -539,10 +631,9 @@ class DashboardsController extends AppController
         $this->redirect(['action' => 'index', $tabId]);
     }
 
-    public function updateTitle()
-    {
+    public function updateTitle () {
         $this->autoRender = false;
-        if (!$this->request->is('ajax')) {
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
         if (isset($this->request->data['widgetId']) && isset($this->request->data['title'])) {
@@ -559,10 +650,9 @@ class DashboardsController extends AppController
         }
     }
 
-    public function updateColor()
-    {
+    public function updateColor () {
         $this->autoRender = false;
-        if (!$this->request->is('ajax')) {
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
         if (isset($this->request->data['widgetId']) && isset($this->request->data['color'])) {
@@ -579,12 +669,12 @@ class DashboardsController extends AppController
         }
     }
 
-    public function updatePosition()
-    {
+    public function updatePosition () {
         $this->autoRender = false;
-        if (!$this->request->is('ajax')) {
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
+        //var_dump($this->request->data[0]);
         if (isset($this->request->data['tabId']) && isset($this->request->data[0])) {
             $userId = $this->Auth->user('id');
             $tab = $this->DashboardTab->find('first', [
@@ -622,10 +712,9 @@ class DashboardsController extends AppController
         }
     }
 
-    public function deleteWidget()
-    {
+    public function deleteWidget () {
         $this->autoRender = false;
-        if (!$this->request->is('ajax')) {
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
         if (isset($this->request->data['widgetId'])) {
@@ -649,8 +738,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function updateTabPosition()
-    {
+    public function updateTabPosition () {
         if (!$this->request->is('post')) {
             throw new MethodNotAllowedException();
         }
@@ -681,8 +769,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function saveTabRotationInterval()
-    {
+    public function saveTabRotationInterval () {
         if (!$this->request->is('post')) {
             throw new MethodNotAllowedException();
         }
@@ -707,8 +794,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function startSharing($tabId)
-    {
+    public function startSharing ($tabId) {
         $userId = $this->Auth->user('id');
         $tab = $this->DashboardTab->find('first', [
             'recursive'  => -1,
@@ -734,8 +820,7 @@ class DashboardsController extends AppController
         ]);
     }
 
-    public function stopSharing($tabId)
-    {
+    public function stopSharing ($tabId) {
         $userId = $this->Auth->user('id');
         $tab = $this->DashboardTab->find('first', [
             'recursive'  => -1,
@@ -761,10 +846,9 @@ class DashboardsController extends AppController
         ]);
     }
 
-    public function refresh()
-    {
+    public function refresh () {
         $widget = [];
-        $element = 'Dashboard'.DS.'404.ctp';
+        $element = 'Dashboard' . DS . '404.ctp';
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
         }
@@ -795,8 +879,7 @@ class DashboardsController extends AppController
         $this->set('element', $element);
     }
 
-    public function saveStatuslistSettings()
-    {
+    public function saveStatuslistSettings () {
         $this->autoRender = false;
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
@@ -840,8 +923,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function saveTrafficLightService()
-    {
+    public function saveTrafficLightService () {
         $this->autoRender = false;
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
@@ -862,8 +944,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function saveMapId()
-    {
+    public function saveMapId () {
         $this->autoRender = false;
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
@@ -887,8 +968,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function saveGraphId()
-    {
+    public function saveGraphId () {
         $this->autoRender = false;
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
@@ -912,8 +992,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function getTachoPerfdata()
-    {
+    public function getTachoPerfdata () {
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
         }
@@ -984,8 +1063,7 @@ class DashboardsController extends AppController
         $this->set('_serialize', ['perfdata']);
     }
 
-    public function saveTachoConfig()
-    {
+    public function saveTachoConfig () {
         if ($this->request->is('post') || $this->request->is('put')) {
             $tachoConfig = $this->request->data['dashboard'];
             $widgetTachoId = null;
@@ -1049,8 +1127,7 @@ class DashboardsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    public function saveNotice()
-    {
+    public function saveNotice () {
         if ($this->request->is('post') || $this->request->is('put')) {
             $noticeConfig = $this->request->data['dashboard'];
             $widgetNoticeId = null;
@@ -1095,8 +1172,7 @@ class DashboardsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    public function saveMap()
-    {
+    public function saveMap () {
         $this->autoRender = false;
         if (!$this->request->is('ajax')) {
             throw new MethodNotAllowedException();
@@ -1117,7 +1193,7 @@ class DashboardsController extends AppController
         }
     }
 
-    public function saveGrafanaId(){
+    public function saveGrafanaId () {
         $this->autoRender = false;
         if (isset($this->request->data['dashboard']['widgetId'])) {
             $widgetId = $this->request->data['dashboard']['widgetId'];
@@ -1126,11 +1202,11 @@ class DashboardsController extends AppController
             if ($this->Widget->exists($widgetId)) {
                 $widget = $this->Widget->findById($widgetId);
                 $widget['Widget']['host_id'] = $hostId;
-                if($this->Widget->save($widget)){
+                if ($this->Widget->save($widget)) {
                     $this->DashboardTab->id = $widget['DashboardTab']['id'];
                     $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
                     return $this->redirect(['action' => 'index', $tabId]);
-                }else{
+                } else {
                     return $this->redirect(['action' => 'index']);
                 }
             }

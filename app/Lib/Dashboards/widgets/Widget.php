@@ -43,7 +43,7 @@ class Widget
     //Default width
     public $width = 5;
     //Default height
-    public $height = 11;
+    public $height = 9;
     //Is ther a initical configuration we want to save into the database
     public $hasInitialConfig = false;
 

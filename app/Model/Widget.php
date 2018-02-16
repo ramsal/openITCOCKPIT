@@ -90,7 +90,7 @@ class Widget extends AppModel
                 'Widget.dashboard_tab_id' => $sourceTab['DashboardTab']['id'],
             ],
         ]);
-
+        $error = false;
         foreach ($sourceWidgets as $sourceWidget) {
             if (isset($sourceWidget['Service'])) {
                 unset($sourceWidget['Service']);

@@ -54,7 +54,12 @@ $scripts = [
     //'/smartadmin/js/plugin/flot/jquery.flot.selection.js',
     'js/lib/jquery.nestable.js',
     'js/lib/parseuri.js',
-    'js/scripts/ng.app.js'
+    'js/scripts/ng.app.js',
+    'js/vendor/lodash/vendor/underscore/underscore.js',
+    //'js/vendor/gridstack/dist/gridstack.js',
+    'js/vendor/gridstack/src/gridstack.js',
+    'js/vendor/gridstack/src/gridstack.jQueryUI.js',
+    //'smartadmin/js/smartwidgets/jarvis.widget.js'
 ];
 
 App::uses('Folder', 'Utility');

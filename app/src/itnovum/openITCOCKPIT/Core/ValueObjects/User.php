@@ -45,7 +45,7 @@ class User {
     /**
      * @var int
      */
-    private $id;
+    public $id;
 
     /**
      * User constructor.

@@ -33,6 +33,7 @@ $config = [
             'animate_new',
             'vendor/prism.css',
             'vendor/gridstack/gridstack.min.css',
+            //'vendor/gridstack/gridstack.scss',
             '/smartadmin/js/plugin/fullcalendar-2.3.1/fullcalendar.min.css',
         ],
 

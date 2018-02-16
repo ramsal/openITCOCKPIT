@@ -136,6 +136,9 @@ $config = [
                 'saveGraphId',
                 'saveNotice',
                 'saveMap',
+                'widget_hosts_piechart',
+                'widget_header',
+                'widget_1'
             ],
             'Hosts'            => [
                 'view',
