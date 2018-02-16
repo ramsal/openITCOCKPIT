@@ -214,9 +214,22 @@ class DashboardsController extends AppController {
             $sharedTabs[$sharedTab['DashboardTab']['id']] = $sharedTab['User']['firstname'] . ' ' . $sharedTab['User']['lastname'] . DS . $sharedTab['DashboardTab']['name'];
         }
 
+        //Get tab rotate interval
+        $user = $this->User->find('first', [
+            'recursive'  => -1,
+            'contain'    => [],
+            'conditions' => [
+                'User.id' => $this->Auth->user('id'),
+            ],
+            'fields'     => [
+                'dashboard_tab_rotation',
+            ],
+        ]);
+        $tabRotateInterval = $user['User']['dashboard_tab_rotation'];
 
-        $this->set(compact(['allWidgets', 'tabs', 'sharedTabs']));
-        $this->set('_serialize', ['allWidgets', 'tabs', 'sharedTabs']);
+
+        $this->set(compact(['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval']));
+        $this->set('_serialize', ['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval']);
 
         return;
 
@@ -305,7 +318,7 @@ class DashboardsController extends AppController {
         $tabRotateInterval = $user['User']['dashboard_tab_rotation'];
 
         $this->Frontend->setJson('updateAvailable', $updateAvailable);
-        $this->Frontend->setJson('tabRotationInterval', $tabRotateInterval);
+        //$this->Frontend->setJson('tabRotationInterval', $tabRotateInterval);
         $this->Frontend->setJson('lang_minutes', __('minutes'));
         $this->Frontend->setJson('lang_seconds', __('seconds'));
         $this->Frontend->setJson('lang_and', __('and'));
@@ -317,7 +330,7 @@ class DashboardsController extends AppController {
             'preparedWidgets',
             'sharedTabs',
             'updateAvailable',
-            'tabRotateInterval',
+            //'tabRotateInterval',
         ]));
     }
 

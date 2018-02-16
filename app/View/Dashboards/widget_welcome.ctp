@@ -4,7 +4,8 @@
     <!-- widget edit box -->
     <div class="jarviswidget-editbox not-draggable" style="display: none;">
         <!-- This area used as dropdown edit box -->
-        <input class="form-control" type="text" placeholder="Widget title" ng-model="title" ng-model-options="{debounce: 1000}">
+        <input class="form-control" type="text" placeholder="Widget title" ng-model="title"
+               ng-model-options="{debounce: 1000}">
         <span class="note"><i class="fa fa-check text-success"></i> Change title to update and save instantly</span>
 
     </div>
@@ -25,4 +26,3 @@
         </div>
     </div>
 </div>
-<script src="/smartadmin/js/smartwidgets/jarvis.widget.js"></script>

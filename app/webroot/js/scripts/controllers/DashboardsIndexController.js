@@ -1,9 +1,11 @@
 angular.module('openITCOCKPIT')
-    .controller('DashboardsIndexController', function($scope, $http, $compile){
+    .controller('DashboardsIndexController', function($scope, $http, $compile, $interval){
 
         $scope.init = true;
         $scope.errors = null;
 
+        $scope.tabRotateInterval = 0;
+        $scope.tabRotateLastTab = 0;
         $scope.serializedGridstackData = [];
         $scope.deletedWidgets = [];
         $scope.allWidgets = {};
@@ -11,6 +13,7 @@ angular.module('openITCOCKPIT')
         $scope.sharedTabs = {};
         $scope.tab = {
             id: null,
+            renameId: null,
             name: null,
             newname: null,
             selectedSharedTab: null
@@ -29,11 +32,13 @@ angular.module('openITCOCKPIT')
                 $scope.allWidgets = result.data.allWidgets;
                 $scope.tabs = result.data.tabs;
                 $scope.sharedTabs = result.data.sharedTabs;
+                $scope.tabRotateInterval = parseInt(result.data.tabRotateInterval);
                 if($scope.tabs[0] && !$scope.tab.id){
                     $scope.tab.id = $scope.tabs[0].DashboardTab.id;
+                    $scope.tabRotateLastTab = $scope.tab.id;
                     $scope.tab.name = $scope.tabs[0].DashboardTab.name;
                 }
-                console.log(result.data);
+                //console.log(result.data);
 
                 let options = {
                     float: true
@@ -73,8 +78,8 @@ angular.module('openITCOCKPIT')
 
                 $scope.loadGrid();
                 $scope.ready = 1;
-                console.log(result.data);
-                console.log($scope.serializedGridstackData);
+                //console.log(result.data);
+                //console.log($scope.serializedGridstackData);
             });
         };
 
@@ -98,7 +103,7 @@ angular.module('openITCOCKPIT')
             $http.post('/dashboards/renameTab.json?angular=true', {
                 'dashboard': {
                     'name': $scope.tab.name,
-                    'id': $scope.tab.id
+                    'id': $scope.tab.renameId
                 }
             }).then(function(result){
                 if(result.data.action == true){
@@ -149,12 +154,17 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.deleteTab = function(){
+            $scope.deleteUrl = '/dashboards/deleteTab/' + $scope.tab.id + '.json?angular=true';
+            $scope.confirmTabDelete(this);
+
+            /*
             $http.post('/dashboards/deleteTab/' + $scope.tab.id + '.json?angular=true').then(function(){
                 $scope.errors = null;
                 $scope.closeEditModal();
                 $scope.tab.id = null;
                 $scope.load();
             });
+            */
         };
 
         $scope.startSharing = function(){
@@ -210,7 +220,7 @@ angular.module('openITCOCKPIT')
                 }
             ).then(function(result){
                 //do nothing
-                console.log(result);
+                //console.log(result);
             });
         };
 
@@ -355,7 +365,7 @@ angular.module('openITCOCKPIT')
 
 
         $('.widget-toolbar').on('click', '.addWidget', function(){
-            console.log(this.getAttribute("data-type-id"));
+            //console.log(this.getAttribute("data-type-id"));
             //$scope.ready=0;
             $http.post('/dashboards/add.json?angular=true',
                 {
@@ -363,7 +373,7 @@ angular.module('openITCOCKPIT')
                     'typeId': this.getAttribute("data-type-id")
                 }
             ).then(function(result){
-                console.log(result);
+                //console.log(result);
                 $scope.getPreparedWidgets();
             });
         });
@@ -400,6 +410,65 @@ angular.module('openITCOCKPIT')
             let newcolor = this.className;
             $scope.updateColor($widget[0].attributes['data-gs-id'].nodeValue, newcolor);
             return false;
+        });
+
+
+        $scope.tabRotate = function(){
+            let tabRotateShowNextTab = false;
+            if($scope.tabRotateInterval == 0){
+                $interval.cancel($scope.rotationTimer);
+            }
+            if($scope.tabRotateLastTab != 0 && $scope.tabRotateLastTab != $scope.tab.id){
+                $scope.tabRotateLastTab = $scope.tab.id;
+            }
+            if($scope.tabs[$scope.tabs.length - 1].DashboardTab.id == $scope.tabRotateLastTab){
+                $scope.tabRotateLastTab = 0;
+            }
+            $scope.tabs.some(function(tab){
+                let tabId = tab.DashboardTab.id;
+                if(tabRotateShowNextTab || $scope.tabRotateLastTab == 0){
+                    $scope.tabRotateLastTab = tabId;
+                    $scope.tab.id = tabId;
+                    return true;
+                }
+                if($scope.tabRotateLastTab == tabId){
+                    tabRotateShowNextTab = true;
+                }
+            });
+        };
+
+        $scope.hideRotationSavesMessage = function(){
+            $interval.cancel($scope.rotationMessageTimer);
+            $scope.showRotationSavesMessage = false;
+        };
+
+        $scope.saveTabRotateInterval = function(){
+            $http.post('/dashboards/saveTabRotationInterval.json?angular=true',
+                {
+                    'value': $scope.tabRotateInterval
+                }
+            ).then(function(result){
+                //console.log("interval saved! - "+result);
+                $scope.showRotationSavesMessage = true;
+                if($scope.rotationMessageTimer) $interval.cancel($scope.rotationMessageTimer);
+                $scope.rotationMessageTimer = $interval($scope.hideRotationSavesMessage, 3000);
+            });
+        };
+
+        $scope.toTimeString = function(seconds){
+            if(seconds == 0){
+                return "disabled";
+            }
+            return (new Date(seconds * 60000)).toUTCString().match(/(\d\d:\d\d)/)[0] + " minutes";
+        };
+
+        $scope.$watch('tabRotateInterval', function(){
+            $scope.tabRotateTimeString = $scope.toTimeString($scope.tabRotateInterval);
+            if($scope.rotationTimer) $interval.cancel($scope.rotationTimer);
+            if($scope.tabRotateInterval > 0){
+                $scope.rotationTimer = $interval($scope.tabRotate, parseInt($scope.tabRotateInterval + '000'));
+                //console.log("Rotation interval: " + $scope.tabRotateInterval);
+            }
         });
 
 

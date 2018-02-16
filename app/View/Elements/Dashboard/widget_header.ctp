@@ -3,7 +3,8 @@
         <a href="javascript:void(0);" class="button-icon jarviswidget-edit-btn"
            rel="tooltip" title="" data-placement="bottom"
            data-original-title="Edit Title"><i class="fa fa-cog "></i></a>
-        <div class="widget-toolbar pull-left" role="menu"><a data-toggle="dropdown" class="dropdown-toggle color-box selector"
+        <div class="widget-toolbar pull-left" role="menu"><a data-toggle="dropdown"
+                                                             class="dropdown-toggle color-box selector"
                                                              href="javascript:void(0);"></a>
             <ul class="dropdown-menu arrow-box-up-right color-select pull-right">
                 <li><span class="bg-color-green" data-widget-setstyle="jarviswidget-color-green" rel="tooltip"
@@ -42,7 +43,8 @@
                           data-placement="bottom" data-original-title="Light Red"></span></li>
                 <li><span class="bg-color-white" data-widget-setstyle="jarviswidget-color-white" rel="tooltip"
                           data-placement="right" data-original-title="Purity"></span></li>
-                <li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle="" rel="tooltip"
+                <li><a href="javascript:void(0);" class="jarviswidget-remove-colors" data-widget-setstyle=""
+                       rel="tooltip"
                        data-placement="bottom" data-original-title="Reset widget color to default">Remove</a></li>
             </ul>
         </div>

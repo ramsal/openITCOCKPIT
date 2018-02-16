@@ -36,12 +36,18 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetWelcome', function($ht
             //$scope.updateTitle({id: $scope.id, title: $scope.title});
             //console.log($scope.id);
 
+            $scope.HtmlEncode = function(s){
+                let el = document.createElement("div");
+                el.innerText = el.textContent = s;
+                s = el.innerHTML;
+                return s;
+            };
 
             $scope.$watch('title', function(){
-                if($scope.title != $scope.titleOrig && $scope.title){
+                if($scope.HtmlEncode($scope.title) != $scope.HtmlEncode($scope.titleOrig) && $scope.title){
                     //console.log($scope.title);
-                    $scope.titleOrig=$scope.title;
-                    $scope.updateTitle({id: $scope.id, title: $scope.title});
+                    $scope.titleOrig = $scope.title;
+                    $scope.updateTitle({id: $scope.id, title: $scope.HtmlEncode($scope.title)});
                 }
             });
 

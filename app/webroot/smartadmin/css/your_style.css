@@ -1735,3 +1735,45 @@ label[class^='aco-host']:after, label[class^='aco-service']:after {
 .ajax-notifications {
     height: 378px;
 }
+
+
+/*Chrome*/
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    input[type='range'] {
+        overflow: hidden;
+        width: 80px;
+        -webkit-appearance: none;
+        background-color: #E5E5E5;
+    }
+
+    input[type='range']::-webkit-slider-runnable-track {
+        height: 10px;
+        -webkit-appearance: none;
+        color: #13bba4;
+        margin-top: -1px;
+    }
+
+    input[type='range']::-webkit-slider-thumb {
+        width: 10px;
+        -webkit-appearance: none;
+        height: 10px;
+        cursor: ew-resize;
+        background: #434343;
+        box-shadow: -80px 0 0 80px #3276b1;
+    }
+
+}
+/** FF*/
+input[type="range"]::-moz-range-progress {
+    background-color: #3276b1;
+}
+input[type="range"]::-moz-range-track {
+    background-color: #E5E5E5;
+}
+/* IE*/
+input[type="range"]::-ms-fill-lower {
+    background-color: #3276b1;
+}
+input[type="range"]::-ms-fill-upper {
+    background-color: #E5E5E5;
+}

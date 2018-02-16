@@ -32,6 +32,8 @@
     </div>
 </div>
 
+<confirm-tab-delete></confirm-tab-delete>
+
 <section id="widget-grid" class="">
     <div class="row">
         <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -50,7 +52,7 @@
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a class="pointer tab-select-menu-fix"
-                                           ng-click="openEditModal(); tab.name = _tab.DashboardTab.name">
+                                           ng-click="openEditModal(); tab.name = _tab.DashboardTab.name; tab.renameId = tab.id">
                                             <i class="fa fa-pencil-square-o"></i>
                                             <?php echo __('Rename'); ?>
                                         </a>
@@ -72,7 +74,7 @@
                                     <li class="divider"></li>
                                     <li>
                                         <a class="pointer txt-color-red"
-                                           ng-click="openEditModal(); tab.name = _tab.DashboardTab.name">
+                                           ng-click="deleteTab(); tab.name = _tab.DashboardTab.name">
                                             <i class="fa fa-trash-o"></i>
                                             <?php echo __('Delete'); ?>
                                         </a>
@@ -266,11 +268,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger pull-left" ng-click="deleteTab()"
-                            ng-class="{'has-error': errors.id}">
-                        <i class="fa fa-refresh fa-spin" ng-show="isDeleting"></i>
-                        <?php echo __('Delete'); ?>
-                    </button>
                     <div class="pull-left" ng-repeat="error in errors.id">
                         <div class="help-block text-danger">{{ error }}</div>
                     </div>
@@ -351,32 +348,21 @@
                             <label class="col"
                                    for="tabRotationInterval"><?php echo __('Choose tab rotation interval'); ?></label>
                             <div class="col">
-                                <input
-                                        type="text"
-                                        id="TabRotationInterval"
-                                        maxlength="255"
-                                        value=""
-                                        class="form-control slider slider-success"
-                                        name="data[rotationInterval]"
-                                        data-slider-min="0"
-                                        data-slider-max="900"
-                                        data-slider-value="<?php echo $tabRotateInterval; ?>"
-                                        data-slider-selection="before"
-                                        data-slider-step="10"
-                                        human="#TabRotationInterval_human"
-                                >
+
+                                <div class="slidecontainer">
+                                    <input type="range" step="10" min="0" max="900" class="slider"
+                                           ng-model="tabRotateInterval" ng-mouseup="saveTabRotateInterval()">
+                                </div>
+
                             </div>
                             <div class="col">
                                 <span class="note" id="TabRotationInterval_human">
-                                    <?php
-                                    if ($tabRotateInterval == 0):
-                                        echo __('disabled');
-                                    else:
-                                        echo $this->Utils->secondsInWords($tabRotateInterval);
-                                    endif;
-                                    ?>
+                                    {{tabRotateTimeString}}
                                 </span>
                             </div>
+                        </div>
+                        <div ng-show="showRotationSavesMessage" class="alert alert-success margin-top-10">
+                            <?php echo __('Rotation interval successfully saved!'); ?>
                         </div>
                     </div>
                 </div>
