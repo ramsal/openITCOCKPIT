@@ -1,7 +1,7 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetWelcome', function($http){
+angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutages', function($http){
     return {
         restrict: 'A',
-        templateUrl: '/dashboards/widget_welcome.html',
+        templateUrl: '/dashboards/widget_parent_outages.html',
         scope: {
             'widget-title': '=',
             'widget-id': '=',
@@ -10,16 +10,16 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetWelcome', function($ht
 
         controller: function($scope){
 
-            $scope.widget = {};
+            $scope.widget = null;
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_welcome.json', {
+                $http.get('/dashboards/widget_parent_outages.json', {
                     params: {
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.welcome;
-                    //console.log($scope.widget);
+                    $scope.widget = result.data.parent_outages;
+                    console.log(result.data);
                 });
             };
 
@@ -31,8 +31,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetWelcome', function($ht
             $scope.title = attr.widgetTitle;
             $scope.titleOrig = attr.widgetTitle;
             $scope.id = attr.widgetId;
-            //$scope.updateTitle({id: $scope.id, title: $scope.title});
-            //console.log($scope.id);
 
             $scope.HtmlEncode = function(s){
                 let el = document.createElement("div");

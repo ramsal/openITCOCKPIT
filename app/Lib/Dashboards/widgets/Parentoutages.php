@@ -30,13 +30,13 @@ class Parentoutages extends Widget
     public $icon = 'fa-exchange';
     public $element = 'parent_outages';
     public $width = 5;
-    public $height = 11;
+    public $height = 10;
 
     public function __construct(\Controller $controller, $QueryCache)
     {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 2;
-        $this->title = __('Parentoutages');
+        $this->title = __('Parent outages');
     }
 
     public function setData($widgetData)
@@ -54,7 +54,7 @@ class Parentoutages extends Widget
             'row'              => 5, // x
             'col'              => 0, // y
             'width'            => 5,
-            'height'           => 11,
+            'height'           => 10,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
         ];

@@ -79,6 +79,25 @@ class DashboardsController extends AppController {
         return;
     }
 
+    public function widget_parent_outages () {
+        if ($this->isApiRequest()) {
+
+            /*
+            require_once 'widgets'.DS.'Widget.php';
+            require_once 'widgets'.DS.'QueryCache.php';
+            $QueryCache = new Widget\QueryCache($this->Controller);
+            $parent_outages = $QueryCache->parentOutages();
+            */
+
+            $this->set(compact(['parent_outages']));
+            $this->set('_serialize', ['parent_outages']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
     public function widget_welcome () {
         if ($this->isApiRequest()) {
 

@@ -183,14 +183,14 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.updatePosition = function(widgets){
-                let arr = {'tabId': $scope.tab.id};
-                widgets.forEach(function(widget, key){
-                    arr[key] = widget;
-                });
-                $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
-                    //do nothing
-                    //console.log(result);
-                });
+            let arr = {'tabId': $scope.tab.id};
+            widgets.forEach(function(widget, key){
+                arr[key] = widget;
+            });
+            $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
+                //do nothing
+                //console.log(result);
+            });
         };
 
         $scope.updateColor = function(widgetId, color){
@@ -234,16 +234,29 @@ angular.module('openITCOCKPIT')
 
         $scope.getWidgetHtmlContent = function(type_id, id, color, title){
             let str = '';
-            if(type_id == 1){
-                str = '<div id="widget-color-' + id + '" ' +
-                    '       class="jarviswidget ' + color + '" ' +
-                    '       data-widget-attstyle="' + color + '" ' +
-                    '       role="widget" ' +
-                    '       dashboard-widget-welcome="" ' +
-                    '       widget-title="' + title + '" ' +
-                    '       widget-id="' + id + '" ' +
-                    '       update-title="updateWidgetTitle(id,title)">' +
-                    '  </div>';
+            switch(parseInt(type_id)){
+                case 1:
+                    str = '<div id="widget-color-' + id + '" ' +
+                        '       class="jarviswidget ' + color + '" ' +
+                        '       data-widget-attstyle="' + color + '" ' +
+                        '       role="widget" ' +
+                        '       dashboard-widget-welcome="" ' +
+                        '       widget-title="' + title + '" ' +
+                        '       widget-id="' + id + '" ' +
+                        '       update-title="updateWidgetTitle(id,title)">' +
+                        '  </div>';
+                    break;
+                case 2:
+                    str = '<div id="widget-color-' + id + '" ' +
+                        '       class="jarviswidget ' + color + '" ' +
+                        '       data-widget-attstyle="' + color + '" ' +
+                        '       role="widget" ' +
+                        '       dashboard-widget-parent-outages="" ' +
+                        '       widget-title="' + title + '" ' +
+                        '       widget-id="' + id + '" ' +
+                        '       update-title="updateWidgetTitle(id,title)">' +
+                        '  </div>';
+                    break;
             }
             return str;
         };
@@ -255,6 +268,7 @@ angular.module('openITCOCKPIT')
             let key = 1;
             _.each(items, function(node){
                 let newhtml = '<div><div id="' + node.id + '" style="overflow: hidden" class="grid-stack-item-content"/>' + $scope.getWidgetHtmlContent(node.type_id, node.id, node.color, node.title) + '<div/>';
+                console.log(newhtml);
                 $scope.gridstack.addWidget($(newhtml), node.x, node.y, node.width, node.height, undefined, undefined, undefined, undefined, undefined, node.id);
                 let divElement = angular.element(document.getElementById(node.id));
                 let appendHtml = $compile($scope.getWidgetHtmlContent(node.type_id, node.id, node.color, node.title))($scope);
@@ -397,7 +411,7 @@ angular.module('openITCOCKPIT')
             }
             let height_orig = $gsi[0].getAttribute("data-gs-height-orig");
             //console.log($gsi[0].attributes['data-gs-id'].nodeValue);
-            if(height > height_orig || parseInt($(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').css("height"))>0){   //will be closed
+            if(height > height_orig || parseInt($(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').css("height")) > 0){   //will be closed
                 $scope.openEditModals.splice($scope.openEditModals.indexOf($gsi[0].attributes['data-gs-id'].nodeValue, 1));
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig)));
                 if($scope.openEditModals.length == 0){
