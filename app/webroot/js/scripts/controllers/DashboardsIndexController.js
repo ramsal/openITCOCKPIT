@@ -6,6 +6,7 @@ angular.module('openITCOCKPIT')
 
         $scope.tabRotateInterval = 0;
         $scope.tabRotateLastTab = 0;
+        $scope.openEditModals = [];
         $scope.serializedGridstackData = [];
         $scope.deletedWidgets = [];
         $scope.allWidgets = {};
@@ -111,7 +112,7 @@ angular.module('openITCOCKPIT')
                     $scope.closeEditModal();
                     $scope.load();
                 }else{
-                    console.log(result.data.error);
+                    //console.log(result.data.error);
                     $scope.errors = result.data.error;
                 }
             });
@@ -140,7 +141,7 @@ angular.module('openITCOCKPIT')
                     'source_tab': $scope.tab.selectedSharedTab,
                 }
             }).then(function(result){
-                console.log(result.data);
+                //console.log(result.data);
                 if(result.data.action == true){
                     $scope.errors = null;
                     $scope.tab.newname = null;
@@ -182,14 +183,14 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.updatePosition = function(widgets){
-            let arr = {'tabId': $scope.tab.id};
-            widgets.forEach(function(widget, key){
-                arr[key] = widget;
-            });
-            $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
-                //do nothing
-                //console.log(result);
-            });
+                let arr = {'tabId': $scope.tab.id};
+                widgets.forEach(function(widget, key){
+                    arr[key] = widget;
+                });
+                $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
+                    //do nothing
+                    //console.log(result);
+                });
         };
 
         $scope.updateColor = function(widgetId, color){
@@ -293,7 +294,7 @@ angular.module('openITCOCKPIT')
             //console.log(items);
             let arr = [];
             items.forEach(function(item){
-                console.log("Widget-ID: " + item.id);
+                //console.log("Widget-ID: " + item.id);
                 if($scope.deletedWidgets.indexOf(item.id) < 0){
                     arr.push({
                         id: item.id,
@@ -325,6 +326,13 @@ angular.module('openITCOCKPIT')
         $gridstack.on('click', '.jarviswidget-delete-btn', function(){
             let $widget = $(this).closest(".grid-stack-item");
             //console.log($widget[0].attributes['data-gs-id'].nodeValue);
+            if($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue) >= 0){
+                $scope.openEditModals.splice($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue, 1));
+                if($scope.openEditModals.length == 0){
+                    $scope.gridstack.movable('.grid-stack-item', true);
+                    $scope.gridstack.resizable('.grid-stack-item', true);
+                }
+            }
             $scope.deletedWidgets.push($widget[0].attributes['data-gs-id'].nodeValue);
             $scope.gridstack.removeWidget($widget);
             $scope.deleteWidget($widget[0].attributes['data-gs-id'].nodeValue);
@@ -378,6 +386,7 @@ angular.module('openITCOCKPIT')
             });
         });
 
+
         $gridstack.on('click', '.jarviswidget-edit-btn', function(){
             $(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').toggle('medium');
             let $gsi = $(this).closest('.grid-stack-item');
@@ -387,9 +396,18 @@ angular.module('openITCOCKPIT')
                 $gsi[0].setAttribute("data-gs-height-orig", height);
             }
             let height_orig = $gsi[0].getAttribute("data-gs-height-orig");
-            if(height > height_orig){
+            //console.log($gsi[0].attributes['data-gs-id'].nodeValue);
+            if(height > height_orig || parseInt($(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').css("height"))>0){   //will be closed
+                $scope.openEditModals.splice($scope.openEditModals.indexOf($gsi[0].attributes['data-gs-id'].nodeValue, 1));
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig)));
-            }else{
+                if($scope.openEditModals.length == 0){
+                    $scope.gridstack.movable('.grid-stack-item', true);
+                    $scope.gridstack.resizable('.grid-stack-item', true);
+                }
+            }else{  //will be opened
+                $scope.openEditModals.push($gsi[0].attributes['data-gs-id'].nodeValue);
+                $scope.gridstack.movable('.grid-stack-item', false);
+                $scope.gridstack.resizable('.grid-stack-item', false);
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig) + 4));
             }
             //console.log($gsi[0].getAttribute("data-gs-height"));
@@ -402,6 +420,9 @@ angular.module('openITCOCKPIT')
             //console.log($(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].attributes["data-widget-attstyle"].nodeValue);
             let oldstyle = $(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].attributes["data-widget-attstyle"].nodeValue;
             let newstyle = this.attributes["data-widget-setstyle"].nodeValue;
+            if(!this.attributes["data-widget-setstyle"].nodeValue){
+                newstyle = "bg-color-white";
+            }
             $(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].classList.remove(oldstyle);
             $(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].classList.add(newstyle);
             $(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].attributes["data-widget-attstyle"].nodeValue = newstyle;
@@ -470,6 +491,5 @@ angular.module('openITCOCKPIT')
                 //console.log("Rotation interval: " + $scope.tabRotateInterval);
             }
         });
-
 
     });

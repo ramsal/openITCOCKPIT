@@ -442,6 +442,10 @@ div.info .chosen-container-multi .chosen-choices li.search-choice .search-choice
     padding: 0px !important;
 }
 
+.padding-3 {
+    padding: 3px;
+}
+
 .padding-bottom-5 {
     padding-bottom: 5px;
 }
@@ -1776,4 +1780,8 @@ input[type="range"]::-ms-fill-lower {
 }
 input[type="range"]::-ms-fill-upper {
     background-color: #E5E5E5;
+}
+
+.color-box {
+    margin-top: 0px !important;
 }

@@ -26,7 +26,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetWelcome', function($ht
             };
 
             $scope.load();
-
+            $('[data-toggle="tooltip"]').tooltip();
         },
 
         link: function($scope, element, attr){

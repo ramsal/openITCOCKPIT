@@ -84,7 +84,6 @@ class DashboardsController extends AppController {
 
             $welcome = [];
 
-
             /*
             if ($this->Auth->user('image') != null && $this->Auth->user('image') != '') {
                 if (file_exists(WWW_ROOT.'userimages'.DS.$this->Auth->user('image'))) {
