@@ -22,10 +22,18 @@
 //	under the terms of the openITCOCKPIT Enterprise Edition license agreement.
 //	License agreement and license key will be shipped with the order
 //	confirmation.
+?>
 
-if (!empty($widget)):
-    //We call the same function than index will call with n widgets. so we need tto iterate through $widget
-    foreach ($widget as $_widget):
-        echo $this->Dashboard->render($_widget);
-    endforeach;
-endif;
+<div>
+    <div id="<?php echo $widget['Widget']['id']; ?>" style="overflow: hidden" class="grid-stack-item-content"/>
+        <div id="widget-color-<?php echo $widget['Widget']['id']; ?>"
+             class="jarviswidget <?php echo $widget['Widget']['color']; ?>"
+             data-widget-attstyle="<?php echo $widget['Widget']['color']; ?>"
+             role="widget"
+
+             <?php echo $widget['Widget']['directive']; ?>=""
+             widget-title="<?php echo h($widget['Widget']['title']); ?>"
+             widget-id="<?php echo $widget['Widget']['id']; ?>"
+             update-title="updateWidgetTitle(id,title)">
+        </div>
+</div>

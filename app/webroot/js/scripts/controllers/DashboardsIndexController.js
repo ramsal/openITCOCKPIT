@@ -30,7 +30,7 @@ angular.module('openITCOCKPIT')
                     'angular': true
                 }
             }).then(function(result){
-                $scope.allWidgets = result.data.allWidgets;
+                $scope.allWidgets = result.data.allWidgets; //All possible widgets for Add Widget menu
                 $scope.tabs = result.data.tabs;
                 $scope.sharedTabs = result.data.sharedTabs;
                 $scope.tabRotateInterval = parseInt(result.data.tabRotateInterval);
@@ -39,7 +39,6 @@ angular.module('openITCOCKPIT')
                     $scope.tabRotateLastTab = $scope.tab.id;
                     $scope.tab.name = $scope.tabs[0].DashboardTab.name;
                 }
-                //console.log(result.data);
 
                 let options = {
                     float: true
@@ -48,14 +47,13 @@ angular.module('openITCOCKPIT')
                 $scope.gridstack = $gridstack.data('gridstack');
                 $scope.gridstack.cellHeight(2);
                 $scope.gridstack.cellWidth(4);
-                //$scope.loadGrid();
             });
         };
 
         $scope.load();
 
         $scope.getPreparedWidgets = function(){
-
+            $scope.ready = 0;
             $http.get('/dashboards/getPreparedWidgets/' + $scope.tab.id + '.json', {
                 params: {
                     'angular': true
@@ -77,8 +75,7 @@ angular.module('openITCOCKPIT')
                     });
                 });
 
-                $scope.loadGrid();
-                $scope.ready = 1;
+                //$scope.loadGrid();    //loadGrid() will be called from view at the end of preparedWidgets-Iteration
                 //console.log(result.data);
                 //console.log($scope.serializedGridstackData);
             });
@@ -107,12 +104,11 @@ angular.module('openITCOCKPIT')
                     'id': $scope.tab.renameId
                 }
             }).then(function(result){
-                if(result.data.action == true){
+                if(result.data.action === true){
                     $scope.errors = null;
                     $scope.closeEditModal();
                     $scope.load();
                 }else{
-                    //console.log(result.data.error);
                     $scope.errors = result.data.error;
                 }
             });
@@ -124,7 +120,7 @@ angular.module('openITCOCKPIT')
                     'name': $scope.tab.newname,
                 }
             }).then(function(result){
-                if(result.data.action == true){
+                if(result.data.action === true){
                     $scope.errors = null;
                     $scope.tab.newname = null;
                     $scope.closeNewTabModal();
@@ -141,8 +137,7 @@ angular.module('openITCOCKPIT')
                     'source_tab': $scope.tab.selectedSharedTab,
                 }
             }).then(function(result){
-                //console.log(result.data);
-                if(result.data.action == true){
+                if(result.data.action === true){
                     $scope.errors = null;
                     $scope.tab.newname = null;
                     $scope.tab.selectedSharedTab = null;
@@ -157,15 +152,6 @@ angular.module('openITCOCKPIT')
         $scope.deleteTab = function(){
             $scope.deleteUrl = '/dashboards/deleteTab/' + $scope.tab.id + '.json?angular=true';
             $scope.confirmTabDelete(this);
-
-            /*
-            $http.post('/dashboards/deleteTab/' + $scope.tab.id + '.json?angular=true').then(function(){
-                $scope.errors = null;
-                $scope.closeEditModal();
-                $scope.tab.id = null;
-                $scope.load();
-            });
-            */
         };
 
         $scope.startSharing = function(){
@@ -183,14 +169,16 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.updatePosition = function(widgets){
-            let arr = {'tabId': $scope.tab.id};
-            widgets.forEach(function(widget, key){
-                arr[key] = widget;
-            });
-            $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
-                //do nothing
-                //console.log(result);
-            });
+            if($scope.ready === 1){
+                let arr = {'tabId': $scope.tab.id};
+                widgets.forEach(function(widget, key){
+                    document.getElementById(widget.id).setAttribute('data-gs-height-orig', widget.height);
+                    arr[key] = widget;
+                });
+                $http.post('/dashboards/updatePosition.json?angular=true', arr).then(function(result){
+                    //console.log(result);
+                });
+            }
         };
 
         $scope.updateColor = function(widgetId, color){
@@ -198,18 +186,15 @@ angular.module('openITCOCKPIT')
                 color: color,
                 widgetId: widgetId
             }).then(function(result){
-                //do nothing
                 //console.log(result);
             });
         };
-
 
         $scope.updateWidgetTitle = function(widgetId, title){
             $http.post('/dashboards/updateTitle.json?angular=true', {
                 title: title,
                 widgetId: widgetId
             }).then(function(result){
-                //do nothing
                 //console.log(result);
             });
         };
@@ -220,62 +205,30 @@ angular.module('openITCOCKPIT')
                     'widgetId': widgetId
                 }
             ).then(function(result){
-                //do nothing
                 //console.log(result);
             });
         };
 
         $scope.$watch('tab.id', function(){
             if($scope.tab.id != null){
-                $scope.ready = 0;
+                //$scope.ready = 0;
                 $scope.getPreparedWidgets();
             }
         });
-
-        $scope.getWidgetHtmlContent = function(type_id, id, color, title){
-            let str = '';
-            switch(parseInt(type_id)){
-                case 1:
-                    str = '<div id="widget-color-' + id + '" ' +
-                        '       class="jarviswidget ' + color + '" ' +
-                        '       data-widget-attstyle="' + color + '" ' +
-                        '       role="widget" ' +
-                        '       dashboard-widget-welcome="" ' +
-                        '       widget-title="' + title + '" ' +
-                        '       widget-id="' + id + '" ' +
-                        '       update-title="updateWidgetTitle(id,title)">' +
-                        '  </div>';
-                    break;
-                case 2:
-                    str = '<div id="widget-color-' + id + '" ' +
-                        '       class="jarviswidget ' + color + '" ' +
-                        '       data-widget-attstyle="' + color + '" ' +
-                        '       role="widget" ' +
-                        '       dashboard-widget-parent-outages="" ' +
-                        '       widget-title="' + title + '" ' +
-                        '       widget-id="' + id + '" ' +
-                        '       update-title="updateWidgetTitle(id,title)">' +
-                        '  </div>';
-                    break;
-            }
-            return str;
-        };
-
 
         $scope.loadGrid = function(){
             $scope.gridstack.removeAll();
             let items = GridStackUI.Utils.sort($scope.serializedGridstackData);
             let key = 1;
             _.each(items, function(node){
-                let newhtml = '<div><div id="' + node.id + '" style="overflow: hidden" class="grid-stack-item-content"/>' + $scope.getWidgetHtmlContent(node.type_id, node.id, node.color, node.title) + '<div/>';
-                console.log(newhtml);
-                $scope.gridstack.addWidget($(newhtml), node.x, node.y, node.width, node.height, undefined, undefined, undefined, undefined, undefined, node.id);
-                let divElement = angular.element(document.getElementById(node.id));
-                let appendHtml = $compile($scope.getWidgetHtmlContent(node.type_id, node.id, node.color, node.title))($scope);
-                divElement.append(appendHtml);
-                $('.grid-stack-item').draggable({cancel: "div.not-draggable"});
+                if(document.getElementById(node.id)){
+                    let newelement = document.getElementById(node.id);
+                    $scope.gridstack.addWidget($(newelement), node.x, node.y, node.width, node.height, undefined, undefined, undefined, undefined, undefined, node.id);
+                }
                 key++;
             }, $scope.gridstack);
+            $('.grid-stack-item').draggable({cancel: "div.not-draggable"});
+            $scope.ready = 1;
             return false;
         };
 
@@ -303,12 +256,9 @@ angular.module('openITCOCKPIT')
             return false;
         };
 
-
         $scope.serializeWidgetMap = function(items){
-            //console.log(items);
             let arr = [];
             items.forEach(function(item){
-                //console.log("Widget-ID: " + item.id);
                 if($scope.deletedWidgets.indexOf(item.id) < 0){
                     arr.push({
                         id: item.id,
@@ -325,24 +275,16 @@ angular.module('openITCOCKPIT')
         };
 
         $gridstack.on('change', function(event, items){
-            if($scope.ready == 1 && items){
+            if($scope.ready === 1 && items){
                 $scope.serializeWidgetMap(items);
-            }
-        });
-
-        $gridstack.on('removed', function(event, items){
-            for(let i = 0; i < items.length; i++){
-                //console.log('item removed');
-                //console.log(items[i].id);
             }
         });
 
         $gridstack.on('click', '.jarviswidget-delete-btn', function(){
             let $widget = $(this).closest(".grid-stack-item");
-            //console.log($widget[0].attributes['data-gs-id'].nodeValue);
             if($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue) >= 0){
                 $scope.openEditModals.splice($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue, 1));
-                if($scope.openEditModals.length == 0){
+                if($scope.openEditModals.length === 0){
                     $scope.gridstack.movable('.grid-stack-item', true);
                     $scope.gridstack.resizable('.grid-stack-item', true);
                 }
@@ -353,49 +295,13 @@ angular.module('openITCOCKPIT')
         });
 
 
-        /*  //funktioniert irgendwie, soll jedoch über server -> create und js load() neu aufgebaut werden (wg ID)
-        $scope.addWidgetTest = function(){
-            console.log('add!');
-            let node_orig =  {
-                x: 12 * Math.random(),
-                y: 5 * Math.random(),
-                width: 1 + 3 * Math.random(),
-                height: 1 + 3 * Math.random()
-            };
-            let node =  {
-                x: 0,
-                y: 0,
-                width: 4,
-                height: 3,
-                type_id: 1,
-            };
-
-            let newhtml = '<div><div id="xd" class="grid-stack-item-content"/>'+$scope.getWidgetContent(node.type_id)+'<div/>';
-            $scope.gridstack.addWidget(     //return added element
-                $(newhtml),
-                node.x, node.y, node.width, node.height
-            );
-            //$scope.gridstack.movable(el, false);
-            let divElement = angular.element(document.getElementById('xd'));
-            let appendHtml = $compile($scope.getWidgetContent(node.type_id))($scope);
-            divElement.append(appendHtml);
-            $('.grid-stack-item').draggable({cancel: "div.not-draggable" });
-
-            $scope.saveGrid();
-        };
-        */
-
-
         $('.widget-toolbar').on('click', '.addWidget', function(){
-            //console.log(this.getAttribute("data-type-id"));
-            //$scope.ready=0;
-            $http.post('/dashboards/add.json?angular=true',
+            $http.post('/dashboards/add.html?angular=true',
                 {
                     'tabId': $scope.tab.id,
                     'typeId': this.getAttribute("data-type-id")
                 }
-            ).then(function(result){
-                //console.log(result);
+            ).then(function(){
                 $scope.getPreparedWidgets();
             });
         });
@@ -410,7 +316,6 @@ angular.module('openITCOCKPIT')
                 $gsi[0].setAttribute("data-gs-height-orig", height);
             }
             let height_orig = $gsi[0].getAttribute("data-gs-height-orig");
-            //console.log($gsi[0].attributes['data-gs-id'].nodeValue);
             if(height > height_orig || parseInt($(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').css("height")) > 0){   //will be closed
                 $scope.openEditModals.splice($scope.openEditModals.indexOf($gsi[0].attributes['data-gs-id'].nodeValue, 1));
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig)));
@@ -424,14 +329,10 @@ angular.module('openITCOCKPIT')
                 $scope.gridstack.resizable('.grid-stack-item', false);
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig) + 4));
             }
-            //console.log($gsi[0].getAttribute("data-gs-height"));
-
             return false;
         });
 
         $gridstack.on('click', '[data-widget-setstyle]', function(){
-            //console.log(this.attributes["data-widget-setstyle"].nodeValue);
-            //console.log($(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].attributes["data-widget-attstyle"].nodeValue);
             let oldstyle = $(this).closest('.grid-stack-item-content').find('.jarviswidget')[0].attributes["data-widget-attstyle"].nodeValue;
             let newstyle = this.attributes["data-widget-setstyle"].nodeValue;
             if(!this.attributes["data-widget-setstyle"].nodeValue){
@@ -450,23 +351,23 @@ angular.module('openITCOCKPIT')
 
         $scope.tabRotate = function(){
             let tabRotateShowNextTab = false;
-            if($scope.tabRotateInterval == 0){
+            if($scope.tabRotateInterval === 0){
                 $interval.cancel($scope.rotationTimer);
             }
-            if($scope.tabRotateLastTab != 0 && $scope.tabRotateLastTab != $scope.tab.id){
+            if($scope.tabRotateLastTab !== 0 && $scope.tabRotateLastTab !== $scope.tab.id){
                 $scope.tabRotateLastTab = $scope.tab.id;
             }
-            if($scope.tabs[$scope.tabs.length - 1].DashboardTab.id == $scope.tabRotateLastTab){
+            if($scope.tabs[$scope.tabs.length - 1].DashboardTab.id === $scope.tabRotateLastTab){
                 $scope.tabRotateLastTab = 0;
             }
             $scope.tabs.some(function(tab){
                 let tabId = tab.DashboardTab.id;
-                if(tabRotateShowNextTab || $scope.tabRotateLastTab == 0){
+                if(tabRotateShowNextTab || $scope.tabRotateLastTab === 0){
                     $scope.tabRotateLastTab = tabId;
                     $scope.tab.id = tabId;
                     return true;
                 }
-                if($scope.tabRotateLastTab == tabId){
+                if($scope.tabRotateLastTab === tabId){
                     tabRotateShowNextTab = true;
                 }
             });
@@ -482,8 +383,7 @@ angular.module('openITCOCKPIT')
                 {
                     'value': $scope.tabRotateInterval
                 }
-            ).then(function(result){
-                //console.log("interval saved! - "+result);
+            ).then(function(){
                 $scope.showRotationSavesMessage = true;
                 if($scope.rotationMessageTimer) $interval.cancel($scope.rotationMessageTimer);
                 $scope.rotationMessageTimer = $interval($scope.hideRotationSavesMessage, 3000);
@@ -491,7 +391,7 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.toTimeString = function(seconds){
-            if(seconds == 0){
+            if(seconds === 0){
                 return "disabled";
             }
             return (new Date(seconds * 60000)).toUTCString().match(/(\d\d:\d\d)/)[0] + " minutes";
@@ -502,7 +402,6 @@ angular.module('openITCOCKPIT')
             if($scope.rotationTimer) $interval.cancel($scope.rotationTimer);
             if($scope.tabRotateInterval > 0){
                 $scope.rotationTimer = $interval($scope.tabRotate, parseInt($scope.tabRotateInterval + '000'));
-                //console.log("Rotation interval: " + $scope.tabRotateInterval);
             }
         });
 

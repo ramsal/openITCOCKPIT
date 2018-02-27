@@ -24,31 +24,28 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Welcome extends Widget
-{
+class Welcome extends Widget {
     public $isDefault = true;
     public $icon = 'fa-comment';
     public $element = 'welcome';
     public $width = 5;
     public $height = 10;
+    public $directive = "dashboard-widget-welcome-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 1;
         $this->title = __('Welcome');
     }
 
-    public function setData($widgetData)
-    {
+    public function setData ($widgetData) {
         //Prefix every widget variable with $widgetFoo
         $widgetHostStateArray = $this->QueryCache->hostStateCount();
         $widgetServiceStateArray = $this->QueryCache->serviceStateCount();
         $this->Controller->set(compact(['widgetHostStateArray', 'widgetServiceStateArray']));
     }
 
-    public function getRestoreConfig($tabId)
-    {
+    public function getRestoreConfig ($tabId) {
         $restorConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
@@ -58,6 +55,7 @@ class Welcome extends Widget
             'height'           => 9,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
+            'directive'        => $this->directive
         ];
 
         return $restorConfig;

@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective', function($http, $interval){
     return {
         restrict: 'E',
         templateUrl: '/dashboards/widget_hosts_piechart.html',

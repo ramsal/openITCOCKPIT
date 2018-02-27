@@ -174,6 +174,11 @@ class DashboardsController extends AppController {
         }
         $preparedWidgets = $this->DashboardHandler->prepareForRender($tab);
 
+        foreach ($preparedWidgets as $key => $preparedWidget) {
+            $preparedWidgets[$key]['Widget']['directive'] = 'dashboard-widget-welcome-directive';
+        }
+
+
         $this->set(compact(['preparedWidgets']));
         $this->set('_serialize', ['preparedWidgets']);
     }
@@ -384,6 +389,35 @@ class DashboardsController extends AppController {
     }
 
     public function add () {
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+
+        if ($this->request->is('post')) {
+            if (isset($this->request->data['typeId']) && isset($this->request->data['tabId'])) {
+                $typeId = $this->request->data['typeId'];
+                $tabId = $this->request->data['tabId'];
+                $tab = $this->DashboardTab->find('first', [
+                    'recursive'  => -1,
+                    'contain'    => [],
+                    'conditions' => [
+                        'user_id' => $this->Auth->user('id'),
+                        'id'      => $tabId,
+                    ],
+                ]);
+                //Check if the tab exists and is owned by the user
+                if (!empty($tab)) {
+                    $_widget = $this->DashboardHandler->getWidgetByTypeId($typeId, $tabId);
+                    $this->Widget->create();
+                    if ($this->Widget->saveAll($_widget)) {
+                        $_widget['Widget']['id'] = $this->Widget->id;
+                        $this->set('widget', $_widget);
+                    }
+                }
+            }
+        }
+
+
+        return;
         $this->autoRender = false;
         $widget = [];
         if (!$this->isApiRequest()) {

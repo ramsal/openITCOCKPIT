@@ -171,8 +171,34 @@
 
                             <div class="grid-stack" id="grid-stack" data-gs-width="0">
 
-                            </div>
+                                <div ng-repeat="widget in preparedWidgets"
+                                     data-gs-height="{{widget.Widget.height}}"
+                                     data-gs-width="{{widget.Widget.width}}"
+                                     data-gs-x="{{widget.Widget.col}}"
+                                     data-gs-y="{{widget.Widget.row}}"
+                                     data-widget-id="{{widget.Widget.id}}"
+                                     data-widget-type-id="{{widget.Widget.type_id}}"
+                                    <?php //data-gs-auto-position="1" ?>
+                                     class="grid-stack-item ui-draggable ui-resizable"
+                                     id="{{widget.Widget.id}}">
 
+                                    <div style="overflow: hidden"
+                                         class="grid-stack-item-content">
+
+                                        <div id="widget-color-{{widget.Widget.id}}"
+                                             class="jarviswidget {{widget.Widget.color}}"
+                                             data-widget-attstyle="{{widget.Widget.color}}"
+                                             role="widget"
+                                             attrs="widget.Widget.directive"
+                                             widget-title="{{widget.Widget.title}}"
+                                             widget-id="{{widget.Widget.id}}"
+                                             update-title="updateWidgetTitle(id,title)">
+                                        </div>
+                                    </div>
+                                    <div ng-if="$last" ng-init="$last?loadGrid():null"></div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>

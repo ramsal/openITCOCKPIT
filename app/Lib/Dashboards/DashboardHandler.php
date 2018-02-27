@@ -28,8 +28,7 @@ namespace Dashboard;
 use Dashboard\Widget;
 use CakePlugin;
 
-class DashboardHandler
-{
+class DashboardHandler {
     //List of all exsisting widgets classes
     private $_widgets = [
         'Welcome',
@@ -52,47 +51,45 @@ class DashboardHandler
 
     protected $__widgetClasses = [];
 
-    public function __construct(\Controller $controller)
-    {
+    public function __construct (\Controller $controller) {
         $this->Controller = $controller;
-        require_once 'widgets'.DS.'Widget.php';
+        require_once 'widgets' . DS . 'Widget.php';
 
-        require_once 'widgets'.DS.'QueryCache.php';
+        require_once 'widgets' . DS . 'QueryCache.php';
         $QueryCache = new Widget\QueryCache($this->Controller);
 
         foreach ($this->_widgets as $_widget) {
-            require_once 'widgets'.DS.$_widget.'.php';
-            $_widget = 'Dashboard\Widget\\'.$_widget;
+            require_once 'widgets' . DS . $_widget . '.php';
+            $_widget = 'Dashboard\Widget\\' . $_widget;
             $this->{$_widget} = new $_widget($this->Controller, $QueryCache);
             $this->__widgetClasses[$this->{$_widget}->typeId] = $_widget;
         }
     }
 
-    public function getAllWidgets()
-    {
+    public function getAllWidgets () {
         $widgets = [];
         foreach ($this->_widgets as $widgetClassName) {
-            $widgetClassName = 'Dashboard\Widget\\'.$widgetClassName;
+            $widgetClassName = 'Dashboard\Widget\\' . $widgetClassName;
             if ($this->{$widgetClassName}->typeId !== 14 && $this->{$widgetClassName}->typeId !== 16) {
                 $widgets[] = [
                     'typeId'  => $this->{$widgetClassName}->typeId,
                     'title'   => $this->{$widgetClassName}->title,
                     'icon'    => $this->{$widgetClassName}->icon,
-                    'element' => 'Dashboard'.DS.$this->{$widgetClassName}->element,
+                    'element' => 'Dashboard' . DS . $this->{$widgetClassName}->element,
                 ];
-            } elseif (CakePlugin::loaded('MapModule') && $this->{$widgetClassName}->typeId === 14) {
+            } else if (CakePlugin::loaded('MapModule') && $this->{$widgetClassName}->typeId === 14) {
                 $widgets[] = [
                     'typeId'  => $this->{$widgetClassName}->typeId,
                     'title'   => $this->{$widgetClassName}->title,
                     'icon'    => $this->{$widgetClassName}->icon,
-                    'element' => 'Dashboard'.DS.$this->{$widgetClassName}->element,
+                    'element' => 'Dashboard' . DS . $this->{$widgetClassName}->element,
                 ];
-            } elseif (CakePlugin::loaded('GrafanaModule') && $this->{$widgetClassName}->typeId === 16) {
+            } else if (CakePlugin::loaded('GrafanaModule') && $this->{$widgetClassName}->typeId === 16) {
                 $widgets[] = [
                     'typeId'  => $this->{$widgetClassName}->typeId,
                     'title'   => $this->{$widgetClassName}->title,
                     'icon'    => $this->{$widgetClassName}->icon,
-                    'element' => 'Dashboard'.DS.$this->{$widgetClassName}->element,
+                    'element' => 'Dashboard' . DS . $this->{$widgetClassName}->element,
                 ];
             }
 
@@ -101,8 +98,7 @@ class DashboardHandler
         return $widgets;
     }
 
-    public function getWidgetByTypeId($typeId, $tabId = null)
-    {
+    public function getWidgetByTypeId ($typeId, $tabId = null) {
         $result = [
             'Widget' => [
                 'dashboard_tab_id' => $tabId,
@@ -110,12 +106,13 @@ class DashboardHandler
                 'type_id'          => $this->{$this->__widgetClasses[$typeId]}->typeId,
                 'title'            => $this->{$this->__widgetClasses[$typeId]}->title,
                 'icon'             => $this->{$this->__widgetClasses[$typeId]}->icon,
-                'element'          => 'Dashboard'.DS.$this->{$this->__widgetClasses[$typeId]}->element,
+                'element'          => 'Dashboard' . DS . $this->{$this->__widgetClasses[$typeId]}->element,
                 'row'              => $this->{$this->__widgetClasses[$typeId]}->row,
                 'col'              => $this->{$this->__widgetClasses[$typeId]}->col,
                 'width'            => $this->{$this->__widgetClasses[$typeId]}->width,
                 'height'           => $this->{$this->__widgetClasses[$typeId]}->height,
                 'color'            => $this->{$this->__widgetClasses[$typeId]}->defaultColor,
+                'directive'        => $this->{$this->__widgetClasses[$typeId]}->directive,
             ],
         ];
 
@@ -126,11 +123,10 @@ class DashboardHandler
         return $result;
     }
 
-    public function getDefaultDashboards($tabId)
-    {
+    public function getDefaultDashboards ($tabId) {
         $data = [];
         foreach ($this->_widgets as $widgetClassName) {
-            $widgetClassName = 'Dashboard\Widget\\'.$widgetClassName;
+            $widgetClassName = 'Dashboard\Widget\\' . $widgetClassName;
             if ($this->{$widgetClassName}->isDefault === true) {
                 $data[] = $this->{$widgetClassName}->getRestoreConfig($tabId);
             }
@@ -139,15 +135,14 @@ class DashboardHandler
         return $data;
     }
 
-    public function prepareForRender($tab)
-    {
+    public function prepareForRender ($tab) {
         $widgetData = [];
         if (isset($tab['Widget'])) {
             foreach ($tab['Widget'] as $widget) {
                 $currentWidgetData = [
                     'Widget'   => $widget,
                     'Settings' => [
-                        'element' => 'Dashboard'.DS.$this->{$this->__widgetClasses[$widget['type_id']]}->getElement($widget),
+                        'element' => 'Dashboard' . DS . $this->{$this->__widgetClasses[$widget['type_id']]}->getElement($widget),
                         'icon'    => $this->{$this->__widgetClasses[$widget['type_id']]}->icon,
                     ],
                 ];
@@ -161,8 +156,7 @@ class DashboardHandler
         return $widgetData;
     }
 
-    public function refresh($widget)
-    {
+    public function refresh ($widget) {
         if (isset($widget['Widget']['type_id'])) {
             $result = $this->{$this->__widgetClasses[$widget['Widget']['type_id']]}->refresh($widget);
 
