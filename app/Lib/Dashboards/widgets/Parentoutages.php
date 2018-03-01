@@ -31,6 +31,7 @@ class Parentoutages extends Widget
     public $element = 'parent_outages';
     public $width = 5;
     public $height = 10;
+    public $directive = "dashboard-widget-parent-outages-directive";
 
     public function __construct(\Controller $controller, $QueryCache)
     {
@@ -48,18 +49,19 @@ class Parentoutages extends Widget
 
     public function getRestoreConfig($tabId)
     {
-        $restorConfig = [
+        $restoreConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
-            'row'              => 5, // x
-            'col'              => 0, // y
+            'row'              => 0,
+            'col'              => 5,
             'width'            => 5,
             'height'           => 10,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
+            'directive'        => $this->directive
         ];
 
-        return $restorConfig;
+        return $restoreConfig;
     }
 
 }

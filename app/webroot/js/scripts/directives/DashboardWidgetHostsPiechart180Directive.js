@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart180Directive', function($http, $interval){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_hosts_piechart.html',
@@ -19,7 +19,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                     }
                 }).then(function(result){
                     $scope.widget = result.data.hosts_piechart;
-                    let x = [12, 5, 2];
+                    let x = [4, 1, 1];
                     let xsum = 0;
                     x.forEach(function(num){
                         xsum = (xsum + num);
@@ -35,25 +35,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
                             console.log($scope.widget);
-
-
-                            let $backgroundColor = [
-                                'rgba(68, 157, 68, 1)',
-                                'rgba(201, 48, 44, 1)',
-                                'rgba(146, 162, 168, 1)'
-                            ];
-
-                            if($scope.title === "Pacman"){
-                                $backgroundColor = [
-                                    'rgba(243, 232, 20, 1)',
-                                    'rgba(0, 0, 0, 1)',
-                                    'rgba(243, 232, 20, 1)'
-                                ];
-                                $scope.widget.up[0] = 4;
-                                $scope.widget.down[0] = 1;
-                                $scope.widget.unreachable[0] = 1;
-                            }
-
                             $scope.myPieChart = new Chart($scope.ctx, {
                                 type: 'pie',
                                 data: {
@@ -64,11 +45,17 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                                             $scope.widget.down[0],
                                             $scope.widget.unreachable[0]
                                         ],
-                                        backgroundColor: $backgroundColor,
+                                        backgroundColor: [
+                                            'rgba(68, 157, 68, 1)',
+                                            'rgba(201, 48, 44, 1)',
+                                            'rgba(146, 162, 168, 1)'
+                                        ],
                                         borderWidth: 0
                                     }]
                                 },
                                 options: {
+                                    rotation: Math.PI,
+                                    circumference: Math.PI,
                                     legend: {
                                         display: true,
                                         labels: {
@@ -99,11 +86,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
 
             $scope.$watch('title', function(){
                 if(encodeURI($scope.title) != encodeURI($scope.titleOrig) && $scope.title){
-                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
-                    if($scope.title === "Pacman" || ($scope.titleOrig === "Pacman" && $scope.title !== "Pacman")){
-                        $scope.load();
-                    }
                     $scope.titleOrig = $scope.title;
+                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
                 }
             });
 

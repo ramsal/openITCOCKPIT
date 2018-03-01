@@ -15,7 +15,7 @@
         <div ng-show="!widget.length" class="text-center text-success">
             <h5 class="padding-top-50">
                 <i class="fa fa-check"></i>
-                <?php echo __('Currently are no network segment issues'); ?>
+                <?php echo __('Currently are no services in scheduled downtime'); ?>
             </h5>
         </div>
 
@@ -23,11 +23,11 @@
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <tbody>
-                    <tr ng-repeat="host in widget">
-                        <td title="{{host.Hoststatus.output}}" class="dashboard-table">
-                            <a class="{{host.Hoststatus.current_state == 2 ? 'txt-color-blueDark' : 'text-danger'}}"
-                               href="/hosts/browser/{{host.Host.id}}">
-                                {{host.Host.name}}
+                    <tr ng-repeat="service in widget">
+                        <td title="{{service.Service.name}}" class="dashboard-table">
+                            <a class="{{service.Servicestatus.current_state == 2 ? 'txt-color-blueDark' : 'text-danger'}}"
+                               href="/services/browser/{{service.Service.id}}">
+                                {{service.Service.name}}
                             </a>
                         </td>
                     </tr>

@@ -74,14 +74,81 @@ class DashboardsController extends AppController {
         }
     }
 
-    public function widget_hosts_piechart () {
+
+    public function widget_host_status_list () {
+        if ($this->isApiRequest()) {
+
+            $host_status_list = [];
+
+            $this->set(compact(['host_status_list']));
+            $this->set('_serialize', ['host_status_list']);
+            return;
+        }
         $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_service_downtimes () {
+        if ($this->isApiRequest()) {
+
+            $service_downtimes = [];
+
+            $this->set(compact(['service_downtimes']));
+            $this->set('_serialize', ['service_downtimes']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_host_downtimes () {
+        if ($this->isApiRequest()) {
+
+            $host_downtimes = [];
+
+            $this->set(compact(['host_downtimes']));
+            $this->set('_serialize', ['host_downtimes']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_hosts_piechart () {
+        if ($this->isApiRequest()) {
+
+            $hosts_piechart = [];
+
+            $this->set(compact(['hosts_piechart']));
+            $this->set('_serialize', ['hosts_piechart']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_services_piechart () {
+        if ($this->isApiRequest()) {
+
+            $services_piechart = [];
+
+            $this->set(compact(['services_piechart']));
+            $this->set('_serialize', ['services_piechart']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
         return;
     }
 
     public function widget_parent_outages () {
         if ($this->isApiRequest()) {
 
+            $parent_outages = [];
             /*
             require_once 'widgets'.DS.'Widget.php';
             require_once 'widgets'.DS.'QueryCache.php';
@@ -172,11 +239,12 @@ class DashboardsController extends AppController {
         } else {
             $tabId = $tab['DashboardTab']['id'];
         }
+        //var_dump($tab);
         $preparedWidgets = $this->DashboardHandler->prepareForRender($tab);
 
-        foreach ($preparedWidgets as $key => $preparedWidget) {
+        /*foreach ($preparedWidgets as $key => $preparedWidget) {
             $preparedWidgets[$key]['Widget']['directive'] = 'dashboard-widget-welcome-directive';
-        }
+        }*/
 
 
         $this->set(compact(['preparedWidgets']));

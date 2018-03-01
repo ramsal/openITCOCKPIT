@@ -32,6 +32,7 @@ class HostStatusList extends Widget
     public $width = 10;
     public $height = 21;
     public $hasInitialConfig = true;
+    public $directive = "dashboard-widget-host-status-list-directive";
 
     public $initialConfig = [
         'WidgetHostStatusList' => [

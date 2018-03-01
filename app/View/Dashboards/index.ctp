@@ -178,7 +178,6 @@
                                      data-gs-y="{{widget.Widget.row}}"
                                      data-widget-id="{{widget.Widget.id}}"
                                      data-widget-type-id="{{widget.Widget.type_id}}"
-                                    <?php //data-gs-auto-position="1" ?>
                                      class="grid-stack-item ui-draggable ui-resizable"
                                      id="{{widget.Widget.id}}">
 

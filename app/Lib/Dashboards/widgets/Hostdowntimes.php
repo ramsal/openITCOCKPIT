@@ -30,7 +30,8 @@ class Hostdowntimes extends Widget
     public $icon = 'fa-power-off';
     public $element = 'host_downtimes';
     public $width = 5;
-    public $height = 13;
+    public $height = 10;
+    public $directive = "dashboard-widget-host-downtimes-directive";
 
     public function __construct(\Controller $controller, $QueryCache)
     {
@@ -51,12 +52,13 @@ class Hostdowntimes extends Widget
         $restorConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
-            'row'              => 0, // x
-            'col'              => 24, // y
+            'row'              => 26,
+            'col'              => 0,
             'width'            => 5,
-            'height'           => 13,
+            'height'           => 10,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
+            'directive'        => $this->directive
         ];
 
         return $restorConfig;

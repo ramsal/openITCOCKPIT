@@ -29,8 +29,9 @@ class Host180 extends Widget
     public $isDefault = false;
     public $icon = 'fa-pie-chart';
     public $element = 'host_piechart_180';
-    public $width = 5;
+    public $width = 4;
     public $height = 13;
+    public $directive = "dashboard-widget-hosts-piechart-180-directive";
 
     public function __construct(\Controller $controller, $QueryCache)
     {

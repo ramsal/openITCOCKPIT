@@ -1,7 +1,7 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutagesDirective', function($http){
+angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimesDirective', function($http){
     return {
         restrict: 'A',
-        templateUrl: '/dashboards/widget_parent_outages.html',
+        templateUrl: '/dashboards/widget_host_downtimes.html',
         scope: {
             'widget-title': '=',
             'widget-id': '=',
@@ -13,12 +13,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutagesDirective
             $scope.widget = null;
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_parent_outages.json', {
+                $http.get('/dashboards/widget_host_downtimes.json', {
                     params: {
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.parent_outages;
+                    $scope.widget = result.data.host_downtimes;
                     console.log(result.data);
                 });
             };

@@ -1,7 +1,7 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechartDirective', function($http, $interval){
     return {
         restrict: 'A',
-        templateUrl: '/dashboards/widget_hosts_piechart.html',
+        templateUrl: '/dashboards/widget_services_piechart.html',
         scope: {
             'widget-title': '=',
             'widget-id': '=',
@@ -13,21 +13,22 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
             $scope.widget = null;
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_hosts_piechart.json', {
+                $http.get('/dashboards/widget_services_piechart.json', {
                     params: {
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.hosts_piechart;
-                    let x = [12, 5, 2];
+                    $scope.widget = result.data.services_piechart;
+                    let x = [4, 1, 3, 1];
                     let xsum = 0;
                     x.forEach(function(num){
                         xsum = (xsum + num);
                     });
                     $scope.widget = {
-                        'up': [x[0], Math.round((x[0] / xsum) * 100)],
-                        'down': [x[1], Math.round((x[1] / xsum) * 100)],
-                        'unreachable': [x[2], Math.round((x[2] / xsum) * 100)]
+                        'ok': [x[0], Math.round((x[0] / xsum) * 100)],
+                        'warning': [x[1], Math.round((x[1] / xsum) * 100)],
+                        'critical': [x[2], Math.round((x[2] / xsum) * 100)],
+                        'unknown': [x[3], Math.round((x[3] / xsum) * 100)]
                     };
 
 
@@ -35,36 +36,23 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
                             console.log($scope.widget);
-
-
-                            let $backgroundColor = [
-                                'rgba(68, 157, 68, 1)',
-                                'rgba(201, 48, 44, 1)',
-                                'rgba(146, 162, 168, 1)'
-                            ];
-
-                            if($scope.title === "Pacman"){
-                                $backgroundColor = [
-                                    'rgba(243, 232, 20, 1)',
-                                    'rgba(0, 0, 0, 1)',
-                                    'rgba(243, 232, 20, 1)'
-                                ];
-                                $scope.widget.up[0] = 4;
-                                $scope.widget.down[0] = 1;
-                                $scope.widget.unreachable[0] = 1;
-                            }
-
                             $scope.myPieChart = new Chart($scope.ctx, {
                                 type: 'pie',
                                 data: {
-                                    labels: ["Up", "Down", "Unreachable"],
+                                    labels: ["Ok", "Warning", "Critical", "Unknown"],
                                     datasets: [{
                                         data: [
-                                            $scope.widget.up[0],
-                                            $scope.widget.down[0],
-                                            $scope.widget.unreachable[0]
+                                            $scope.widget.ok[0],
+                                            $scope.widget.warning[0],
+                                            $scope.widget.critical[0],
+                                            $scope.widget.unknown[0]
                                         ],
-                                        backgroundColor: $backgroundColor,
+                                        backgroundColor: [
+                                            'rgba(68, 157, 68, 1)',
+                                            'rgba(223, 143, 29, 1)',
+                                            'rgba(201, 48, 44, 1)',
+                                            'rgba(146, 162, 168, 1)'
+                                        ],
                                         borderWidth: 0
                                     }]
                                 },
@@ -99,11 +87,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
 
             $scope.$watch('title', function(){
                 if(encodeURI($scope.title) != encodeURI($scope.titleOrig) && $scope.title){
-                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
-                    if($scope.title === "Pacman" || ($scope.titleOrig === "Pacman" && $scope.title !== "Pacman")){
-                        $scope.load();
-                    }
                     $scope.titleOrig = $scope.title;
+                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
                 }
             });
 

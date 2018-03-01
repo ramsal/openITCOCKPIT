@@ -46,19 +46,19 @@ class Welcome extends Widget {
     }
 
     public function getRestoreConfig ($tabId) {
-        $restorConfig = [
+        $restoreConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
             'row'              => 0,
             'col'              => 0,
             'width'            => 5,
-            'height'           => 9,
+            'height'           => 10,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
             'directive'        => $this->directive
         ];
 
-        return $restorConfig;
+        return $restoreConfig;
     }
 
 }

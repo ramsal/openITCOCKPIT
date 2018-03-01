@@ -76,6 +76,7 @@ class DashboardHandler {
                     'title'   => $this->{$widgetClassName}->title,
                     'icon'    => $this->{$widgetClassName}->icon,
                     'element' => 'Dashboard' . DS . $this->{$widgetClassName}->element,
+                    'directive'    => $this->{$widgetClassName}->directive,
                 ];
             } else if (CakePlugin::loaded('MapModule') && $this->{$widgetClassName}->typeId === 14) {
                 $widgets[] = [

@@ -1402,6 +1402,7 @@ class AppSchema extends CakeSchema
         'height'           => ['type' => 'integer', 'null' => false],
         'title'            => ['type' => 'string', 'null' => false], // The title of the widget.
         'color'            => ['type' => 'string', 'null' => false], // Color of the widgetbar.
+        'directive'        => ['type' => 'string', 'null' => false], // Angular directive of the widget.
         'created'          => ['type' => 'datetime', 'null' => false, 'default' => null],
         'modified'         => ['type' => 'datetime', 'null' => false, 'default' => null],
         'indexes'          => [
@@ -1563,7 +1564,7 @@ class AppSchema extends CakeSchema
         ],
         'tableParameters' => ['charset' => 'utf8', 'collate' => 'utf8_swedish_ci', 'engine' => 'InnoDB'],
     ];
-    
+
     public $instantreports = [
         'id'              => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'name'            => ['type' => 'string', 'null' => false, 'length' => 255, 'charset' => 'utf8'],
@@ -1644,7 +1645,7 @@ class AppSchema extends CakeSchema
         ],
         'tableParameters' => ['charset' => 'utf8', 'collate' => 'utf8_swedish_ci', 'engine' => 'InnoDB'],
     ];
-    
+
     /*public $devicegroups = array(
         'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'),
         'container_id' => array('type' => 'integer', 'null' => false, 'default' => null),
