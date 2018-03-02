@@ -1,7 +1,7 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirective', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirective', function($http, $interval){
     return {
         restrict: 'A',
-        templateUrl: '/dashboards/widget_host_status_list.html',
+        templateUrl: '/dashboards/widget_service_status_list.html',
         scope: {
             'title': '=',
             'id': '=wid',
@@ -18,20 +18,27 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 pagingInterval: 0,
                 animation: "fadeInUp",
                 filter: {
-                    Hoststatus: {
+                    Host: {
+                        name: null,
+                    },
+                    Service: {
+                        name: null,
+                    },
+                    Servicestatus: {
                         acknowledged: false,
                         downtime: false,
                         current_state: {
-                            unreachable: false,
-                            down: false,
-                            up: false,
+                            unknown: false,
+                            critical: false,
+                            warning: false,
+                            ok: false,
                         }
                     }
                 }
             };
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_host_status_list.json', {
+                $http.get('/dashboards/widget_service_status_list.json', {
                     params: {
                         'angular': true
                     }
@@ -71,11 +78,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 let arr = {
                     'settings[animation_interval]': $scope.statusListSettings.pagingInterval,
                     'settings[animation]': $scope.statusListSettings.animation,
-                    'settings[show_acknowledged]': $scope.statusListSettings.filter.Hoststatus.acknowledged ? 1 : 0,
-                    'settings[show_downtime]': $scope.statusListSettings.filter.Hoststatus.downtime ? 1 : 0,
-                    'settings[show_up]': $scope.statusListSettings.filter.Hoststatus.current_state.up ? 1 : 0,
-                    'settings[show_down]': $scope.statusListSettings.filter.Hoststatus.current_state.down ? 1 : 0,
-                    'settings[show_unreachable]': $scope.statusListSettings.filter.Hoststatus.current_state.unreachable ? 1 : 0,
+                    'settings[show_acknowledged]': $scope.statusListSettings.filter.Servicestatus.acknowledged ? 1 : 0,
+                    'settings[show_downtime]': $scope.statusListSettings.filter.Servicestatus.downtime ? 1 : 0,
+                    'settings[show_ok]': $scope.statusListSettings.filter.Servicestatus.current_state.ok ? 1 : 0,
+                    'settings[show_warning]': $scope.statusListSettings.filter.Servicestatus.current_state.warning ? 1 : 0,
+                    'settings[show_critical]': $scope.statusListSettings.filter.Servicestatus.current_state.critical ? 1 : 0,
+                    'settings[show_unknown]': $scope.statusListSettings.filter.Servicestatus.current_state.unknown ? 1 : 0,
                     'widgetId': parseInt($scope.id),
                     'widgetTypeId': 9
                 };
@@ -89,7 +97,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
             $scope.setAnimation = function (animation){
                 $scope.statusListSettings.animation = animation;
             };
-
         }
+
     };
 });

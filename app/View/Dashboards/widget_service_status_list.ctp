@@ -52,31 +52,41 @@
                     <div class="form-group smart-form">
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="statusListSettings.filter.Hoststatus.current_state.up"
+                                   ng-model="statusListSettings.filter.Servicestatus.current_state.ok"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-success"></i>
-                            <?php echo __('Up'); ?>
+                            <?php echo __('Ok'); ?>
                         </label>
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="statusListSettings.filter.Hoststatus.current_state.down"
+                                   ng-model="statusListSettings.filter.Servicestatus.current_state.warning"
+                                   ng-model-options="{debounce: 500}">
+                            <i class="checkbox-warning"></i>
+                            <?php echo __('Warning'); ?>
+                        </label>
+
+                        <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                            <input type="checkbox" name="checkbox" checked="checked"
+                                   ng-model="statusListSettings.filter.Servicestatus.current_state.critical"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-danger"></i>
-                            <?php echo __('Down'); ?>
+                            <?php echo __('Critical'); ?>
                         </label>
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="statusListSettings.filter.Hoststatus.current_state.unreachable"
+                                   ng-model="statusListSettings.filter.Servicestatus.current_state.unknown"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-default"></i>
-                            <?php echo __('Unreachable'); ?>
+                            <?php echo __('Unknown'); ?>
                         </label>
+                    </div>
+                    <div class="form-group smart-form">
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="statusListSettings.filter.Hoststatus.acknowledged"
+                                   ng-model="statusListSettings.filter.Servicestatus.acknowledged"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-primary"></i>
                             <?php echo __('Acknowledged'); ?>
@@ -84,7 +94,7 @@
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="statusListSettings.filter.Hoststatus.downtime"
+                                   ng-model="statusListSettings.filter.Servicestatus.downtime"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-primary"></i>
                             <?php echo __('In Downtime'); ?>
@@ -97,22 +107,22 @@
                     <div class="form-group smart-form">
                         <label class="input"> <i class="icon-prepend fa fa-filter"></i>
                             <input type="text" class="input-sm"
+                                   placeholder="<?php echo __('Filter by service name'); ?>"
+                                   ng-model="statusListSettings.filter.Service.name"
+                                   ng-model-options="{debounce: 500}">
+                        </label>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group smart-form">
+                        <label class="input"> <i class="icon-prepend fa fa-filter"></i>
+                            <input type="text" class="input-sm"
                                    placeholder="<?php echo __('Filter by host name'); ?>"
                                    ng-model="statusListSettings.filter.Host.name"
                                    ng-model-options="{debounce: 500}">
                         </label>
                     </div>
                 </div>
-                <?php /*<div class="col-xs-12 col-md-6">
-                    <div class="form-group smart-form">
-                        <label class="input"> <i class="icon-prepend fa fa-filter"></i>
-                            <input type="text" class="input-sm"
-                                   placeholder="<?php echo __('Filter by output'); ?>"
-                                   ng-model="filter.Hoststatus.output"
-                                   ng-model-options="{debounce: 500}">
-                        </label>
-                    </div>
-                </div>*/ ?>
             </div>
         </div>
 
@@ -122,8 +132,8 @@
                    style="">
                 <thead>
                 <tr>
-                    <th colspan="2" class="no-sort" ng-click="orderBy('Hoststatus.current_state')">
-                        <i class="fa" ng-class="getSortClass('Hoststatus.current_state')"></i>
+                    <th colspan="2" class="no-sort" ng-click="orderBy('Servicestatus.current_state')">
+                        <i class="fa" ng-class="getSortClass('Servicestatus.current_state')"></i>
                         <?php echo __('State'); ?>
                     </th>
                     <th class="no-sort text-center">
@@ -134,47 +144,60 @@
                         <i class="fa fa-power-off fa-lg"
                            title="<?php echo __('is in downtime'); ?>"></i>
                     </th>
-                    <th class="no-sort" ng-click="orderBy('Host.name')">
-                        <i class="fa" ng-class="getSortClass('Host.name')"></i>
+                    <th class="no-sort" ng-click="orderBy('Service.hostname')">
+                        <i class="fa" ng-class="getSortClass('Service.hostname')"></i>
                         <?php echo __('Host name'); ?>
                     </th>
-                    <th class="no-sort" ng-click="orderBy('Hoststatus.last_state_change')">
-                        <i class="fa" ng-class="getSortClass('Hoststatus.last_state_change')"></i>
+                    <th class="no-sort" ng-click="orderBy('Service.name')">
+                        <i class="fa" ng-class="getSortClass('Service.name')"></i>
+                        <?php echo __('Service name'); ?>
+                    </th>
+                    <th class="no-sort" ng-click="orderBy('Servicestatus.last_state_change')">
+                        <i class="fa" ng-class="getSortClass('Servicestatus.last_state_change')"></i>
                         <?php echo __('State since'); ?>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="host in hosts">
+                <tr ng-repeat="service in services">
                     <td class="text-center">
-                        <hoststatusicon host="host"></hoststatusicon>
+                        <servicestatusicon service="service"></servicestatusicon>
                     </td>
                     <td class="text-center">
                         <i class="fa fa-lg fa-user"
-                           ng-show="host.Hoststatus.problemHasBeenAcknowledged"
-                           ng-if="host.Hoststatus.acknowledgement_type == 1"></i>
+                           ng-show="service.Servicestatus.problemHasBeenAcknowledged"
+                           ng-if="service.Servicestatus.acknowledgement_type == 1"></i>
 
                         <i class="fa fa-lg fa-user-o"
-                           ng-show="host.Hoststatus.problemHasBeenAcknowledged"
-                           ng-if="host.Hoststatus.acknowledgement_type == 2"
+                           ng-show="service.Servicestatus.problemHasBeenAcknowledged"
+                           ng-if="service.Servicestatus.acknowledgement_type == 2"
                            title="<?php echo __('Sticky Acknowledgedment'); ?>"></i>
                     </td>
 
                     <td class="text-center">
                         <i class="fa fa-lg fa-power-off"
-                           ng-show="host.Hoststatus.scheduledDowntimeDepth > 0"></i>
+                           ng-show="service.Servicestatus.scheduledDowntimeDepth > 0"></i>
                     </td>
                     <td>
                         <?php if ($this->Acl->hasPermission('browser')): ?>
-                            <a href="/hosts/browser/{{ host.Host.id }}">
-                                {{ host.Host.hostname }}
+                            <a href="/hosts/browser/{{ service.Host.id }}">
+                                {{ service.Host.name }}
                             </a>
                         <?php else: ?>
-                            {{ host.Host.hostname }}
+                            {{ service.Host.name }}
                         <?php endif; ?>
                     </td>
                     <td>
-                        {{ host.Hoststatus.last_state_change }}
+                        <?php if ($this->Acl->hasPermission('browser')): ?>
+                            <a href="/services/browser/{{ service.Service.id }}">
+                                {{ service.Service.name }}
+                            </a>
+                        <?php else: ?>
+                            {{ service.Service.name }}
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        {{ service.Servicestatus.last_state_change }}
                     </td>
                 </tr>
                 </tbody>

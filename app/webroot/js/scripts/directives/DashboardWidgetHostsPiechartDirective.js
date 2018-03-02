@@ -3,9 +3,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
         restrict: 'A',
         templateUrl: '/dashboards/widget_hosts_piechart.html',
         scope: {
-            'widget-title': '=',
-            'widget-id': '=',
-            'updateTitle': '&updateTitle'
+            'title': '=',
+            'id': '=wid',
+            'updateTitle': '&'
         },
 
         controller: function($scope){
@@ -35,7 +35,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
                             console.log($scope.widget);
-
 
                             let $backgroundColor = [
                                 'rgba(68, 157, 68, 1)',
@@ -90,24 +89,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
             $scope.load();
             $('[data-toggle="tooltip"]').tooltip();
 
-        },
-
-        link: function($scope, element, attr){
-            $scope.title = decodeURI(attr.widgetTitle);
-            $scope.titleOrig = decodeURI(attr.widgetTitle);
-            $scope.id = attr.widgetId;
-
             $scope.$watch('title', function(){
-                if(encodeURI($scope.title) != encodeURI($scope.titleOrig) && $scope.title){
-                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
-                    if($scope.title === "Pacman" || ($scope.titleOrig === "Pacman" && $scope.title !== "Pacman")){
-                        $scope.load();
-                    }
+                if($scope.title === "Pacman" || ($scope.titleOrig === "Pacman" && $scope.title !== "Pacman")){
                     $scope.titleOrig = $scope.title;
+                    $scope.load();
                 }
             });
-
         }
-
     };
 });

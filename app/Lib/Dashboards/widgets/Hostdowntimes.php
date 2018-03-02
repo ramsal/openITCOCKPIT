@@ -52,7 +52,7 @@ class Hostdowntimes extends Widget
         $restorConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
-            'row'              => 26,
+            'row'              => 24,
             'col'              => 0,
             'width'            => 5,
             'height'           => 10,

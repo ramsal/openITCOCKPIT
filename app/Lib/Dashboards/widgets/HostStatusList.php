@@ -29,8 +29,8 @@ class HostStatusList extends Widget
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'host_status_list';
-    public $width = 10;
-    public $height = 21;
+    public $width = 12;
+    public $height = 18;
     public $hasInitialConfig = true;
     public $directive = "dashboard-widget-host-status-list-directive";
 
@@ -50,7 +50,7 @@ class HostStatusList extends Widget
     {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 9;
-        $this->title = __('Hosts status list');
+        $this->title = __('Host status list');
     }
 
     public function setData($widgetData)

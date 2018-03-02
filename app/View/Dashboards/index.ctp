@@ -189,8 +189,8 @@
                                              data-widget-attstyle="{{widget.Widget.color}}"
                                              role="widget"
                                              attrs="widget.Widget.directive"
-                                             widget-title="{{widget.Widget.title}}"
-                                             widget-id="{{widget.Widget.id}}"
+                                             title="widget.Widget.title"
+                                             wid="widget.Widget.id"
                                              update-title="updateWidgetTitle(id,title)">
                                         </div>
                                     </div>

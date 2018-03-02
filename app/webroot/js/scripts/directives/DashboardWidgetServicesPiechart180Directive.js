@@ -3,9 +3,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
         restrict: 'A',
         templateUrl: '/dashboards/widget_services_piechart.html',
         scope: {
-            'widget-title': '=',
-            'widget-id': '=',
-            'updateTitle': '&updateTitle'
+            'title': '=',
+            'id': '=wid',
+            'updateTitle': '&'
         },
 
         controller: function($scope){
@@ -80,21 +80,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
             $scope.load();
             $('[data-toggle="tooltip"]').tooltip();
 
-        },
-
-        link: function($scope, element, attr){
-            $scope.title = decodeURI(attr.widgetTitle);
-            $scope.titleOrig = decodeURI(attr.widgetTitle);
-            $scope.id = attr.widgetId;
-
-            $scope.$watch('title', function(){
-                if(encodeURI($scope.title) != encodeURI($scope.titleOrig) && $scope.title){
-                    $scope.titleOrig = $scope.title;
-                    $scope.updateTitle({id: $scope.id, title: encodeURI($scope.title)});
-                }
-            });
-
         }
-
     };
 });

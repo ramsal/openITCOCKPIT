@@ -30,7 +30,7 @@ class Host360 extends Widget
     public $icon = 'fa-pie-chart';
     public $element = 'host_piechart_360';
     public $width = 5;
-    public $height = 16;
+    public $height = 14;
     public $directive = "dashboard-widget-hosts-piechart-directive";
 
     public function __construct(\Controller $controller, $QueryCache)
@@ -55,7 +55,7 @@ class Host360 extends Widget
             'row'              => 10,
             'col'              => 0,
             'width'            => 5,
-            'height'           => 16,
+            'height'           => 14,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
             'directive'        => $this->directive

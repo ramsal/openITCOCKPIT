@@ -1,4 +1,10 @@
-<?php echo $this->element('Dashboard/widget_header'); ?>
+<header dashboard-widget-header-directive=""
+        class="ui-draggable-handle pointer"
+        title="title"
+        id="id"
+        update-title="updateTitle({id:id,title:title})">
+</header>
+
 <div class="content" style="">
 
     <!-- widget edit box -->
@@ -6,8 +12,9 @@
         <!-- This area used as dropdown edit box -->
         <input class="form-control" type="text" placeholder="Widget title" ng-model="title"
                ng-model-options="{debounce: 1000}">
-        <span class="note"><i class="fa fa-check text-success"></i> Change title to update and save instantly</span>
-
+        <span class="note"><i class="fa fa-check text-success"></i>
+            <?php echo __('Change title to update and save instantly'); ?>
+        </span>
     </div>
 
     <div class="widget-body padding-0 not-draggable">

@@ -29,9 +29,10 @@ class ServiceStatusList extends Widget
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'service_status_list';
-    public $width = 10;
-    public $height = 21;
+    public $width = 12;
+    public $height = 18;
     public $hasInitialConfig = true;
+    public $directive = "dashboard-widget-service-status-list-directive";
 
     public $initialConfig = [
         'WidgetServiceStatusList' => [

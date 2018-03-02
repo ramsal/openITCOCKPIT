@@ -1,4 +1,9 @@
-<?php echo $this->element('Dashboard/widget_header'); ?>
+<header dashboard-widget-header-directive=""
+        class="ui-draggable-handle pointer"
+        title="title"
+        id="id"
+        update-title="updateTitle({id:id,title:title})">
+</header>
 
 <div class="content" style="">
 
@@ -7,14 +12,18 @@
         <!-- This area used as dropdown edit box -->
         <input class="form-control" type="text" placeholder="Widget title" ng-model="title"
                ng-model-options="{debounce: 1000}">
-        <span class="note"><i class="fa fa-check text-success"></i> Change title to update and save instantly</span>
-
+        <span class="note"><i class="fa fa-check text-success"></i>
+            <?php echo __('Change title to update and save instantly'); ?>
+        </span>
     </div>
 
     <div class="widget-body padding-0">
         <div class="row no-padding">
+
             <div class="col-xs-12 text-center">
-                <canvas id="myChart{{id}}"></canvas>
+                <div class="text-center" style="height: 199px; width: 399px;margin-left: auto; margin-right: auto;">
+                    <canvas id="myChart{{id}}"></canvas>
+                </div>
                 <div class="text-center font-xs margin-top-10">
                     <div class="col-md-4 no-padding">
                         <a href="/hosts/index?filter%5BHoststatus.current_state%5D%5B0%5D=1&amp;sort=Hoststatus.last_state_change&amp;direction=desc">

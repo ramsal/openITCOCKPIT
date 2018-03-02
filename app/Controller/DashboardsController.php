@@ -75,6 +75,20 @@ class DashboardsController extends AppController {
     }
 
 
+    public function widget_service_status_list () {
+        if ($this->isApiRequest()) {
+
+            $service_status_list = [];
+
+            $this->set(compact(['service_status_list']));
+            $this->set('_serialize', ['service_status_list']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
     public function widget_host_status_list () {
         if ($this->isApiRequest()) {
 
@@ -160,6 +174,13 @@ class DashboardsController extends AppController {
             $this->set('_serialize', ['parent_outages']);
             return;
         }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_header () {
+
         $this->layout = 'plain';
         $this->set('excludeActionWrapper', true);
         return;

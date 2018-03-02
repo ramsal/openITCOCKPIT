@@ -1,4 +1,10 @@
-<?php echo $this->element('Dashboard/widget_header'); ?>
+<header dashboard-widget-header-directive=""
+        class="ui-draggable-handle pointer"
+        title="title"
+        id="id"
+        update-title="updateTitle({id:id,title:title})">
+</header>
+
 <div class="content" style="">
 
     <!-- widget edit box -->
@@ -6,9 +12,11 @@
         <!-- This area used as dropdown edit box -->
         <input class="form-control" type="text" placeholder="Widget title" ng-model="title"
                ng-model-options="{debounce: 1000}">
-        <span class="note"><i class="fa fa-check text-success"></i> Change title to update and save instantly</span>
-
+        <span class="note"><i class="fa fa-check text-success"></i>
+            <?php echo __('Change title to update and save instantly'); ?>
+        </span>
     </div>
+
 
     <div class="widget-body padding-0 not-draggable">
         <div style="padding:13px;">
@@ -28,10 +36,10 @@
                 ?>
             </div>
             <div class="pull-left col-md-7">
-                <strong>{{widget.hosts}}</strong> hosts are monitored <br/>
-                <strong>{{widget.services}}</strong> services are monitored <br/>
+                <strong>{{widget.hosts}}</strong> <?php echo __('hosts are monitored'); ?><br/>
+                <strong>{{widget.services}}</strong> <?php echo __('services are monitored'); ?><br/>
                 <br/>
-                Your selected Timezone is <strong>{{widget.timezone}}</strong>
+                <?php echo __('Your selected Timezone is'); ?> <strong>{{widget.timezone}}</strong>
                 ({{widget.date}})
             </div>
         </div>
