@@ -1034,10 +1034,12 @@ class DashboardsController extends AppController {
     }
 
     public function saveStatuslistSettings () {
-        $this->autoRender = false;
-        if (!$this->request->is('ajax')) {
+        $this->layout = "blank";
+        $error = null;
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
+
         if (isset($this->request->data['widgetId']) && isset($this->request->data['settings']) && isset($this->request->data['widgetTypeId'])) {
             $widgetId = $this->request->data['widgetId'];
             $settings = $this->request->data['settings'];
@@ -1075,6 +1077,9 @@ class DashboardsController extends AppController {
                 }
             }
         }
+        $this->set(compact(['error']));
+        $this->set('_serialize', ['error']);
+        return;
     }
 
     public function saveTrafficLightService () {

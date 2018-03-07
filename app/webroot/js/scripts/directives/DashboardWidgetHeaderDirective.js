@@ -3,9 +3,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHeaderDirective', func
         restrict: 'A',
         templateUrl: '/dashboards/widget_header.html',
         scope: {
-            'title': '=',
-            'id': '=',
-            'updateTitle': '&',
+            'title': '=wtitle',
+            'id': '=wid',
+            'updateTitle': '&'
         },
 
         controller: function($scope){

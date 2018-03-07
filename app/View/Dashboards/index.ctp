@@ -189,7 +189,7 @@
                                              data-widget-attstyle="{{widget.Widget.color}}"
                                              role="widget"
                                              attrs="widget.Widget.directive"
-                                             title="widget.Widget.title"
+                                             wtitle="widget.Widget.title"
                                              wid="widget.Widget.id"
                                              update-title="updateWidgetTitle(id,title)">
                                         </div>
@@ -376,7 +376,7 @@
 
                                 <div class="slidecontainer">
                                     <input type="range" step="10" min="0" max="900" class="slider"
-                                           ng-model="tabRotateInterval" ng-mouseup="saveTabRotateInterval()">
+                                           ng-model="viewTabRotateInterval" ng-mouseup="saveTabRotateInterval()">
                                 </div>
 
                             </div>

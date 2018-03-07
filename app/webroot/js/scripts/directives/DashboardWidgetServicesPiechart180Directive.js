@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
         restrict: 'A',
         templateUrl: '/dashboards/widget_services_piechart.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },

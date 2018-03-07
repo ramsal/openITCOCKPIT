@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutagesDirective
         restrict: 'A',
         templateUrl: '/dashboards/widget_parent_outages.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },

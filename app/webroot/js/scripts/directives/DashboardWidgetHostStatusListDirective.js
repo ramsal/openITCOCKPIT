@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
         restrict: 'A',
         templateUrl: '/dashboards/widget_host_status_list.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },
@@ -11,8 +11,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
         controller: function($scope){
 
             $scope.widget = null;
+            $scope.ready = false;
             $scope.pagingOn = false;
-            $scope.tmpPagingInterval = 0;
+            $scope.viewPagingInterval = 0;
 
             $scope.statusListSettings = {
                 pagingInterval: 0,
@@ -36,8 +37,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                         'angular': true
                     }
                 }).then(function(result){
+                    $scope.ready = false;
                     $scope.widget = result.data.host_status_list;
                     console.log(result.data);
+
+                    let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
+                    let mobileheight = (widgetheight - 10) * 22;
+                    document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
+                    $scope.ready = true;
                 });
             };
 
@@ -59,36 +66,65 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 return (new Date(seconds * 60000)).toUTCString().match(/(\d\d:\d\d)/)[0] + " minutes";
             };
 
-            $scope.$watch('tmpPagingInterval', function(){
-                $scope.pagingTimeString = $scope.toTimeString($scope.tmpPagingInterval);
+            $scope.$watch('viewPagingInterval', function(){
+                $scope.pagingTimeString = $scope.toTimeString($scope.viewPagingInterval);
+            });
+
+            $scope.$watch('statusListSettings.pagingInterval', function(){
+                $scope.pagingTimeString = $scope.toTimeString($scope.statusListSettings.pagingInterval);
                 if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
-                if($scope.tmpPagingInterval > 0){
+                if($scope.statusListSettings.pagingInterval > 0){
+                    console.log($scope.statusListSettings.pagingInterval);
                     //$scope.pagingTimer = $interval($scope.tabRotate, parseInt($scope.statusListSettings.pagingInterval + '000'));
                 }
             });
 
             $scope.$watch('statusListSettings | json', function(){
-                let arr = {
-                    'settings[animation_interval]': $scope.statusListSettings.pagingInterval,
-                    'settings[animation]': $scope.statusListSettings.animation,
-                    'settings[show_acknowledged]': $scope.statusListSettings.filter.Hoststatus.acknowledged ? 1 : 0,
-                    'settings[show_downtime]': $scope.statusListSettings.filter.Hoststatus.downtime ? 1 : 0,
-                    'settings[show_up]': $scope.statusListSettings.filter.Hoststatus.current_state.up ? 1 : 0,
-                    'settings[show_down]': $scope.statusListSettings.filter.Hoststatus.current_state.down ? 1 : 0,
-                    'settings[show_unreachable]': $scope.statusListSettings.filter.Hoststatus.current_state.unreachable ? 1 : 0,
-                    'widgetId': parseInt($scope.id),
-                    'widgetTypeId': 9
-                };
-                console.log(arr);
+                if($scope.ready === true){
+                    let data = {
+                        settings: {
+                            animation_interval: $scope.statusListSettings.pagingInterval.toString(),
+                            animation: $scope.statusListSettings.animation,
+                            show_acknowledged: $scope.statusListSettings.filter.Hoststatus.acknowledged ? "1" : "0",
+                            show_downtime: $scope.statusListSettings.filter.Hoststatus.downtime ? "1" : "0",
+                            show_up: $scope.statusListSettings.filter.Hoststatus.current_state.up ? "1" : "0",
+                            show_down: $scope.statusListSettings.filter.Hoststatus.current_state.down ? "1" : "0",
+                            show_unreachable: $scope.statusListSettings.filter.Hoststatus.current_state.unreachable ? "1" : "0",
+                            show_filter_search: ""
+                        },
+                        'widgetId': $scope.id,
+                        'widgetTypeId': "9"
+                    };
+
+                    $http.post('/dashboards/saveStatuslistSettings.json?angular=true', data).then(function(result){
+                        //console.log(result);
+                    });
+                }
             });
 
-            $scope.savePagingInterval = function (){
-                $scope.statusListSettings.pagingInterval = $scope.tmpPagingInterval;
+            $scope.savePagingInterval = function(){
+                $scope.statusListSettings.pagingInterval = $scope.viewPagingInterval;
             };
 
-            $scope.setAnimation = function (animation){
+            $scope.setAnimation = function(animation){
                 $scope.statusListSettings.animation = animation;
             };
+
+
+            $('.grid-stack').on('change', function(event, items){
+                if(items && $scope.ready){
+                    items.forEach(function(item){
+                        if(item.id == $scope.id){
+                            //console.log(item.height);
+                            let mobileheight = (item.height - 10) * 22;
+                            //console.log(mobileheight);
+                            if(document.getElementById("mobile_table" + $scope.id)){
+                                document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
+                            }
+                        }
+                    });
+                }
+            });
 
         }
     };

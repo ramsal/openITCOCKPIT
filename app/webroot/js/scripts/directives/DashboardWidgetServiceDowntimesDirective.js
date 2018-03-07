@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimesDirect
         restrict: 'A',
         templateUrl: '/dashboards/widget_service_downtimes.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },

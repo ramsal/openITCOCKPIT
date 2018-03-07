@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart180Direct
         restrict: 'A',
         templateUrl: '/dashboards/widget_hosts_piechart.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },

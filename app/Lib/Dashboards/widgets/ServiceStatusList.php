@@ -29,15 +29,15 @@ class ServiceStatusList extends Widget
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'service_status_list';
-    public $width = 12;
-    public $height = 18;
+    public $width = 10;
+    public $height = 20;
     public $hasInitialConfig = true;
     public $directive = "dashboard-widget-service-status-list-directive";
 
     public $initialConfig = [
         'WidgetServiceStatusList' => [
             'animation'          => 'fadeInUp',
-            'animation_interval' => 10,
+            'animation_interval' => 0,
             'show_ok'            => 0,
             'show_warning'       => 1,
             'show_critical'      => 1,

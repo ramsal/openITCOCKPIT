@@ -1,7 +1,7 @@
 <header dashboard-widget-header-directive=""
         class="ui-draggable-handle pointer"
-        title="title"
-        id="id"
+        wtitle="title"
+        wid="id"
         update-title="updateTitle({id:id,title:title})">
 </header>
 
@@ -26,10 +26,10 @@
                        class="btn btn-default btn-xs stopRotation btn-primary"><i class="fa fa-pause"></i></a>
                     <a href="javascript:void(0);" ng-show="!pagingOn" ng-click="startPaging()" data-widget-id="21"
                        class="btn btn-default btn-xs startRotation btn-primary"><i class="fa fa-play"></i></a>
-                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInRight')" class="btn btn-default btn-xs" data-widget-id="21"><i
-                                class="fa fa-arrow-left"></i></a>
-                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInUp')" class="btn btn-default btn-xs" data-widget-id="21"><i
-                                class="fa fa-arrow-up"></i></a>
+                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInRight')" class="btn btn-default btn-xs"
+                       data-widget-id="21"><i class="fa fa-arrow-left"></i></a>
+                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInUp')" class="btn btn-default btn-xs"
+                       data-widget-id="21"><i class="fa fa-arrow-up"></i></a>
                 </div>
                 <div class="col-xs-4 height-45px">
                     <div class="form-group form-group-slider">
@@ -43,7 +43,7 @@
 
                         <div class="slidecontainer">
                             <input type="range" step="5" min="0" max="300" class="slider"
-                                   ng-model="tmpPagingInterval" ng-mouseup="savePagingInterval()">
+                                   ng-model="viewPagingInterval" ng-mouseup="savePagingInterval()">
                         </div>
 
                     </div>
@@ -116,7 +116,7 @@
             </div>
         </div>
 
-        <div class="mobile_table margin-top-10">
+        <div id="mobile_table{{id}}" class="mobile_table margin-top-10" style="overflow: auto; height: 200px;">
             <table id="host_list"
                    class="table table-striped table-hover table-bordered smart-form"
                    style="">
@@ -181,5 +181,24 @@
             </table>
 
         </div>
+
+        <div class="dt-toolbar-footer">
+            <div class="col-xs-12 col-sm-6">
+                <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">Showing <span
+                            class="txt-color-darken">1</span> to <span class="txt-color-darken">2</span> of <span
+                            class="text-primary">2</span> entries
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
+                    <ul class="pagination pagination-sm">
+                        <li class="paginate_button active" aria-controls="DataTables_Table_0" tabindex="0"><a
+                                    href="#">1</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
+
 </div>

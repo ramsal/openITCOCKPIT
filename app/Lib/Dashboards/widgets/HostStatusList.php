@@ -29,15 +29,15 @@ class HostStatusList extends Widget
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'host_status_list';
-    public $width = 12;
-    public $height = 18;
+    public $width = 10;
+    public $height = 20;
     public $hasInitialConfig = true;
     public $directive = "dashboard-widget-host-status-list-directive";
 
     public $initialConfig = [
         'WidgetHostStatusList' => [
             'animation'          => 'fadeInUp',
-            'animation_interval' => 10,
+            'animation_interval' => 0,
             'show_up'            => 0,
             'show_down'          => 1,
             'show_unreachable'   => 1,

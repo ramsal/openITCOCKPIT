@@ -5,6 +5,7 @@ angular.module('openITCOCKPIT')
         $scope.errors = null;
 
         $scope.tabRotateInterval = 0;
+        $scope.viewTabRotateInterval = 0;
         $scope.tabRotateLastTab = 0;
         $scope.openEditModals = [];
         $scope.serializedGridstackData = [];
@@ -212,6 +213,7 @@ angular.module('openITCOCKPIT')
         $scope.$watch('tab.id', function(){
             if($scope.tab.id != null){
                 //$scope.ready = 0;
+                $scope.openEditModals = [];
                 $scope.getPreparedWidgets();
             }
         });
@@ -379,6 +381,7 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.saveTabRotateInterval = function(){
+            $scope.tabRotateInterval = $scope.viewTabRotateInterval;
             $http.post('/dashboards/saveTabRotationInterval.json?angular=true',
                 {
                     'value': $scope.tabRotateInterval
@@ -396,6 +399,10 @@ angular.module('openITCOCKPIT')
             }
             return (new Date(seconds * 60000)).toUTCString().match(/(\d\d:\d\d)/)[0] + " minutes";
         };
+
+        $scope.$watch('viewTabRotateInterval', function(){
+            $scope.tabRotateTimeString = $scope.toTimeString($scope.viewTabRotateInterval);
+        });
 
         $scope.$watch('tabRotateInterval', function(){
             $scope.tabRotateTimeString = $scope.toTimeString($scope.tabRotateInterval);

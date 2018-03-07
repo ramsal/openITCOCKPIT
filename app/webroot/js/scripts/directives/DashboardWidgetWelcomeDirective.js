@@ -3,7 +3,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetWelcomeDirective', fun
         restrict: 'A',
         templateUrl: '/dashboards/widget_welcome.html',
         scope: {
-            'title': '=',
+            'title': '=wtitle',
             'id': '=wid',
             'updateTitle': '&'
         },

@@ -1,7 +1,7 @@
 <header dashboard-widget-header-directive=""
         class="ui-draggable-handle pointer"
-        title="title"
-        id="id"
+        wtitle="title"
+        wid="id"
         update-title="updateTitle({id:id,title:title})">
 </header>
 
