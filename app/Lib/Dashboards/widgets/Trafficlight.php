@@ -31,6 +31,7 @@ class Trafficlight extends Widget
     public $element = 'trafficlight';
     public $width = 4;
     public $height = 16;
+    public $directive = "dashboard-widget-traffic-light-directive";
 
     public function __construct(\Controller $controller, $QueryCache)
     {

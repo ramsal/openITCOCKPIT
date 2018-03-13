@@ -74,6 +74,19 @@ class DashboardsController extends AppController {
         }
     }
 
+    public function widget_traffic_light () {
+        if ($this->isApiRequest()) {
+
+            $traffic_light = [];
+
+            $this->set(compact(['traffic_light']));
+            $this->set('_serialize', ['traffic_light']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
 
     public function widget_service_status_list () {
         if ($this->isApiRequest()) {

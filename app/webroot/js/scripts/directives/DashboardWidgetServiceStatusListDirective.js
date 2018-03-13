@@ -81,6 +81,10 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                 if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
                 if($scope.statusListSettings.pagingInterval > 0){
                     //$scope.pagingTimer = $interval($scope.tabRotate, parseInt($scope.statusListSettings.pagingInterval + '000'));
+
+
+
+
                 }
             });
 
