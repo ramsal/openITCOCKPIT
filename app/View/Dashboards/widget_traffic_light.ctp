@@ -19,6 +19,24 @@
 
 
     <div class="widget-body padding-0 not-draggable">
+
+        <div class="row">
+            <div class="col col-xs-12">
+                <select id="ServiceId"
+                        data-placeholder="<?php echo __('Please select...'); ?>"
+                        class="form-control"
+                        chosen="services"
+                        callback="loadServices"
+                        ng-options="value.id as value.label group by value.group for value in services"
+                        ng-model="serviceIds"
+                >
+                </select>
+                <div ng-repeat="error in errors.object_id">
+                    <div class="help-block text-danger">{{ error }}</div>
+                </div>
+            </div>
+        </div>
+
         <div style="padding:13px;">
 
             <div class="traffic-light" id="traffic-light{{id}}">
