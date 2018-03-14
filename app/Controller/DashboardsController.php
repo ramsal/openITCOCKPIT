@@ -74,6 +74,20 @@ class DashboardsController extends AppController {
         }
     }
 
+    public function widget_tachometer () {
+        if ($this->isApiRequest()) {
+
+            $tachometer = [];
+
+            $this->set(compact(['tachometer']));
+            $this->set('_serialize', ['tachometer']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
     public function widget_traffic_light () {
         if ($this->isApiRequest()) {
 

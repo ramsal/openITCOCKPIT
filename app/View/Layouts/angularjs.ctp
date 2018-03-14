@@ -60,6 +60,7 @@ $scripts = [
     'js/vendor/gridstack/src/gridstack.js',
     'js/vendor/gridstack/src/gridstack.jQueryUI.js',
     'js/vendor/chart.js',
+    'js/vendor/gauge/gauge.min.js',
     //'smartadmin/js/smartwidgets/jarvis.widget.js'
 ];
 
