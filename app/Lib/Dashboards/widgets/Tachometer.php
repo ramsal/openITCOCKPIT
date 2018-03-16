@@ -29,8 +29,8 @@ class Tachometer extends Widget
     public $isDefault = false;
     public $icon = 'fa-dashboard';
     public $element = 'tachometer';
-    public $width = 5;
-    public $height = 23;
+    public $width = 4;
+    public $height = 14;
     public $directive = "dashboard-widget-tachometer-directive";
 
     public function __construct(\Controller $controller, $QueryCache)

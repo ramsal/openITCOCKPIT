@@ -10,16 +10,22 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
 
         controller: function($scope){
 
-            $scope.widget = {};
+            $scope.widget = {
+                minval: 0,
+                maxval: 0,
+                warnPercent: 0,
+                critPercent: 0,
+                height: 0,
+                width: 0,
+                datasource: false
+            };
+            $scope.gauge = {};
             $scope.checkinterval = 10;
             $scope.gaugeTitle = 'load1';
-            $scope.minval = 0;
-            $scope.maxval = 220;
-            $scope.warnPercent = 40;
-            $scope.critPercent = 70;
             $scope.roundFactor = 1;
             $scope.value = 0;
             $scope.ticks = [];
+            $scope.ready = false;
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_tachometer.json', {
@@ -27,151 +33,156 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.tachometer;
+                    //$scope.widget = result.data.tachometer;
+                    $scope.widget = {
+                        minval: 50,
+                        maxval: 111,
+                        warnPercent: 66,
+                        critPercent: 90,
+                        height: 300,
+                        width: 300,
+                        datasource: false
+                    };
                 });
             };
 
+            $scope.convertWidgetData = function(){
+                $scope.widget.minval = parseInt($scope.widget.minval);
+                $scope.widget.maxval = parseInt($scope.widget.maxval);
+                $scope.widget.warnPercent = parseInt($scope.widget.warnPercent);
+                $scope.widget.critPercent = parseInt($scope.widget.critPercent);
+            };
 
             $scope.precisionRound = function(number, precision){
                 let factor = Math.pow(10, precision);
                 return Math.round(number * factor) / factor;
             };
 
-            $scope.initScriptedGauges = function(){
+            $scope.calculateTachoData = function(){
 
-                let warnBorder = ($scope.maxval / 100) * $scope.warnPercent;    //88
-                let critBorder = ($scope.maxval / 100) * $scope.critPercent;    //154
+                let widgetsize = document.getElementById($scope.id).clientHeight-63;
+                if(document.getElementById($scope.id).clientWidth<document.getElementById($scope.id).clientHeight){
+                    widgetsize=document.getElementById($scope.id).clientWidth-63;
+                }
+                $scope.widget.height = widgetsize;
+                $scope.widget.width = widgetsize;
 
-                let xfirstSectorLength = (warnBorder / ($scope.warnPercent / 10));    //22
-                let firstSectorLength = $scope.precisionRound(xfirstSectorLength - ($scope.minval / 11), $scope.roundFactor);
+                $scope.convertWidgetData();
+                $scope.ticks = [];
+                $scope.gauge.warnBorder = ($scope.widget.maxval / 100) * $scope.widget.warnPercent;
+                $scope.gauge.critBorder = ($scope.widget.maxval / 100) * $scope.widget.critPercent;
 
-                let xsecondSectorLength = (critBorder / ($scope.critPercent / 10));   //22
-                let secondSectorLength = $scope.precisionRound(xsecondSectorLength - ($scope.minval / 11), $scope.roundFactor);
+                let sectorLength = ($scope.widget.maxval - $scope.widget.minval) / 10;
+                let currentCount = $scope.widget.minval;
 
-                let xthirdSectorLength = ($scope.maxval / 10);                      //22
-                let thirdSectorLength = $scope.precisionRound(xthirdSectorLength - ($scope.minval / 11), $scope.roundFactor);
-
-
-                let currentCount = $scope.minval;
-
-                for(let i = currentCount; i < warnBorder; i = i + firstSectorLength){
+                for(let i = currentCount; i <= $scope.widget.maxval; i = i + sectorLength){
                     currentCount = $scope.precisionRound(i, $scope.roundFactor);
-                    //console.log(currentCount);
                     $scope.ticks.push(currentCount);
                 }
 
-                //console.log("----");
-
-                for(let i = currentCount + firstSectorLength; i < critBorder; i = i + secondSectorLength){
-                    currentCount = $scope.precisionRound(i, $scope.roundFactor);
-                    //console.log(currentCount);
-                    $scope.ticks.push(currentCount);
+                if($scope.ticks.length == 10){
+                    $scope.ticks.push($scope.precisionRound((currentCount+sectorLength), $scope.roundFactor));
                 }
 
-                //console.log("----");
+            };
 
-                for(let i = currentCount + secondSectorLength; i <= $scope.maxval; i = i + thirdSectorLength){
-                    currentCount = $scope.precisionRound(i, $scope.roundFactor);
-                    //console.log(currentCount);
-                    $scope.ticks.push(currentCount);
+            $scope.initTacho = function(){
+
+                if(!$scope.rg && $scope.widget.maxval != 0){
+                    $scope.calculateTachoData();
+                    $scope.rg = new RadialGauge({
+                        renderTo: 'canvas-' + $scope.id,
+                        width: $scope.widget.width,
+                        height: $scope.widget.width,
+                        units: false,
+                        title: $scope.gaugeTitle,
+                        value: $scope.value,
+                        minValue: $scope.widget.minval,
+                        maxValue: $scope.widget.maxval,
+                        majorTicks: $scope.ticks,
+                        minorTicks: 2,
+                        strokeTicks: false,
+                        highlights: [
+                            {from: $scope.widget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
+                            {from: $scope.gauge.warnBorder, to: $scope.gauge.critBorder, color: '#DF8F1D'},
+                            {from: $scope.gauge.critBorder, to: $scope.widget.maxval, color: '#C9302C'}
+                        ],
+                        colorPlate: '#fff',
+                        colorMajorTicks: '#222020',
+                        colorMinorTicks: '#222020',
+                        colorTitle: '#737373',
+                        colorUnits: '#ccc',
+                        colorNumbers: '#000000',
+                        colorNeedle: '#000000',
+                        colorNeedleEnd: '#000000',
+                        valueBox: true,
+                        animationRule: 'bounce',
+                        animationDuration: 500
+                    }).draw();
+                    return true;
                 }
+                return false;
 
-                //console.log("ticks: ");
-                //console.log($scope.ticks);
-                //console.log("first border: "+warnBorder);
-                //console.log("first: "+firstSectorLength);
-                //console.log("second: "+secondSectorLength);
-                //console.log("third: "+thirdSectorLength);
-
-                new RadialGauge({
-                    renderTo: 'canvas-'+$scope.id,
-                    width: 300,
-                    height: 300,
-                    units: false,
-                    title: $scope.gaugeTitle,
-                    value: $scope.value,
-                    minValue: $scope.minval,
-                    maxValue: $scope.maxval,
-                    majorTicks: $scope.ticks,
-                    minorTicks: 2,
-                    strokeTicks: false,
-                    highlights: [
-                        {from: $scope.minval, to: warnBorder, color: '#449D44'},
-                        {from: warnBorder, to: critBorder, color: '#DF8F1D'},
-                        {from: critBorder, to: $scope.maxval, color: '#C9302C'}
-                    ],
-                    colorPlate: '#fff',
-                    colorMajorTicks: '#222020',
-                    colorMinorTicks: '#222020',
-                    colorTitle: '#737373',
-                    colorUnits: '#ccc',
-                    colorNumbers: '#000000',
-                    colorNeedle: '#000000',
-                    colorNeedleEnd: '#000000',
-                    valueBox: true,
-                    animationRule: 'bounce',
-                    animationDuration: 500
-                }).draw();
             };
 
-            if(!Array.prototype.forEach){
-                Array.prototype.forEach = function(cb){
-                    let i = 0, s = this.length;
-                    for(; i < s; i++){
-                        cb && cb(this[i], i, this);
-                    }
+            $scope.updateTacho = function(){
+                if($scope.rg){
+                    $scope.calculateTachoData();
+                    $scope.rg.update({
+                        title: $scope.gaugeTitle,
+                        value: $scope.value,
+                        minValue: $scope.widget.minval,
+                        maxValue: $scope.widget.maxval,
+                        majorTicks: $scope.ticks,
+                        highlights: [
+                            {from: $scope.widget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
+                            {from: $scope.gauge.warnBorder, to: $scope.gauge.critBorder, color: '#DF8F1D'},
+                            {from: $scope.gauge.critBorder, to: $scope.widget.maxval, color: '#C9302C'}
+                        ],
+                        width: $scope.widget.width,
+                        height: $scope.widget.height,
+                    });
                 }
-            }
-
-            document.fonts && document.fonts.forEach(function(font){
-                font.loaded.then(function(){
-                    if(font.family.match(/Led/)){
-                        document.gauges.forEach(function(gauge){
-                            gauge.update();
-                        });
-                    }
-                });
-            });
-
-            let timers = [];
-
-            $scope.animateGauges = function(){
-                document.gauges.forEach(function(gauge){
-                    timers.push(setInterval(function(){
-                        gauge.value = Math.random() *
-                            (gauge.options.maxValue - gauge.options.minValue) / 4 +
-                            gauge.options.minValue / 4;
-                    }, gauge.animation.duration + 50));
-                });
             };
-
-            $scope.stopGaugesAnimation = function(){
-                timers.forEach(function(timer){
-                    clearInterval(timer);
-                });
-            };
-
 
 
             angular.element(function(){
                 $scope.load();
                 $('[data-toggle="tooltip"]').tooltip();
-                $scope.initScriptedGauges();
-                /*
-                $scope.tr = $('#traffic-light' + $scope.id);
-                $scope.redBulb = $('#redLight' + $scope.id);
-                $scope.yellowBulb = $('#yellowLight' + $scope.id);
-                $scope.greenBulb = $('#greenLight' + $scope.id);
-                $scope.updateTrafficLightSize(false, $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue);
-                */
-            });
 
+                $scope.$watch('widget.maxval', function(){
+                    if(!$scope.rg && $scope.widget.maxval != 0){
+                        $scope.ready = false;
+                        if($scope.initTacho()){
+                            $scope.ready = true;
+                        }
+                    }
+                });
+
+                $scope.$watch('widget | json', function(){
+                    if($scope.rg){
+                        $scope.convertWidgetData();
+                        $scope.updateTacho();
+                    }
+                });
+
+                $scope.$watch('value', function(){
+                    if($scope.rg){
+                        $scope.rg.value = parseInt($scope.value);
+                    }
+                });
+            });
 
             $('.grid-stack').on('change', function(event, items){
                 if(items){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
-                            //$scope.updateTrafficLightSize(item);
+                            let widgetsize = item.el[0].clientHeight-63;
+                            if(item.el[0].clientWidth<item.el[0].clientHeight){
+                                widgetsize=item.el[0].clientWidth-63;
+                            }
+                            $scope.widget.height = widgetsize;
+                            $scope.widget.width = widgetsize;
                         }
                     });
                 }

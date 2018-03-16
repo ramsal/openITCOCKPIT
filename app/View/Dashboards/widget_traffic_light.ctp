@@ -48,26 +48,3 @@
         </div>
     </div>
 </div>
-<style>
-    body {
-        font-family: sans-serif;
-    }
-
-    .traffic-light {
-        height: 190px;
-        width: 85px;
-        background-color: #333;
-        border-radius: 19px;
-        margin: 0px auto 0px auto;
-        padding: 10px;
-    }
-
-    .bulb {
-        height:50px;
-        width:50px;
-        background-color: #111;
-        border-radius:50%;
-        margin: 5px auto;
-        transition: background 500ms;
-    }
-</style>
