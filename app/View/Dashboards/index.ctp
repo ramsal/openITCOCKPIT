@@ -134,41 +134,6 @@
                     <div class="widget-body no-padding padding-top-10">
                         <div class="padding-bottom-10">
 
-                            <?php /*                    <div class="grid-stack">
-                                <div data-gs-height="4"
-                                     data-gs-width="4"
-                                     data-gs-x="5"
-                                     data-gs-y="4"
-                                     data-widget-id="2"
-                                     data-widget-type-id="1"
-                                     class="grid-stack-item ui-draggable ui-resizable">
-                                    <div class="grid-stack-item-content">
-                                        <div id="widget-color-1"
-                                             class="jarviswidget jarviswidget-color-blueDark"
-                                             data-widget-attstyle="jarviswidget-color-blueDark" role="widget" dashboard-widget-welcome="">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div ng-repeat="w in preparedWidgets"
-                                     data-gs-height="{{w.Widget.height}}"
-                                     data-gs-width="{{w.Widget.width}}"
-                                     data-gs-x="{{w.Widget.row}}"
-                                     data-gs-y="{{w.Widget.col}}"
-                                     data-widget-id="{{w.Widget.id}}"
-                                     data-widget-type-id="{{w.Widget.type_id}}"
-                                     ng-if="w.Widget.type_id == 1"
-                                     class="grid-stack-item ui-draggable ui-resizable">
-                                    <div class="grid-stack-item-content">
-                                        <div id="widget-color-{{w.Widget.id}}"
-                                             class="jarviswidget jarviswidget-color-blueDark"
-                                             data-widget-attstyle="jarviswidget-color-blueDark" role="widget" dashboard-widget-welcome="">
-                                        </div>
-                                    </div>
-                                </div>
- </div>
-*/ ?>
-
                             <div class="grid-stack" id="grid-stack" data-gs-width="0">
 
                                 <div ng-repeat="widget in preparedWidgets"

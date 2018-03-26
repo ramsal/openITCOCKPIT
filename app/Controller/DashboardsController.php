@@ -206,13 +206,6 @@ class DashboardsController extends AppController {
         return;
     }
 
-    public function widget_header () {
-
-        $this->layout = 'plain';
-        $this->set('excludeActionWrapper', true);
-        return;
-    }
-
     public function widget_welcome () {
         if ($this->isApiRequest()) {
 
@@ -240,6 +233,13 @@ class DashboardsController extends AppController {
             $this->set('_serialize', ['welcome']);
             return;
         }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+    public function widget_header () {
+
         $this->layout = 'plain';
         $this->set('excludeActionWrapper', true);
         return;

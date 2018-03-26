@@ -60,9 +60,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
 
             $scope.calculateTachoData = function(){
 
-                let widgetsize = document.getElementById($scope.id).clientHeight-63;
-                if(document.getElementById($scope.id).clientWidth<document.getElementById($scope.id).clientHeight){
-                    widgetsize=document.getElementById($scope.id).clientWidth-63;
+                let widgetsize = document.getElementById($scope.id).clientHeight - 63;
+                if(document.getElementById($scope.id).clientWidth < document.getElementById($scope.id).clientHeight){
+                    widgetsize = document.getElementById($scope.id).clientWidth - 63;
                 }
                 $scope.widget.height = widgetsize;
                 $scope.widget.width = widgetsize;
@@ -81,7 +81,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 }
 
                 if($scope.ticks.length == 10){
-                    $scope.ticks.push($scope.precisionRound((currentCount+sectorLength), $scope.roundFactor));
+                    $scope.ticks.push($scope.precisionRound((currentCount + sectorLength), $scope.roundFactor));
                 }
 
             };
@@ -177,9 +177,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 if(items){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
-                            let widgetsize = item.el[0].clientHeight-63;
-                            if(item.el[0].clientWidth<item.el[0].clientHeight){
-                                widgetsize=item.el[0].clientWidth-63;
+                            let widgetsize = item.el[0].clientHeight - 63;
+                            if(item.el[0].clientWidth < item.el[0].clientHeight){
+                                widgetsize = item.el[0].clientWidth - 63;
                             }
                             $scope.widget.height = widgetsize;
                             $scope.widget.width = widgetsize;

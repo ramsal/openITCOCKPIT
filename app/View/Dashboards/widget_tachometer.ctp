@@ -41,7 +41,8 @@
                 <?php echo __('Minimum'); ?>
             </label>
             <div class="col col-xs-9">
-                <input class="form-control" type="text" placeholder="<?php echo __('Minimum'); ?>" ng-model="widget.minval"
+                <input class="form-control" type="text" placeholder="<?php echo __('Minimum'); ?>"
+                       ng-model="widget.minval"
                        ng-model-options="{debounce: 1000}">
             </div>
         </div>
@@ -50,7 +51,8 @@
                 <?php echo __('Maximum'); ?>
             </label>
             <div class="col col-xs-9">
-                <input class="form-control" type="text" placeholder="<?php echo __('Maximum'); ?>" ng-model="widget.maxval"
+                <input class="form-control" type="text" placeholder="<?php echo __('Maximum'); ?>"
+                       ng-model="widget.maxval"
                        ng-model-options="{debounce: 1000}">
             </div>
         </div>
@@ -59,7 +61,8 @@
                 <?php echo __('Warning'); ?> %
             </label>
             <div class="col col-xs-9">
-                <input class="form-control" type="text" placeholder="<?php echo __('Warning'); ?> %" ng-model="widget.warnPercent"
+                <input class="form-control" type="text" placeholder="<?php echo __('Warning'); ?> %"
+                       ng-model="widget.warnPercent"
                        ng-model-options="{debounce: 1000}">
             </div>
         </div>
@@ -68,7 +71,8 @@
                 <?php echo __('Critical'); ?> %
             </label>
             <div class="col col-xs-9">
-                <input class="form-control" type="text" placeholder="<?php echo __('Critical'); ?> %" ng-model="widget.critPercent"
+                <input class="form-control" type="text" placeholder="<?php echo __('Critical'); ?> %"
+                       ng-model="widget.critPercent"
                        ng-model-options="{debounce: 1000}">
             </div>
         </div>
@@ -79,7 +83,8 @@
     <div class="widget-body padding-0 not-draggable">
 
         <div class="text-center">
-            <canvas id="canvas-{{id}}" data-check-interval="{{checkinterval}}"></canvas>
+            <canvas id="canvas-{{id}}"></canvas>
         </div>
+
     </div>
 </div>
