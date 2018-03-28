@@ -19,6 +19,19 @@
             </span>
         </div>
 
+        <div class="row margin-top-10">
+            <div class="col col-xs-12">
+                <select id="ServiceId"
+                        data-placeholder="<?php echo __('Please select...'); ?>"
+                        class="form-control"
+                        chosen="services"
+                        callback="loadServices"
+                        ng-options="value.id as value.label group by value.group for value in services"
+                        ng-model="widget.serviceId"
+                >
+                </select>
+            </div>
+        </div>
 
         <div class="row margin-top-10">
             <label class="col col-md-3 control-label margin-top-8">
@@ -28,9 +41,9 @@
                 <select id="ServiceId"
                         data-placeholder="<?php echo __('Please select...'); ?>"
                         class="form-control"
-                        chosen="services"
+                        chosen="datasources"
                         callback="loadDatasources"
-                        ng-options="value.id as value.label group by value.group for value in services"
+                        ng-options="value.id as value.label group by value.group for value in datasources"
                         ng-model="widget.datasource"
                 >
                 </select>

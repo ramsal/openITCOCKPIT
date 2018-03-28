@@ -17,7 +17,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 critPercent: 0,
                 height: 0,
                 width: 0,
-                datasource: false
+                datasource: false,
+                serviceId: 1,
+                tachoId: null,
+            };
+            $scope.formattedWidget = {
+                minval: 0,
+                maxval: 0,
+                warnPercent: 0,
+                critPercent: 0
             };
             $scope.gauge = {};
             $scope.checkinterval = 10;
@@ -30,27 +38,45 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             $scope.load = function(){
                 $http.get('/dashboards/widget_tachometer.json', {
                     params: {
-                        'angular': true
+                        'angular': true,
+                        'widgetId': $scope.id
                     }
                 }).then(function(result){
-                    //$scope.widget = result.data.tachometer;
+                    console.log(result.data.tachometer);
                     $scope.widget = {
-                        minval: 50,
-                        maxval: 111,
-                        warnPercent: 66,
-                        critPercent: 90,
-                        height: 300,
-                        width: 300,
-                        datasource: false
+                        minval: result.data.tachometer.WidgetTacho.min,
+                        maxval: result.data.tachometer.WidgetTacho.max,
+                        warnPercent: result.data.tachometer.WidgetTacho.warn,
+                        critPercent: result.data.tachometer.WidgetTacho.crit,
+                        datasource: result.data.tachometer.WidgetTacho.data_source,
+                        tachoId: result.data.tachometer.WidgetTacho.id
                     };
                 });
             };
 
             $scope.convertWidgetData = function(){
-                $scope.widget.minval = parseInt($scope.widget.minval);
-                $scope.widget.maxval = parseInt($scope.widget.maxval);
-                $scope.widget.warnPercent = parseInt($scope.widget.warnPercent);
-                $scope.widget.critPercent = parseInt($scope.widget.critPercent);
+                $scope.formattedWidget.minval = parseFloat($scope.widget.minval);
+                $scope.formattedWidget.maxval = parseFloat($scope.widget.maxval);
+                $scope.formattedWidget.warnPercent = parseFloat($scope.widget.warnPercent);
+                $scope.formattedWidget.critPercent = parseFloat($scope.widget.critPercent);
+            };
+
+
+            $scope.IsNumeric = function(val){
+                return Number(parseFloat(val)) === val;
+            };
+
+            $scope.areWidgetFieldsEmpty = function(){
+                if(!$scope.IsNumeric(parseInt($scope.widget.minval))){
+                    return true;
+                }else if(!$scope.IsNumeric(parseInt($scope.widget.maxval))){
+                    return true;
+                }else if(!$scope.IsNumeric(parseInt($scope.widget.warnPercent))){
+                    return true;
+                }else if(!$scope.IsNumeric(parseInt($scope.widget.critPercent))){
+                    return true;
+                }
+                return false;
             };
 
             $scope.precisionRound = function(number, precision){
@@ -69,13 +95,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
 
                 $scope.convertWidgetData();
                 $scope.ticks = [];
-                $scope.gauge.warnBorder = ($scope.widget.maxval / 100) * $scope.widget.warnPercent;
-                $scope.gauge.critBorder = ($scope.widget.maxval / 100) * $scope.widget.critPercent;
+                $scope.gauge.warnBorder = ($scope.formattedWidget.maxval / 100) * $scope.formattedWidget.warnPercent;
+                $scope.gauge.critBorder = ($scope.formattedWidget.maxval / 100) * $scope.formattedWidget.critPercent;
 
-                let sectorLength = ($scope.widget.maxval - $scope.widget.minval) / 10;
-                let currentCount = $scope.widget.minval;
+                let sectorLength = ($scope.formattedWidget.maxval - $scope.formattedWidget.minval) / 10;
+                let currentCount = $scope.formattedWidget.minval;
 
-                for(let i = currentCount; i <= $scope.widget.maxval; i = i + sectorLength){
+                for(let i = currentCount; i <= $scope.formattedWidget.maxval; i = i + sectorLength){
                     currentCount = $scope.precisionRound(i, $scope.roundFactor);
                     $scope.ticks.push(currentCount);
                 }
@@ -83,7 +109,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 if($scope.ticks.length == 10){
                     $scope.ticks.push($scope.precisionRound((currentCount + sectorLength), $scope.roundFactor));
                 }
-
             };
 
             $scope.initTacho = function(){
@@ -97,15 +122,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         units: false,
                         title: $scope.gaugeTitle,
                         value: $scope.value,
-                        minValue: $scope.widget.minval,
-                        maxValue: $scope.widget.maxval,
+                        minValue: $scope.formattedWidget.minval,
+                        maxValue: $scope.formattedWidget.maxval,
                         majorTicks: $scope.ticks,
                         minorTicks: 2,
                         strokeTicks: false,
                         highlights: [
-                            {from: $scope.widget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
+                            {from: $scope.formattedWidget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
                             {from: $scope.gauge.warnBorder, to: $scope.gauge.critBorder, color: '#DF8F1D'},
-                            {from: $scope.gauge.critBorder, to: $scope.widget.maxval, color: '#C9302C'}
+                            {from: $scope.gauge.critBorder, to: $scope.formattedWidget.maxval, color: '#C9302C'}
                         ],
                         colorPlate: '#fff',
                         colorMajorTicks: '#222020',
@@ -119,6 +144,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         animationRule: 'bounce',
                         animationDuration: 500
                     }).draw();
+                    $scope.ready = true;
                     return true;
                 }
                 return false;
@@ -126,23 +152,44 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             };
 
             $scope.updateTacho = function(){
-                if($scope.rg){
+                $scope.ready = false;
+                if($scope.rg && !$scope.areWidgetFieldsEmpty()){
                     $scope.calculateTachoData();
                     $scope.rg.update({
                         title: $scope.gaugeTitle,
                         value: $scope.value,
-                        minValue: $scope.widget.minval,
-                        maxValue: $scope.widget.maxval,
+                        minValue: $scope.formattedWidget.minval,
+                        maxValue: $scope.formattedWidget.maxval,
                         majorTicks: $scope.ticks,
                         highlights: [
-                            {from: $scope.widget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
+                            {from: $scope.formattedWidget.minval, to: $scope.gauge.warnBorder, color: '#449D44'},
                             {from: $scope.gauge.warnBorder, to: $scope.gauge.critBorder, color: '#DF8F1D'},
-                            {from: $scope.gauge.critBorder, to: $scope.widget.maxval, color: '#C9302C'}
+                            {from: $scope.gauge.critBorder, to: $scope.formattedWidget.maxval, color: '#C9302C'}
                         ],
                         width: $scope.widget.width,
                         height: $scope.widget.height,
                     });
+
+                    let data = {
+                        settings: {
+                            data_source: "rta",
+                            min: $scope.formattedWidget.minval,
+                            max: $scope.formattedWidget.maxval,
+                            warn: $scope.formattedWidget.warnPercent,
+                            crit: $scope.formattedWidget.critPercent,
+                            widget_id: $scope.id
+                        },
+                        service_id: 1,
+                        tacho_id: $scope.widget.tachoId  //id in widget_tachos tabelle,  wird erstellt, wenn nicht vorhanden
+                    };
+                    console.log(data);
+
+                    $http.post('/dashboards/saveTachoConfig.json?angular=true', data).then(function(result){
+                        console.log(result.data);
+                    });
+
                 }
+                $scope.ready = true;
             };
 
 
@@ -153,22 +200,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 $scope.$watch('widget.maxval', function(){
                     if(!$scope.rg && $scope.widget.maxval != 0){
                         $scope.ready = false;
-                        if($scope.initTacho()){
-                            $scope.ready = true;
-                        }
+                        $scope.initTacho();
                     }
                 });
 
                 $scope.$watch('widget | json', function(){
-                    if($scope.rg){
-                        $scope.convertWidgetData();
+                    if($scope.rg && $scope.ready === true){
                         $scope.updateTacho();
                     }
                 });
 
                 $scope.$watch('value', function(){
                     if($scope.rg){
-                        $scope.rg.value = parseInt($scope.value);
+                        $scope.rg.value = parseFloat($scope.value);
                     }
                 });
             });

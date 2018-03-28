@@ -19,6 +19,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 pagingInterval: 0,
                 animation: "fadeInUp",
                 filter: {
+                    Host: {
+                        name: null
+                    },
                     Hoststatus: {
                         acknowledged: false,
                         downtime: false,
@@ -34,17 +37,32 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
             $scope.load = function(){
                 $http.get('/dashboards/widget_host_status_list.json', {
                     params: {
-                        'angular': true
+                        'angular': true,
+                        'widgetId': $scope.id
                     }
                 }).then(function(result){
                     $scope.ready = false;
                     $scope.widget = result.data.host_status_list;
-                    console.log(result.data);
+                    console.log($scope.widget);
+
+                    $scope.viewPagingInterval = parseInt($scope.widget.animation_interval);
+                    $scope.statusListSettings.pagingInterval = parseInt($scope.widget.animation_interval);
+                    $scope.statusListSettings.animation = $scope.widget.animation;
+
+                    $scope.statusListSettings.filter.Hoststatus.acknowledged = $scope.widget.show_acknowledged;
+                    $scope.statusListSettings.filter.Hoststatus.downtime = $scope.widget.show_downtime;
+                    $scope.statusListSettings.filter.Hoststatus.current_state.unreachable = $scope.widget.show_unreachable;
+                    $scope.statusListSettings.filter.Hoststatus.current_state.down = $scope.widget.show_down;
+                    $scope.statusListSettings.filter.Hoststatus.current_state.up = $scope.widget.show_up;
+
+                    $scope.statusListSettings.filter.Host.name = $scope.widget.show_filter_search;
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
-                    $scope.ready = true;
+                    setTimeout(function(){
+                        $scope.ready = true;
+                    }, 500);
                 });
             };
 
@@ -90,7 +108,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                             show_up: $scope.statusListSettings.filter.Hoststatus.current_state.up ? "1" : "0",
                             show_down: $scope.statusListSettings.filter.Hoststatus.current_state.down ? "1" : "0",
                             show_unreachable: $scope.statusListSettings.filter.Hoststatus.current_state.unreachable ? "1" : "0",
-                            show_filter_search: ""
+                            show_filter_search: $scope.statusListSettings.filter.Host.name
                         },
                         'widgetId': $scope.id,
                         'widgetTypeId': "9"

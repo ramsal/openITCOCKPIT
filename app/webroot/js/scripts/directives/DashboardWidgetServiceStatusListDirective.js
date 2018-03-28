@@ -41,16 +41,34 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
             $scope.load = function(){
                 $http.get('/dashboards/widget_service_status_list.json', {
                     params: {
-                        'angular': true
+                        'angular': true,
+                        'widgetId': $scope.id
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.host_status_list;
-                    console.log(result.data);
+                    $scope.widget = result.data.service_status_list;
+                    console.log($scope.widget);
+
+                    $scope.viewPagingInterval = parseInt($scope.widget.animation_interval);
+                    $scope.statusListSettings.pagingInterval = parseInt($scope.widget.animation_interval);
+                    $scope.statusListSettings.animation = $scope.widget.animation;
+
+                    $scope.statusListSettings.filter.Servicestatus.acknowledged = $scope.widget.show_acknowledged;
+                    $scope.statusListSettings.filter.Servicestatus.downtime = $scope.widget.show_downtime;
+                    $scope.statusListSettings.filter.Servicestatus.current_state.unknown = $scope.widget.show_unknown;
+                    $scope.statusListSettings.filter.Servicestatus.current_state.critical = $scope.widget.show_critical;
+                    $scope.statusListSettings.filter.Servicestatus.current_state.warning = $scope.widget.show_warning;
+                    $scope.statusListSettings.filter.Servicestatus.current_state.ok = $scope.widget.show_ok;
+
+                    $scope.statusListSettings.filter.Service.name = $scope.widget.show_filter_search;
+
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10.5) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
-                    $scope.ready = true;
+                    setTimeout(function(){
+                        $scope.ready = true;
+                    }, 500);
+
                 });
             };
 
@@ -82,9 +100,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                 if($scope.statusListSettings.pagingInterval > 0){
                     //$scope.pagingTimer = $interval($scope.tabRotate, parseInt($scope.statusListSettings.pagingInterval + '000'));
 
-
-
-
                 }
             });
 
@@ -100,7 +115,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                             show_warning: $scope.statusListSettings.filter.Servicestatus.current_state.warning ? "1" : "0",
                             show_critical: $scope.statusListSettings.filter.Servicestatus.current_state.critical ? "1" : "0",
                             show_unknown: $scope.statusListSettings.filter.Servicestatus.current_state.unknown ? "1" : "0",
-                            show_filter_search: ""
+                            show_filter_search: $scope.statusListSettings.filter.Service.name
                         },
                         'widgetId': $scope.id,
                         'widgetTypeId': "10"

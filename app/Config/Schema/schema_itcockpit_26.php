@@ -1429,10 +1429,10 @@ class AppSchema extends CakeSchema
     public $widget_tachos = [
         'id'          => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'widget_id'   => ['type' => 'integer', 'null' => false],
-        'min'         => ['type' => 'integer', 'null' => false],
-        'max'         => ['type' => 'integer', 'null' => false],
-        'warn'        => ['type' => 'integer', 'null' => false],
-        'crit'        => ['type' => 'integer', 'null' => false],
+        'min'         => ['type' => 'float', 'null' => false],
+        'max'         => ['type' => 'float', 'null' => false],
+        'warn'        => ['type' => 'float', 'null' => false],
+        'crit'        => ['type' => 'float', 'null' => false],
         'data_source' => ['type' => 'string', 'null' => false],
         'indexes'     => [
             'PRIMARY' => ['column' => 'id', 'unique' => 1],
