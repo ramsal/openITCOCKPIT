@@ -15,14 +15,55 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             $scope.load = function(){
                 $http.get('/dashboards/widget_traffic_light.json', {
                     params: {
-                        'angular': true
+                        'angular': true,
+                        'widgetId': $scope.id
                     }
                 }).then(function(result){
                     $scope.widget = result.data.traffic_light;
                 });
             };
 
+            $scope.fetchServiceState = function(){
+                $http.post('/dashboards/widget_traffic_light.json', {
+                    params: {
+                        'angular': true,
+                        'widgetId': $scope.id,
+                        'serviceId': $scope.widget.serviceId
+                    }
+                }).then(function(result){
+                    $scope.widget = result.data.traffic_light;
+                    console.log($scope.widget);
+                });
+            };
+
+            $scope.loadServices = function(searchString){
+                $http.get("/services/loadServicesByString.json", {
+                    params: {
+                        'angular': true,
+                        'filter[Service.servicename]': searchString,
+                        'selected[]': $scope.widget.serviceId
+                    }
+                }).then(function(result){
+
+                    $scope.services = [];
+                    result.data.services.forEach(function(obj, index){
+                        $scope.services[index] = {
+                            "id": obj.value.Service.id,
+                            "group": obj.value.Host.name,
+                            "label": obj.value.Host.name + "/" + obj.value.Servicetemplate.name
+                        };
+                    });
+
+                    $scope.errors = null;
+                }, function errorCallback(result){
+                    if(result.data.hasOwnProperty('error')){
+                        $scope.errors = result.data.error;
+                    }
+                });
+            };
+
             angular.element(function(){
+                $scope.loadServices("");
                 $scope.load();
                 $('[data-toggle="tooltip"]').tooltip();
                 $scope.tr = $('#traffic-light' + $scope.id);
@@ -52,6 +93,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                 $scope.redBulb.css('backgroundColor', 'black');
                 $scope.yellowBulb.css('backgroundColor', 'black');
                 $scope.greenBulb.css('backgroundColor', 'black');
+            };
+
+            $scope.colorScroll = function(){
+                /*
+                http://jsfiddle.net/cq2S8/
+                https://stackoverflow.com/questions/190560/jquery-animate-backgroundcolor
+                 */
             };
 
             $scope.updateTrafficLightSize = function(item = false, height = false){
@@ -141,6 +189,25 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
 
                 }
             };
+
+            $scope.$watch('widget.current_state', function(){
+                if($scope.widget.current_state==0){ //ok
+                    $scope.illuminateGreen();
+                }
+                if($scope.widget.current_state==1){ //warning
+                    $scope.illuminateYellow();
+                }
+                if($scope.widget.current_state==2){ //critical
+                    $scope.illuminateRed();
+                }
+                if($scope.widget.current_state==3){ //unknown   //scroll threw all three colors (still build!!!)
+                    $scope.clearLights();
+                }
+            });
+
+            $scope.$watch('widget.serviceId', function(){
+                $scope.fetchServiceState();
+            });
 
             $('.grid-stack').on('change', function(event, items){
                 if(Array.isArray(items)){

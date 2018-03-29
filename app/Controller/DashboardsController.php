@@ -79,7 +79,6 @@ class DashboardsController extends AppController {
 
             $tachometer = [];
 
-            //$serviceAllValues = $this->Rrd->getPerfDataFiles($service['Host']['uuid'], $service['Service']['uuid']);
             if (isset($this->request->query['widgetId'])) {
                 $widgetId = $this->request->query['widgetId'];
                 if ($this->Widget->exists($widgetId)) {
@@ -112,6 +111,62 @@ class DashboardsController extends AppController {
         if ($this->isApiRequest()) {
 
             $traffic_light = [];
+
+            if (isset($this->request->data['params']['widgetId'])) {
+                $widgetId = $this->request->data['params']['widgetId'];
+
+                if ($this->Widget->exists($widgetId)) {
+
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        if (isset($this->request->data['params']['serviceId'])) {  //Speicheranfrage und/oder Servicestatus
+                            $serviceId = $this->request->data['params']['serviceId'];
+                            if (!$this->Service->exists($serviceId)) {
+                                throw new NotFoundException('Invalid service');
+                            }
+                            if ($widget['Widget']['service_id'] != $serviceId) {    //Speicheranfrage
+                                $widget['Widget']['service_id'] = $serviceId;
+                                $this->Widget->saveAll($widget);
+                                //$this->Widget->saveField('service_id', $serviceId);
+                                $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                                $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                            }
+                        }
+                        if($widget['Widget']['service_id']){
+                            $service = $this->Service->find('first', [
+                                'recursive'  => -1,
+                                'fields'     => [
+                                    'Service.id',
+                                    'Service.uuid'
+                                ],
+                                'conditions' => [
+                                    'Service.id' => $widget['Widget']['service_id']
+                                ]
+                            ]);
+
+                            $ServicestatusFields = new \itnovum\openITCOCKPIT\Core\ServicestatusFields($this->DbBackend);
+                            $ServicestatusFields->currentState();
+                            $servicestatus = $this->Servicestatus->byUuid($service['Service']['uuid'], $ServicestatusFields);
+                            $Servicestatus = new \itnovum\openITCOCKPIT\Core\Servicestatus(
+                                $servicestatus['Servicestatus']
+                            );
+                            $traffic_light = [
+                                'serviceId' => $widget['Widget']['service_id'],
+                                'current_state' => $Servicestatus->currentState()
+                            ];
+                        }
+
+                    }
+                }
+            }
 
             $this->set(compact(['traffic_light']));
             $this->set('_serialize', ['traffic_light']);

@@ -146,7 +146,7 @@
                                      class="grid-stack-item ui-draggable ui-resizable"
                                      id="{{widget.Widget.id}}">
 
-                                    <div class="grid-stack-item-content">
+                                    <div style="overflow:hidden" class="grid-stack-item-content">
                                         <div id="widget-color-{{widget.Widget.id}}"
                                              class="jarviswidget {{widget.Widget.color}}"
                                              data-widget-attstyle="{{widget.Widget.color}}"

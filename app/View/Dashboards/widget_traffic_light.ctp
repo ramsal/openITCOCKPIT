@@ -28,7 +28,7 @@
                         chosen="services"
                         callback="loadServices"
                         ng-options="value.id as value.label group by value.group for value in services"
-                        ng-model="serviceIds"
+                        ng-model="widget.serviceId"
                 >
                 </select>
                 <div ng-repeat="error in errors.object_id">
@@ -40,9 +40,9 @@
         <div style="padding:13px;">
 
             <div class="traffic-light" id="traffic-light{{id}}">
-                <div ng-click="illuminateRed()" id="redLight{{id}}" class="bulb"></div>
-                <div ng-click="illuminateYellow()" id="yellowLight{{id}}" class="bulb"></div>
-                <div ng-click="illuminateGreen()" id="greenLight{{id}}" class="bulb"></div>
+                <div id="redLight{{id}}" class="bulb"></div>
+                <div id="yellowLight{{id}}" class="bulb"></div>
+                <div id="greenLight{{id}}" class="bulb"></div>
             </div>
 
         </div>
