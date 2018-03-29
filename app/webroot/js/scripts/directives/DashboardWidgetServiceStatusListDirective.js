@@ -136,7 +136,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
             };
 
             $('.grid-stack').on('change', function(event, items){
-                if(items && $scope.ready){
+                if(Array.isArray(items) && $scope.ready){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
                             //console.log(item.height);

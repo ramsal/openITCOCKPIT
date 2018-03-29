@@ -899,75 +899,65 @@ class DashboardsController extends AppController {
         return;
     }
 
-    public function getTachoPerfdata () {
-        if (!$this->request->is('ajax')) {
+    public function getTachoPerfdata ($serviceId) {
+        $this->layout = 'blank';
+        if (!$this->isApiRequest()) {
             throw new MethodNotAllowedException();
         }
+        if (!$this->Service->exists($serviceId)) {
+            throw new NotFoundException('Invalid service');
+        }
+
+        $service = $this->Service->find('first', [
+            'recursive'  => -1,
+            'fields'     => [
+                'Service.id',
+                'Service.uuid'
+            ],
+            'conditions' => [
+                'Service.id' => $serviceId
+            ]
+        ]);
+
+        $ServicestatusFields = new \itnovum\openITCOCKPIT\Core\ServicestatusFields($this->DbBackend);
+        $ServicestatusFields->perfdata()->nextCheck();
+        $servicestatus = $this->Servicestatus->byUuid($service['Service']['uuid'], $ServicestatusFields);
+        $Servicestatus = new \itnovum\openITCOCKPIT\Core\Servicestatus(
+            $servicestatus['Servicestatus']
+        );
 
         $perfdata = [];
-        if (isset($this->request->data['widgetId']) && isset($this->request->data['serviceId'])) {
-            $widgetId = $this->request->data['widgetId'];
-            $serviceId = (int)$this->request->data['serviceId'];
-            $userId = $this->Auth->user('id');
-            if ($this->Widget->exists($widgetId)) {
-                $widget = $this->Widget->findById($widgetId);
-                if ($widget['DashboardTab']['user_id'] == $userId) {
-                    $widget['Widget']['service_id'] = $serviceId;
-                    //$this->Widget->save($widget);
-                    //$this->DashboardTab->id = $widget['DashboardTab']['id'];
-                    //$this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
-
-                    $service = $this->Service->find('first', [
-                        'recursive'  => -1,
-                        'contain'    => [],
-                        'conditions' => [
-                            'Service.id' => $serviceId,
-                        ],
-                        'joins'      => [
-                            [
-                                'table'      => 'nagios_objects',
-                                'type'       => 'INNER',
-                                'alias'      => 'ServiceObject',
-                                'conditions' => 'Service.uuid = ServiceObject.name2 AND ServiceObject.objecttype_id = 2',
-                            ],
-                            [
-                                'table'      => 'nagios_servicestatus',
-                                'type'       => 'LEFT OUTER',
-                                'alias'      => 'Servicestatus',
-                                'conditions' => 'Servicestatus.service_object_id = ServiceObject.object_id',
-                            ],
-                        ],
-                        'fields'     => [
-                            'Service.id',
-                            'Service.uuid',
-                            'Servicestatus.current_state',
-                            'Servicestatus.perfdata',
-                        ],
-                    ]);
-
-
-                    if (isset($service['Servicestatus']['perfdata'])) {
-                        $perfdata = [];
-                        $_perfdata = $this->Rrd->parsePerfData($service['Servicestatus']['perfdata']);
-                        $keys = ['current', 'unit', 'warn', 'crit', 'min', 'max'];
-                        foreach ($_perfdata as $dsName => $data) {
-                            foreach ($keys as $key) {
-                                if (isset($data[$key])) {
-                                    if ($data[$key] == '' && $key !== 'unit') {
-                                        $data[$key] = 0;
-                                    }
-                                    $perfdata[$dsName][$key] = $data[$key];
-                                } else {
-                                    $perfdata[$dsName][$key] = 0;
-                                }
-                            }
-                        }
+        $_perfdata = $this->Rrd->parsePerfData($Servicestatus->getPerfdata());
+        $keys = ['current', 'unit', 'warn', 'crit', 'min', 'max'];
+        foreach ($_perfdata as $dsName => $data) {
+            foreach ($keys as $key) {
+                if (isset($data[$key])) {
+                    if ($data[$key] == '' && $key !== 'unit') {
+                        $data[$key] = 0;
                     }
+                    $perfdata[$dsName][$key] = $data[$key];
+                } else {
+                    $perfdata[$dsName][$key] = 0;
+                }
+            }
+            if ($perfdata[$dsName]['unit'] !== '%') {
+                if ($perfdata[$dsName]['max'] == 0) {
+                    $perfdata[$dsName]['max'] = $perfdata[$dsName]['warn'] + $perfdata[$dsName]['crit'];
+                }
+                $perfdata[$dsName]['crit'] = ($perfdata[$dsName]['crit'] / $perfdata[$dsName]['max']) * 100;
+                $perfdata[$dsName]['warn'] = ($perfdata[$dsName]['warn'] / $perfdata[$dsName]['max']) * 100;
+            } else {
+                if ($perfdata[$dsName]['max'] == 0) {
+                    $perfdata[$dsName]['max'] = 100;
                 }
             }
         }
-        $this->set('perfdata', $perfdata);
-        $this->set('_serialize', ['perfdata']);
+
+        $next_check = $Servicestatus->getNextCheck();
+
+        $this->set(compact(['perfdata', 'next_check']));
+        $this->set('_serialize', ['perfdata', 'next_check']);
+        return;
     }
 
     public function saveTachoConfig () {
@@ -994,8 +984,8 @@ class DashboardsController extends AppController {
                 'widget_id'
             ];
             foreach ($requiredKeys as $key) {
-                if (!isset($tachoConfig[$key]) || $tachoConfig[$key] == '' || !isset($service_id)) {
-                    $error = [__('One or more parameters are missing')];
+                if (!isset($tachoConfig[$key]) || $tachoConfig[$key] === '' || !isset($service_id)) {
+                    $error = [__('One or more parameters are missing' . $key)];
                     $this->set(compact(['error']));
                     $this->set('_serialize', ['error']);
                     return;
@@ -1039,6 +1029,18 @@ class DashboardsController extends AppController {
                     if ($this->WidgetTacho->save($data)) {
                         $this->Widget->id = $widget['WidgetTacho']['widget_id'];
                         $this->Widget->saveField('service_id', $service_id);
+
+                        $widget = $this->Widget->find('first', [
+                            'contain'    => [
+                                'WidgetTacho',
+                                'DashboardTab',
+                            ],
+                            'conditions' => [
+                                'Widget.id' => $tachoConfig['widget_id'],
+                            ],
+                        ]);
+                        $TachoId = $widget['WidgetTacho']['id'];
+
                     } else {
                         $error = __('Tacho could not be saved');
                     }
@@ -1046,6 +1048,11 @@ class DashboardsController extends AppController {
 
             }
 
+        }
+        if (isset($TachoId)) {
+            $this->set(compact(['error', 'TachoId']));
+            $this->set('_serialize', ['error', 'TachoId']);
+            return;
         }
         $this->set(compact(['error']));
         $this->set('_serialize', ['error']);

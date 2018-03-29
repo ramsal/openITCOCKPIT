@@ -143,7 +143,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             };
 
             $('.grid-stack').on('change', function(event, items){
-                if(items){
+                if(Array.isArray(items)){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
                             $scope.updateTrafficLightSize(item);

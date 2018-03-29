@@ -43,7 +43,7 @@
                         class="form-control"
                         chosen="datasources"
                         callback="loadDatasources"
-                        ng-options="value.id as value.label group by value.group for value in datasources"
+                        ng-options="value.id as value.label for value in datasources"
                         ng-model="widget.datasource"
                 >
                 </select>

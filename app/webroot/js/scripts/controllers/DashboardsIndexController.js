@@ -277,7 +277,7 @@ angular.module('openITCOCKPIT')
         };
 
         $gridstack.on('change', function(event, items){
-            if($scope.ready === 1 && items){
+            if($scope.ready === 1 && Array.isArray(items)){
                 $scope.serializeWidgetMap(items);
             }
         });

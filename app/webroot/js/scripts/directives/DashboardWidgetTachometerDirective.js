@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', function($http){
+angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', function($http, $interval){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_tachometer.html',
@@ -18,7 +18,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 height: 0,
                 width: 0,
                 datasource: false,
-                serviceId: 1,
+                serviceId: null,
                 tachoId: null,
             };
             $scope.formattedWidget = {
@@ -29,11 +29,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             };
             $scope.gauge = {};
             $scope.checkinterval = 10;
-            $scope.gaugeTitle = 'load1';
+            $scope.gaugeTitle = '';
             $scope.roundFactor = 1;
             $scope.value = 0;
             $scope.ticks = [];
             $scope.ready = false;
+            $scope.datasources = [];
+            $scope.unit = '';
+            $scope.valueInt = 2;
+            $scope.valueDec = 2;
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_tachometer.json', {
@@ -42,15 +46,45 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
-                    console.log(result.data.tachometer);
+                    //console.log(result.data.tachometer);
                     $scope.widget = {
                         minval: result.data.tachometer.WidgetTacho.min,
                         maxval: result.data.tachometer.WidgetTacho.max,
                         warnPercent: result.data.tachometer.WidgetTacho.warn,
                         critPercent: result.data.tachometer.WidgetTacho.crit,
                         datasource: result.data.tachometer.WidgetTacho.data_source,
-                        tachoId: result.data.tachometer.WidgetTacho.id
+                        tachoId: result.data.tachometer.WidgetTacho.id,
+                        serviceId: result.data.tachometer.Widget.service_id
                     };
+
+                    $scope.loadServices('');
+
+                });
+            };
+
+            $scope.loadServices = function(searchString){
+                $http.get("/services/loadServicesByString.json", {
+                    params: {
+                        'angular': true,
+                        'filter[Service.servicename]': searchString,
+                        'selected[]': $scope.widget.serviceId
+                    }
+                }).then(function(result){
+
+                    $scope.services = [];
+                    result.data.services.forEach(function(obj, index){
+                        $scope.services[index] = {
+                            "id": obj.value.Service.id,
+                            "group": obj.value.Host.name,
+                            "label": obj.value.Host.name + "/" + obj.value.Servicetemplate.name
+                        };
+                    });
+
+                    $scope.errors = null;
+                }, function errorCallback(result){
+                    if(result.data.hasOwnProperty('error')){
+                        $scope.errors = result.data.error;
+                    }
                 });
             };
 
@@ -80,20 +114,27 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             };
 
             $scope.precisionRound = function(number, precision){
-                let factor = Math.pow(10, precision);
-                return Math.round(number * factor) / factor;
+                return parseFloat(number).toFixed(precision);
             };
 
             $scope.calculateTachoData = function(){
 
-                let widgetsize = document.getElementById($scope.id).clientHeight - 63;
-                if(document.getElementById($scope.id).clientWidth < document.getElementById($scope.id).clientHeight){
-                    widgetsize = document.getElementById($scope.id).clientWidth - 63;
+                if(document.getElementById($scope.id)){
+                    let widgetsize = document.getElementById($scope.id).clientHeight - 63;
+                    if(document.getElementById($scope.id).clientWidth < document.getElementById($scope.id).clientHeight){
+                        widgetsize = document.getElementById($scope.id).clientWidth - 63;
+                    }
+                    $scope.widget.height = widgetsize;
+                    $scope.widget.width = widgetsize;
                 }
-                $scope.widget.height = widgetsize;
-                $scope.widget.width = widgetsize;
 
                 $scope.convertWidgetData();
+
+                $scope.roundFactor = 1;
+                if(($scope.formattedWidget.maxval + "").indexOf('.') != -1){
+                    $scope.roundFactor = ($scope.formattedWidget.maxval + "").split(".")[1].length + 1;
+                }
+
                 $scope.ticks = [];
                 $scope.gauge.warnBorder = ($scope.formattedWidget.maxval / 100) * $scope.formattedWidget.warnPercent;
                 $scope.gauge.critBorder = ($scope.formattedWidget.maxval / 100) * $scope.formattedWidget.critPercent;
@@ -168,6 +209,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         ],
                         width: $scope.widget.width,
                         height: $scope.widget.height,
+                        units: $scope.unit,
+                        valueInt: $scope.valueInt,
+                        valueDec: $scope.valueDec
                     });
 
                     let data = {
@@ -179,13 +223,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                             crit: $scope.formattedWidget.critPercent,
                             widget_id: $scope.id
                         },
-                        service_id: 1,
-                        tacho_id: $scope.widget.tachoId  //id in widget_tachos tabelle,  wird erstellt, wenn nicht vorhanden
+                        service_id: $scope.widget.serviceId,
+                        tacho_id: $scope.widget.tachoId  //null value well be create a new entry; else update table entry
                     };
-                    console.log(data);
 
                     $http.post('/dashboards/saveTachoConfig.json?angular=true', data).then(function(result){
-                        console.log(result.data);
+                        if(result.data.TachoId){
+                            $scope.widget.tachoId = result.data.TachoId;
+                        }
                     });
 
                 }
@@ -204,6 +249,65 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                     }
                 });
 
+                $scope.$watch('widget.datasource', function(){
+                    if($scope.widget.datasource != null && $scope.perfdata){
+                        let key = $scope.widget.datasource;
+                        $scope.widget.critPercent = $scope.perfdata[key].crit;
+                        $scope.widget.warnPercent = $scope.perfdata[key].warn;
+                        $scope.widget.minval = $scope.perfdata[key].min;
+                        $scope.widget.maxval = $scope.perfdata[key].max;
+                        $scope.value = $scope.perfdata[key].current;
+                        $scope.unit = $scope.perfdata[key].unit;
+                        $scope.gaugeTitle = key;
+                    }
+                });
+
+
+                $scope.fetchPerfdata = function(){
+                    if($scope.IsNumeric(parseInt($scope.widget.serviceId)) && $scope.widget.serviceId !== null){
+                        $http.get('/dashboards/getTachoPerfdata/' + $scope.widget.serviceId + '.json', {
+                            params: {
+                                'angular': true
+                            }
+                        }).then(function(result){
+                            $scope.perfdata = result.data.perfdata;
+
+                            $scope.datasources = [];
+                            let i = 0;
+                            for(var key in $scope.perfdata){
+                                $scope.datasources[i] = {
+                                    'id': key,
+                                    'label': key
+                                };
+                                i++
+                            }
+                            if($scope.widget.datasource){
+                                let key = $scope.widget.datasource;
+                                $scope.value = $scope.perfdata[key].current;
+                                $scope.unit = $scope.perfdata[key].unit;
+                                $scope.gaugeTitle = key;
+                                $scope.valueDec = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[1].length);
+                                $scope.valueInt = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[0].length);
+                                if($scope.rg && $scope.ready === true){
+                                    $scope.updateTacho();
+                                }
+                            }
+
+                            let nextcheckdate = new Date(result.data.next_check * 1000);
+                            let msleft = (Date.now() - nextcheckdate);
+
+                            if($scope.valueTimer){
+                                $interval.cancel($scope.valueTimer);
+                            }
+                            $scope.valueTimer = $interval($scope.fetchPerfdata, parseInt(Math.abs(msleft) + 7000));
+                        });
+                    }
+                };
+
+                $scope.$watch('widget.serviceId', function(){
+                    $scope.fetchPerfdata();
+                });
+
                 $scope.$watch('widget | json', function(){
                     if($scope.rg && $scope.ready === true){
                         $scope.updateTacho();
@@ -212,13 +316,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
 
                 $scope.$watch('value', function(){
                     if($scope.rg){
+                        $scope.rg.valueDec = parseInt((parseFloat($scope.value) + "").split(".")[1].length);
+                        $scope.rg.valueInt = parseInt((parseFloat($scope.value) + "").split(".")[1].length);
                         $scope.rg.value = parseFloat($scope.value);
                     }
                 });
             });
 
             $('.grid-stack').on('change', function(event, items){
-                if(items){
+                if(Array.isArray(items)){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
                             let widgetsize = item.el[0].clientHeight - 63;
