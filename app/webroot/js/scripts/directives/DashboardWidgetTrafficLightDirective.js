@@ -13,7 +13,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             $scope.widget = {};
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_traffic_light.json', {
+                $http.post('/dashboards/widget_traffic_light.json', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id
@@ -24,7 +24,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             };
 
             $scope.fetchServiceState = function(){
-                $http.post('/dashboards/widget_traffic_light.json?', {
+                $http.post('/dashboards/widget_traffic_light.json', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id,
@@ -221,7 +221,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             });
 
             $scope.$watch('widget.serviceId', function(){
-                if(parseInt($scope.widget.serviceId)>0){
+                if(parseInt($scope.widget.serviceId) > 0){
                     $scope.fetchServiceState();
                 }
             });

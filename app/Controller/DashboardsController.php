@@ -127,12 +127,12 @@ class DashboardsController extends AppController {
                         ],
                     ]);
                     if ($widget['DashboardTab']['user_id'] == $userId) {
-                        if (isset($this->request->data['params']['serviceId'])) {  //Speicheranfrage und/oder Servicestatus
+                        if (isset($this->request->data['params']['serviceId'])) {
                             $serviceId = $this->request->data['params']['serviceId'];
                             if (!$this->Service->exists($serviceId)) {
                                 throw new NotFoundException('Invalid service');
                             }
-                            if ($widget['Widget']['service_id'] != $serviceId) {    //Speicheranfrage
+                            if ($widget['Widget']['service_id'] != $serviceId) {
                                 $widget['Widget']['service_id'] = $serviceId;
                                 $this->Widget->saveAll($widget);
                                 //$this->Widget->saveField('service_id', $serviceId);
@@ -140,7 +140,7 @@ class DashboardsController extends AppController {
                                 $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
                             }
                         }
-                        if($widget['Widget']['service_id']){
+                        if ($widget['Widget']['service_id']) {
                             $service = $this->Service->find('first', [
                                 'recursive'  => -1,
                                 'fields'     => [
@@ -159,9 +159,9 @@ class DashboardsController extends AppController {
                                 $servicestatus['Servicestatus']
                             );
                             $traffic_light = [
-                                'serviceId' => $widget['Widget']['service_id'],
+                                'serviceId'     => $widget['Widget']['service_id'],
                                 'current_state' => $Servicestatus->currentState(),
-                                'next_check' => $Servicestatus->getNextCheck()
+                                'next_check'    => $Servicestatus->getNextCheck()
                             ];
                         }
 
