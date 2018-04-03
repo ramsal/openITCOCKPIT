@@ -154,6 +154,7 @@
                                              attrs="widget.Widget.directive"
                                              wtitle="widget.Widget.title"
                                              wid="widget.Widget.id"
+                                             tabid="tab.id"
                                              update-title="updateWidgetTitle(id,title)">
                                         </div>
                                     </div>

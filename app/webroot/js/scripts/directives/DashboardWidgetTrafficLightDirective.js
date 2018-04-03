@@ -5,12 +5,24 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
         scope: {
             'title': '=wtitle',
             'id': '=wid',
+            'parentTabId': '=tabid',
             'updateTitle': '&'
         },
 
         controller: function($scope){
 
             $scope.widget = {};
+            $scope.tabId=$scope.parentTabId;
+
+            $scope.checkAndStopWidget = function(){
+                if($scope.tabId!==$scope.parentTabId){
+                    if($scope.valueTimer){
+                        $interval.cancel($scope.valueTimer);
+                    }
+                    return true;
+                }
+                return false;
+            };
 
             $scope.load = function(){
                 $http.post('/dashboards/widget_traffic_light.json', {
@@ -20,6 +32,11 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     }
                 }).then(function(result){
                     $scope.widget = result.data.traffic_light;
+                }).catch(function(fallback){
+                    if(fallback.data.message && fallback.data.message.toLowerCase().includes('invalid service')){
+                        $scope.clearLights();
+                        $scope.widget.serviceId = 0;
+                    }
                 });
             };
 
@@ -31,6 +48,20 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                         'serviceId': $scope.widget.serviceId
                     }
                 }).then(function(result){
+
+                    if(result.data.error && result.data.error == 'servicestatus not available'){
+                        if(result.data.traffic_light.serviceId){
+                            $scope.widget.serviceId = result.data.traffic_light.serviceId;
+                        }
+                        if($scope.valueTimer){
+                            $interval.cancel($scope.valueTimer);
+                        }
+                        if($scope.checkAndStopWidget()!=true){
+                            $scope.valueTimer = $interval($scope.fetchServiceState, 15000);
+                        }
+                        return;
+                    }
+
                     $scope.widget = result.data.traffic_light;
 
                     let nextcheckdate = new Date($scope.widget.next_check * 1000);
@@ -39,7 +70,17 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     if($scope.valueTimer){
                         $interval.cancel($scope.valueTimer);
                     }
-                    $scope.valueTimer = $interval($scope.fetchServiceState, parseInt(Math.abs(msleft) + 15000));    //add 15 seconds to regulate nagios delay
+                    if($scope.checkAndStopWidget()!=true){
+                        $scope.valueTimer = $interval($scope.fetchServiceState, parseInt(Math.abs(msleft) + 15000));    //add 15 seconds to regulate nagios delay
+                    }
+                }).catch(function(fallback){
+                    if(fallback.data && fallback.data.message && fallback.data.message.toLowerCase().includes('invalid service')){
+                        if($scope.valueTimer){
+                            $interval.cancel($scope.valueTimer);
+                        }
+                        $scope.clearLights();
+                        $scope.widget.serviceId = 0;
+                    }
                 });
             };
 
@@ -233,6 +274,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                             $scope.updateTrafficLightSize(item);
                         }
                     });
+                }
+            });
+
+            $('.grid-stack').on('click', '.jarviswidget-delete-btn', function(){
+                let $widget = $(this).closest(".grid-stack-item");
+                if($widget[0].attributes['data-gs-id'].nodeValue == $scope.id){
+                    if($scope.valueTimer){
+                        $interval.cancel($scope.valueTimer);
+                    }
                 }
             });
 

@@ -16,7 +16,6 @@
     transition: background 500ms;
 }
 
-
 @-o-keyframes fadeRedBulb {
     0% {
         background-color: #111;
@@ -28,6 +27,7 @@
         background-color: #111;
     }
 }
+
 @keyframes fadeRedBulb {
     0% {
         background-color: #111;
@@ -60,6 +60,7 @@
         background-color: #111;
     }
 }
+
 @keyframes fadeYellowBulb {
     0% {
         background-color: #111;
@@ -89,6 +90,7 @@
         background-color: #111;
     }
 }
+
 @keyframes fadeGreenBulb {
     0% {
         background-color: #111;

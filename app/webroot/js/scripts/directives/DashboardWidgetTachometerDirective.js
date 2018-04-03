@@ -5,6 +5,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
         scope: {
             'title': '=wtitle',
             'id': '=wid',
+            'parentTabId': '=tabid',
             'updateTitle': '&'
         },
 
@@ -38,6 +39,17 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             $scope.unit = '';
             $scope.valueInt = 2;
             $scope.valueDec = 2;
+            $scope.tabId=$scope.parentTabId;
+
+            $scope.checkAndStopWidget = function(){
+                if($scope.tabId!==$scope.parentTabId){
+                    if($scope.valueTimer){
+                        $interval.cancel($scope.valueTimer);
+                    }
+                    return true;
+                }
+                return false;
+            };
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_tachometer.json', {
@@ -234,6 +246,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                     });
 
                 }
+                if(!$scope.rg){
+                    $scope.load();
+                }
                 $scope.ready = true;
             };
 
@@ -265,47 +280,80 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
 
                 $scope.fetchPerfdata = function(){
                     if($scope.IsNumeric(parseInt($scope.widget.serviceId)) && $scope.widget.serviceId !== null){
+                        if(document.getElementById('canvas-' + $scope.id)){
+                            document.getElementById('canvas-' + $scope.id).style.display = "block";
+                        }
                         $http.get('/dashboards/getTachoPerfdata/' + $scope.widget.serviceId + '.json', {
                             params: {
                                 'angular': true
                             }
                         }).then(function(result){
-                            $scope.perfdata = result.data.perfdata;
 
-                            $scope.datasources = [];
-                            let i = 0;
-                            for(var key in $scope.perfdata){
-                                $scope.datasources[i] = {
-                                    'id': key,
-                                    'label': key
-                                };
-                                i++
+                            if(result.data.error && result.data.error == 'servicestatus not available'){
+                                if($scope.valueTimer){
+                                    $interval.cancel($scope.valueTimer);
+                                }
+                                if($scope.checkAndStopWidget()!=true){
+                                    $scope.valueTimer = $interval($scope.fetchPerfdata, 15000);
+                                }
+                                return;
                             }
-                            if($scope.widget.datasource){
-                                let key = $scope.widget.datasource;
-                                $scope.value = $scope.perfdata[key].current;
-                                $scope.unit = $scope.perfdata[key].unit;
-                                $scope.gaugeTitle = key;
-                                $scope.valueDec = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[1].length);
-                                $scope.valueInt = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[0].length);
-                                if($scope.rg && $scope.ready === true){
-                                    $scope.updateTacho();
+
+                            if(result.data.next_check && parseInt(result.data.next_check)){
+                                let nextcheckdate = new Date(result.data.next_check * 1000);
+                                let msleft = (Date.now() - nextcheckdate);
+
+                                if($scope.valueTimer){
+                                    $interval.cancel($scope.valueTimer);
+                                }
+                                if($scope.checkAndStopWidget()!=true){
+                                    $scope.valueTimer = $interval($scope.fetchPerfdata, parseInt(Math.abs(msleft) + 7000));
                                 }
                             }
 
-                            let nextcheckdate = new Date(result.data.next_check * 1000);
-                            let msleft = (Date.now() - nextcheckdate);
+                            if(result.data.perfdata){
+                                $scope.perfdata = result.data.perfdata;
 
-                            if($scope.valueTimer){
-                                $interval.cancel($scope.valueTimer);
+                                $scope.datasources = [];
+                                let i = 0;
+                                for(var key in $scope.perfdata){
+                                    $scope.datasources[i] = {
+                                        'id': key,
+                                        'label': key
+                                    };
+                                    i++
+                                }
+                                if($scope.widget.datasource){
+                                    let key = $scope.widget.datasource;
+                                    $scope.value = $scope.perfdata[key].current;
+                                    $scope.unit = $scope.perfdata[key].unit;
+                                    $scope.gaugeTitle = key;
+                                    $scope.valueDec = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[1].length);
+                                    $scope.valueInt = parseInt((parseFloat($scope.perfdata[key].current) + "").split(".")[0].length);
+                                    if($scope.rg && $scope.ready === true){
+                                        $scope.updateTacho();
+                                    }
+                                }
                             }
-                            $scope.valueTimer = $interval($scope.fetchPerfdata, parseInt(Math.abs(msleft) + 7000));
+
+                        }).catch(function(fallback){
+                            if(fallback.data && fallback.data.message && fallback.data.message.toLowerCase().includes('invalid service')){
+                                if($scope.valueTimer){
+                                    $interval.cancel($scope.valueTimer);
+                                }
+                                delete $scope.rg;
+                                document.getElementById('canvas-' + $scope.id).style.display = "none";
+                            }
                         });
                     }
                 };
 
                 $scope.$watch('widget.serviceId', function(){
-                    $scope.fetchPerfdata();
+                    if(parseInt($scope.widget.serviceId) > 0){
+                        $scope.fetchPerfdata();
+                    } else {
+                        $scope.widget.datasource = null;
+                    }
                 });
 
                 $scope.$watch('widget | json', function(){
@@ -335,6 +383,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                             $scope.widget.width = widgetsize;
                         }
                     });
+                }
+            });
+
+            $('.grid-stack').on('click', '.jarviswidget-delete-btn', function(){
+                let $widget = $(this).closest(".grid-stack-item");
+                if($widget[0].attributes['data-gs-id'].nodeValue == $scope.id){
+                    if($scope.valueTimer){
+                        $interval.cancel($scope.valueTimer);
+                    }
                 }
             });
 
