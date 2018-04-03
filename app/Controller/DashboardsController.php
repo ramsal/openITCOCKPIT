@@ -153,14 +153,15 @@ class DashboardsController extends AppController {
                             ]);
 
                             $ServicestatusFields = new \itnovum\openITCOCKPIT\Core\ServicestatusFields($this->DbBackend);
-                            $ServicestatusFields->currentState();
+                            $ServicestatusFields->currentState()->nextCheck();
                             $servicestatus = $this->Servicestatus->byUuid($service['Service']['uuid'], $ServicestatusFields);
                             $Servicestatus = new \itnovum\openITCOCKPIT\Core\Servicestatus(
                                 $servicestatus['Servicestatus']
                             );
                             $traffic_light = [
                                 'serviceId' => $widget['Widget']['service_id'],
-                                'current_state' => $Servicestatus->currentState()
+                                'current_state' => $Servicestatus->currentState(),
+                                'next_check' => $Servicestatus->getNextCheck()
                             ];
                         }
 

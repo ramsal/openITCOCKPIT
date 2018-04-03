@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective', function($http){
+angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective', function($http, $interval){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_traffic_light.html',
@@ -24,7 +24,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             };
 
             $scope.fetchServiceState = function(){
-                $http.post('/dashboards/widget_traffic_light.json', {
+                $http.post('/dashboards/widget_traffic_light.json?', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id,
@@ -32,7 +32,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     }
                 }).then(function(result){
                     $scope.widget = result.data.traffic_light;
-                    console.log($scope.widget);
+
+                    let nextcheckdate = new Date($scope.widget.next_check * 1000);
+                    let msleft = (Date.now() - nextcheckdate);
+
+                    if($scope.valueTimer){
+                        $interval.cancel($scope.valueTimer);
+                    }
+                    $scope.valueTimer = $interval($scope.fetchServiceState, parseInt(Math.abs(msleft) + 15000));    //add 15 seconds to regulate nagios delay
                 });
             };
 
@@ -90,16 +97,24 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             };
 
             $scope.clearLights = function(){
+                if($scope.redBulb.hasClass('traffic-light-animated-red')){
+                    $scope.redBulb.removeClass('traffic-light-animated-red');
+                }
+                if($scope.yellowBulb.hasClass('traffic-light-animated-yellow')){
+                    $scope.yellowBulb.removeClass('traffic-light-animated-yellow');
+                }
+                if($scope.greenBulb.hasClass('traffic-light-animated-green')){
+                    $scope.greenBulb.removeClass('traffic-light-animated-green');
+                }
                 $scope.redBulb.css('backgroundColor', 'black');
                 $scope.yellowBulb.css('backgroundColor', 'black');
                 $scope.greenBulb.css('backgroundColor', 'black');
             };
 
-            $scope.colorScroll = function(){
-                /*
-                http://jsfiddle.net/cq2S8/
-                https://stackoverflow.com/questions/190560/jquery-animate-backgroundcolor
-                 */
+            $scope.colorFade = function(){
+                $scope.redBulb.addClass('traffic-light-animated-red');
+                $scope.yellowBulb.addClass('traffic-light-animated-yellow');
+                $scope.greenBulb.addClass('traffic-light-animated-green');
             };
 
             $scope.updateTrafficLightSize = function(item = false, height = false){
@@ -191,22 +206,24 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             };
 
             $scope.$watch('widget.current_state', function(){
-                if($scope.widget.current_state==0){ //ok
+                if($scope.widget.current_state == 0){ //ok
                     $scope.illuminateGreen();
                 }
-                if($scope.widget.current_state==1){ //warning
+                if($scope.widget.current_state == 1){ //warning
                     $scope.illuminateYellow();
                 }
-                if($scope.widget.current_state==2){ //critical
+                if($scope.widget.current_state == 2){ //critical
                     $scope.illuminateRed();
                 }
-                if($scope.widget.current_state==3){ //unknown   //scroll threw all three colors (still build!!!)
-                    $scope.clearLights();
+                if($scope.widget.current_state == 3){ //unknown   //fade threw all three colors
+                    $scope.colorFade();
                 }
             });
 
             $scope.$watch('widget.serviceId', function(){
-                $scope.fetchServiceState();
+                if(parseInt($scope.widget.serviceId)>0){
+                    $scope.fetchServiceState();
+                }
             });
 
             $('.grid-stack').on('change', function(event, items){

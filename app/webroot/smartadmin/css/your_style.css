@@ -914,18 +914,19 @@ body {
 }
 
 .table-color-0 {
-    background-color: #dff0d8!important;
+    background-color: #dff0d8 !important;
 }
 
 .table-color-1 {
-    background-color: #f2dede!important;
+    background-color: #f2dede !important;
 }
 
 .table-color-2 {
-    background-color: #d6dde7!important;
+    background-color: #d6dde7 !important;
 }
-.table-color-disabled{
-    background-color: #c3d9f7!important;
+
+.table-color-disabled {
+    background-color: #c3d9f7 !important;
 }
 
 rect.ok {
@@ -1682,7 +1683,6 @@ label[class^='aco-host']:after, label[class^='aco-service']:after {
     color: #92a2a8 !important;
 }
 
-
 .checkbox-default {
     border-color: #4c4f53 !important;
 }
@@ -1853,25 +1853,7 @@ input[type="range"]::-ms-fill-upper {
     margin-top: 0px !important;
 }
 
-.traffic-light {
-    height: 190px;
-    width: 85px;
-    background-color: #333;
-    border-radius: 19px;
-    margin: 0px auto 0px auto;
-    padding: 10px;
-}
-
-.bulb {
-    height: 50px;
-    width: 50px;
-    background-color: #111;
-    border-radius: 50%;
-    margin: 5px auto;
-    transition: background 500ms;
-}
-
-.browser-action{
+.browser-action {
     background-color: rgba(255, 255, 255, 0.3);
     width: 100%;
     min-height: 40px;
@@ -1880,36 +1862,36 @@ input[type="range"]::-ms-fill-upper {
     padding-top: 7px;
 }
 
-.browser-action:hover{
+.browser-action:hover {
     background-color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
 }
 
-.font-size-50{
+.font-size-50 {
     font-size: 50px;
 }
 
-.text-lightGray{
+.text-lightGray {
     color: #CCC;
 }
 
-.browser-state-green{
+.browser-state-green {
     background-color: #5cb85c;
 }
 
-.browser-state-yellow{
+.browser-state-yellow {
     background-color: #de8201;
 }
 
-.browser-state-red{
+.browser-state-red {
     background-color: #D9534F;
 }
 
-.browser-state-gray{
+.browser-state-gray {
     background-color: #92a2a8;
 }
 
-.browser-state-blue{
+.browser-state-blue {
     background-color: #3276B1;
 }
 
