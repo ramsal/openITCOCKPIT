@@ -159,17 +159,17 @@ class DashboardsController extends AppController {
                             $ServicestatusFields->currentState()->nextCheck();
                             $servicestatus = $this->Servicestatus->byUuid($service['Service']['uuid'], $ServicestatusFields);
 
-                            if(isset($servicestatus['Servicestatus'])){
+                            if (isset($servicestatus['Servicestatus'])) {
                                 $Servicestatus = new \itnovum\openITCOCKPIT\Core\Servicestatus(
                                     $servicestatus['Servicestatus']
                                 );
                             } else {
                                 $traffic_light = [
-                                    'serviceId'     => $widget['Widget']['service_id'],
+                                    'serviceId' => $widget['Widget']['service_id'],
                                 ];
                                 $error = 'servicestatus not available';
-                                $this->set(compact(['error','traffic_light']));
-                                $this->set('_serialize', ['error','traffic_light']);
+                                $this->set(compact(['error', 'traffic_light']));
+                                $this->set('_serialize', ['error', 'traffic_light']);
                                 return;
                             }
 
@@ -994,7 +994,7 @@ class DashboardsController extends AppController {
         $ServicestatusFields->perfdata()->nextCheck();
         $servicestatus = $this->Servicestatus->byUuid($service['Service']['uuid'], $ServicestatusFields);
 
-        if(isset($servicestatus['Servicestatus'])){
+        if (isset($servicestatus['Servicestatus'])) {
             $Servicestatus = new \itnovum\openITCOCKPIT\Core\Servicestatus(
                 $servicestatus['Servicestatus']
             );

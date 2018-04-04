@@ -12,10 +12,10 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
         controller: function($scope){
 
             $scope.widget = {};
-            $scope.tabId=$scope.parentTabId;
+            $scope.tabId = $scope.parentTabId;
 
             $scope.checkAndStopWidget = function(){
-                if($scope.tabId!==$scope.parentTabId){
+                if($scope.tabId !== $scope.parentTabId){
                     if($scope.valueTimer){
                         $interval.cancel($scope.valueTimer);
                     }
@@ -53,10 +53,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                         if(result.data.traffic_light.serviceId){
                             $scope.widget.serviceId = result.data.traffic_light.serviceId;
                         }
+                        $scope.illuminateBlue();
+                        $scope.widget.current_state = -1;
                         if($scope.valueTimer){
                             $interval.cancel($scope.valueTimer);
                         }
-                        if($scope.checkAndStopWidget()!=true){
+                        if($scope.checkAndStopWidget() != true){
+                            console.log("start error interval 15");
                             $scope.valueTimer = $interval($scope.fetchServiceState, 15000);
                         }
                         return;
@@ -70,7 +73,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     if($scope.valueTimer){
                         $interval.cancel($scope.valueTimer);
                     }
-                    if($scope.checkAndStopWidget()!=true){
+                    if($scope.checkAndStopWidget() != true){
                         $scope.valueTimer = $interval($scope.fetchServiceState, parseInt(Math.abs(msleft) + 15000));    //add 15 seconds to regulate nagios delay
                     }
                 }).catch(function(fallback){
@@ -135,6 +138,18 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             $scope.illuminateGreen = function(){
                 $scope.clearLights();
                 $scope.greenBulb.css('backgroundColor', '#449d44');
+            };
+
+            $scope.illuminateBlue = function(){
+                $scope.redBulb.css('backgroundColor', '#3276B1');
+                $scope.yellowBulb.css('backgroundColor', '#3276B1');
+                $scope.greenBulb.css('backgroundColor', '#3276B1');
+            };
+
+            $scope.illuminateGrey = function(){
+                $scope.redBulb.css('backgroundColor', 'black');
+                $scope.yellowBulb.css('backgroundColor', '#92a2a8');
+                $scope.greenBulb.css('backgroundColor', 'black');
             };
 
             $scope.clearLights = function(){
@@ -256,8 +271,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                 if($scope.widget.current_state == 2){ //critical
                     $scope.illuminateRed();
                 }
-                if($scope.widget.current_state == 3){ //unknown   //fade threw all three colors
-                    $scope.colorFade();
+                if($scope.widget.current_state == 3){ //unknown
+                    $scope.illuminateGrey();
+                    //$scope.colorFade();   //fade threw all three colors
                 }
             });
 

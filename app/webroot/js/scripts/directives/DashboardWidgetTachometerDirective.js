@@ -39,10 +39,10 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
             $scope.unit = '';
             $scope.valueInt = 2;
             $scope.valueDec = 2;
-            $scope.tabId=$scope.parentTabId;
+            $scope.tabId = $scope.parentTabId;
 
             $scope.checkAndStopWidget = function(){
-                if($scope.tabId!==$scope.parentTabId){
+                if($scope.tabId !== $scope.parentTabId){
                     if($scope.valueTimer){
                         $interval.cancel($scope.valueTimer);
                     }
@@ -293,7 +293,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                                 if($scope.valueTimer){
                                     $interval.cancel($scope.valueTimer);
                                 }
-                                if($scope.checkAndStopWidget()!=true){
+                                if($scope.checkAndStopWidget() != true){
                                     $scope.valueTimer = $interval($scope.fetchPerfdata, 15000);
                                 }
                                 return;
@@ -306,7 +306,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                                 if($scope.valueTimer){
                                     $interval.cancel($scope.valueTimer);
                                 }
-                                if($scope.checkAndStopWidget()!=true){
+                                if($scope.checkAndStopWidget() != true){
                                     $scope.valueTimer = $interval($scope.fetchPerfdata, parseInt(Math.abs(msleft) + 7000));
                                 }
                             }
@@ -351,7 +351,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 $scope.$watch('widget.serviceId', function(){
                     if(parseInt($scope.widget.serviceId) > 0){
                         $scope.fetchPerfdata();
-                    } else {
+                    }else{
                         $scope.widget.datasource = null;
                     }
                 });
