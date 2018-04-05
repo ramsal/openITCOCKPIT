@@ -59,7 +59,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                             $interval.cancel($scope.valueTimer);
                         }
                         if($scope.checkAndStopWidget() != true){
-                            console.log("start error interval 15");
+                            //console.log("start error interval 15");
                             $scope.valueTimer = $interval($scope.fetchServiceState, 15000);
                         }
                         return;

@@ -34,16 +34,17 @@
 
 <confirm-tab-delete></confirm-tab-delete>
 
-<section id="widget-grid" class="">
+<section id="widget-grid">
     <div class="row">
         <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div class="jarviswidget" id="wid-id-1" data-widget-editbutton="false">
                 <header>
-                    <div class="tabsContainer">
-                        <ul class="nav nav-tabs pull-left">
+                    <div class="tabsContainer" id="tabsContainer">
+                        <ul id="nav-tabs" class="nav nav-tabs pull-left">
 
                             <li class="active dropdown-toggle" ng-repeat-start="_tab in tabs"
                                 data-tab-id="{{ _tab.DashboardTab.id }}"
+                                id="tab-{{ _tab.DashboardTab.id }}"
                                 ng-if="tab.id == _tab.DashboardTab.id">
                                 <a class="pointer" data-toggle="dropdown" href="javascript:void(0);">
                                     <span ng-class="_tab.DashboardTab.shared ? 'text-primary' : ''" class="text">{{ _tab.DashboardTab.name }}</span>
@@ -84,7 +85,9 @@
 
                             <li ng-repeat-end
                                 data-tab-id="{{ _tab.DashboardTab.id }}"
-                                ng-if="tab.id != _tab.DashboardTab.id">
+                                id="tab-{{ _tab.DashboardTab.id }}"
+                                ng-if="tab.id != _tab.DashboardTab.id"
+                                repeat-done="createTabSort()">
                                 <a class="pointer"
                                    ng-click="tab.id = _tab.DashboardTab.id; tab.name = _tab.DashboardTab.name">
                                     <span ng-class="_tab.DashboardTab.shared ? 'text-primary' : ''" class="text">{{ _tab.DashboardTab.name }}</span>

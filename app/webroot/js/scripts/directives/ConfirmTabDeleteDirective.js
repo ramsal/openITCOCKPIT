@@ -15,6 +15,21 @@ angular.module('openITCOCKPIT').directive('confirmTabDelete', function($http, $f
                 $scope.isDeleting = true;
                 $http.post($scope.deleteUrl).then(
                     function(result){
+
+                        let elem = document.getElementById('tab-' + $scope.tab.id);
+                        elem.parentNode.removeChild(elem);
+                        let arr = [];
+                        for(let i in $scope.tabs){
+                            let tabId = $scope.tabs[i].DashboardTab.id;
+                            if(tabId != $scope.tab.id){
+                                arr.push($scope.tabs[i]);
+                            }
+                        }
+                        $scope.tabs = arr;
+                        $scope.createTabSort();
+                        $scope.tabOrder = $scope.sortable.toArray();
+                        $scope.generateSortIdsFromTabs();
+
                         $('#angularConfirmDelete').modal('hide');
                         $scope.errors = null;
                         $scope.tab.id = null;

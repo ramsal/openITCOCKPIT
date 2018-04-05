@@ -4,6 +4,9 @@ angular.module('openITCOCKPIT')
         $scope.init = true;
         $scope.errors = null;
 
+        $scope.sortable = null;
+        $scope.tabSortStorage = [];
+        $scope.tabSortDisabled = false;
         $scope.tabRotateInterval = 0;
         $scope.viewTabRotateInterval = 0;
         $scope.tabRotateLastTab = 0;
@@ -115,6 +118,21 @@ angular.module('openITCOCKPIT')
             });
         };
 
+        $scope.updateTabPosition = function(id, position){
+            $http.post('/dashboards/updateTabPosition.json?angular=true', {
+                'dashboard': {
+                    'position': position,
+                    'id': id
+                }
+            }).then(function(result){
+                if(result.data.action === true){
+                    $scope.errors = null;
+                }else{
+                    $scope.errors = result.data.error;
+                }
+            });
+        };
+
         $scope.newTab = function(){
             $http.post('/dashboards/createTab.json?angular=true', {
                 'dashboard': {
@@ -213,6 +231,7 @@ angular.module('openITCOCKPIT')
         $scope.$watch('tab.id', function(){
             if($scope.tab.id != null){
                 //$scope.ready = 0;
+                //$scope.orderTabs();
                 $scope.openEditModals = [];
                 $scope.getPreparedWidgets();
             }
@@ -411,5 +430,67 @@ angular.module('openITCOCKPIT')
                 $scope.rotationTimer = $interval($scope.tabRotate, parseInt($scope.tabRotateInterval + '000'));
             }
         });
+
+
+        $scope.tabOrder = [];
+        $scope.generateSortIdsFromTabs = function(){
+            for(let p in $scope.tabs){
+                let tabId = $scope.tabs[p].DashboardTab.id;
+                let el = document.getElementById("tab-" + tabId);
+
+                let str = el.tagName + el.className + el.src + el.href + el.textContent,
+                    i = str.length,
+                    sum = 0;
+
+                while(i--){
+                    sum += str.charCodeAt(i);
+                }
+                let tsid = sum.toString(36);
+                let tname = $scope.tabs[p].DashboardTab.name;
+                let newpos = ($scope.tabOrder.indexOf(tsid) + 1);
+                let oldpos = $scope.tabs[p].DashboardTab.position;
+                if(newpos != oldpos){
+                    $scope.updateTabPosition(tabId, newpos);
+                    $scope.tabs[p].DashboardTab.position = newpos;
+                }
+            }
+        };
+
+        $scope.tabSortCreated = false;
+        $scope.createTabSort = function(){
+
+            if($scope.tabSortCreated == true){
+                $scope.sortable.destroy();
+                $scope.tabOrder = [];
+            }
+
+            $scope.tabSortCreated = true;
+            $scope.sortable = Sortable.create(document.getElementById('nav-tabs'), {
+                group: "tabs",
+                disabled: $scope.tabSortDisabled,
+                scroll: true,
+                sort: true,
+                store: {
+                    /**
+                     * Get the order of elements. Called once during initialization.
+                     * @param   {Sortable}  sortable
+                     * @returns {Array}
+                     */
+                    get: function(sortable){
+                        return $scope.tabOrder;
+                    },
+
+                    /**
+                     * Save the order of elements. Called onEnd (when the item is dropped).
+                     * @param {Sortable}  sortable
+                     */
+                    set: function(sortable){
+                        $scope.tabOrder = sortable.toArray();
+                        $scope.generateSortIdsFromTabs();
+                        $scope.load();
+                    }
+                }
+            });
+        };
 
     });

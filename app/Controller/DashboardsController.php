@@ -690,6 +690,41 @@ class DashboardsController extends AppController {
         ]); */
     }
 
+    public function updateTabPosition () {
+        if (($this->request->is('post') || $this->request->is('put')) && $this->isApiRequest()) {
+            $error = ['Required fields are not transmitted'];
+            if (isset($this->request->data['dashboard']['id']) &&
+                isset($this->request->data['dashboard']['position'])) {
+
+                $error = ['Invalid tab position'];
+                $tabPosition = $this->request->data['dashboard']['position'];
+                $tabId = $this->request->data['dashboard']['id'];
+                $userId = $this->Auth->user('id');
+                if ($tabPosition > 0) {
+                    $result = $this->DashboardTab->find('first', [
+                        'recursive'  => -1,
+                        'contain'    => [],
+                        'conditions' => [
+                            'id'      => $tabId,
+                            'user_id' => $userId,
+                        ],
+                    ]);
+                    if (!empty($result)) {
+                        $this->DashboardTab->id = $tabId;
+                        if ($this->DashboardTab->saveField('position', $tabPosition)) {
+                            $action = true;
+                            $this->set(compact(['action']));
+                            $this->set('_serialize', ['action']);
+                            return;
+                        }
+                    }
+                }
+            }
+            $this->set(compact(['error']));
+            $this->set('_serialize', ['error']);
+        }
+    }
+
     public function deleteTab ($tabId = null) {
         if (!$this->DashboardTab->exists($tabId)) {
             throw new NotFoundException(__('Invalid tab'));
