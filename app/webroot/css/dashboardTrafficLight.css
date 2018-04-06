@@ -126,3 +126,128 @@
     -o-animation: fadeGreenBulb 5s infinite;
     animation: fadeGreenBulb 5s infinite;
 }
+
+
+
+
+
+
+@-o-keyframes flapRedBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #c9302c;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@keyframes flapRedBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #c9302c;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@-o-keyframes flapYellowBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #ec971f;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@keyframes flapYellowBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #ec971f;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@-o-keyframes flapGreenBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #449d44;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@keyframes flapGreenBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #449d44;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@-o-keyframes flapGreyBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #92a2a8;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+@keyframes flapGreyBulb {
+    0% {
+        background-color: #111;
+    }
+    50% {
+        background-color: #92a2a8;
+    }
+    100% {
+        background-color: #111;
+    }
+}
+
+.traffic-light-flapping-red {
+    background-image: none !important;
+    -o-animation: flapRedBulb 4s infinite;
+    animation: flapRedBulb 4s infinite;
+}
+
+.traffic-light-flapping-yellow {
+    background-image: none !important;
+    -o-animation: flapYellowBulb 4s infinite;
+    animation: flapYellowBulb 4s infinite;
+}
+
+.traffic-light-flapping-green {
+    background-image: none !important;
+    -o-animation: flapGreenBulb 4s infinite;
+    animation: flapGreenBulb 4s infinite;
+}
+
+.traffic-light-flapping-grey {
+    background-image: none !important;
+    -o-animation: flapGreyBulb 4s infinite;
+    animation: flapGreyBulb 4s infinite;
+}

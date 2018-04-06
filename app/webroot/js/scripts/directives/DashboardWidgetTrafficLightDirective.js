@@ -156,11 +156,23 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                 if($scope.redBulb.hasClass('traffic-light-animated-red')){
                     $scope.redBulb.removeClass('traffic-light-animated-red');
                 }
+                if($scope.redBulb.hasClass('traffic-light-flapping-red')){
+                    $scope.redBulb.removeClass('traffic-light-flapping-red');
+                }
                 if($scope.yellowBulb.hasClass('traffic-light-animated-yellow')){
                     $scope.yellowBulb.removeClass('traffic-light-animated-yellow');
                 }
+                if($scope.yellowBulb.hasClass('traffic-light-flapping-yellow')){
+                    $scope.yellowBulb.removeClass('traffic-light-flapping-yellow');
+                }
                 if($scope.greenBulb.hasClass('traffic-light-animated-green')){
                     $scope.greenBulb.removeClass('traffic-light-animated-green');
+                }
+                if($scope.greenBulb.hasClass('traffic-light-flapping-green')){
+                    $scope.greenBulb.removeClass('traffic-light-flapping-green');
+                }
+                if($scope.yellowBulb.hasClass('traffic-light-flapping-grey')){
+                    $scope.yellowBulb.removeClass('traffic-light-flapping-grey');
                 }
                 $scope.redBulb.css('backgroundColor', 'black');
                 $scope.yellowBulb.css('backgroundColor', 'black');
@@ -261,7 +273,30 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                 }
             };
 
+            $scope.illuminateFlapping = function(){
+                if($scope.widget.is_flapping == true){
+                    $scope.clearLights();
+                    if($scope.widget.current_state == 0){ //ok flapping
+                        $scope.greenBulb.addClass('traffic-light-flapping-green');
+                    }
+                    if($scope.widget.current_state == 1){ //warning flapping
+                        $scope.yellowBulb.addClass('traffic-light-flapping-yellow');
+                    }
+                    if($scope.widget.current_state == 2){ //critical flapping
+                        $scope.redBulb.addClass('traffic-light-flapping-red');
+                    }
+                    if($scope.widget.current_state == 3){ //unknown flapping
+                        $scope.yellowBulb.addClass('traffic-light-flapping-grey');
+                    }
+                }
+            };
+
             $scope.$watch('widget.current_state', function(){
+                if($scope.widget.is_flapping == true){
+                    $scope.illuminateFlapping();
+                    return;
+                }
+
                 if($scope.widget.current_state == 0){ //ok
                     $scope.illuminateGreen();
                 }
@@ -274,6 +309,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                 if($scope.widget.current_state == 3){ //unknown
                     $scope.illuminateGrey();
                     //$scope.colorFade();   //fade threw all three colors
+                }
+            });
+
+            $scope.$watch('widget.is_flapping', function(){
+                if($scope.widget.is_flapping == true){
+                    $scope.illuminateFlapping
                 }
             });
 
