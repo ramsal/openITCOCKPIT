@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class HostStatusList extends Widget
-{
+class HostStatusList extends Widget {
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'host_status_list';
@@ -36,25 +35,24 @@ class HostStatusList extends Widget
 
     public $initialConfig = [
         'WidgetHostStatusList' => [
-            'animation'          => 'fadeInUp',
-            'animation_interval' => 0,
-            'show_up'            => 0,
-            'show_down'          => 1,
-            'show_unreachable'   => 1,
-            'show_acknowledged'  => 0,
-            'show_downtime'      => 0,
+            'limit'             => 5,
+            'paging_interval'   => 0,
+            'paging_autostart'  => 0,
+            'show_up'           => 0,
+            'show_down'         => 1,
+            'show_unreachable'  => 1,
+            'show_acknowledged' => 0,
+            'show_downtime'     => 0,
         ],
     ];
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 9;
         $this->title = __('Host status list');
     }
 
-    public function setData($widgetData)
-    {
+    public function setData ($widgetData) {
         //debug($widgetData);
         $widget = $this->Controller->Widget->find('first', [
             'recursive'  => -1,
@@ -117,12 +115,11 @@ class HostStatusList extends Widget
         ];
     }
 
-    public function refresh($widget)
-    {
+    public function refresh ($widget) {
         $this->setData($widget);
 
         return [
-            'element' => 'Dashboard'.DS.'host_status_list_table',
+            'element' => 'Dashboard' . DS . 'host_status_list_table',
         ];
     }
 

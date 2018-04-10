@@ -177,7 +177,7 @@ class DashboardsController extends AppController {
                                 'serviceId'     => $widget['Widget']['service_id'],
                                 'current_state' => $Servicestatus->currentState(),
                                 'next_check'    => $Servicestatus->getNextCheck(),
-                                'is_flapping'    => $Servicestatus->isFlapping()
+                                'is_flapping'   => $Servicestatus->isFlapping()
                             ];
                         }
 

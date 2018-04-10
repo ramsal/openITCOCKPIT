@@ -1465,8 +1465,9 @@ class AppSchema extends CakeSchema
     public $widget_host_status_lists = [
         'id'                 => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'widget_id'          => ['type' => 'integer', 'null' => false],
-        'animation'          => ['type' => 'string', 'null' => false],
-        'animation_interval' => ['type' => 'integer', 'null' => false],
+        'limit'              => ['type' => 'integer', 'null' => false],
+        'paging_interval'    => ['type' => 'integer', 'null' => false],
+        'paging_autostart'   => ['type' => 'boolean', 'null' => false, 'default' => '0'],
         'show_up'            => ['type' => 'boolean', 'null' => false, 'default' => '1'],
         'show_down'          => ['type' => 'boolean', 'null' => false, 'default' => '1'],
         'show_unreachable'   => ['type' => 'boolean', 'null' => false, 'default' => '1'],

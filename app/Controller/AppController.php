@@ -175,6 +175,13 @@ class AppController extends Controller {
                 $this->MY_RIGHTS_LEVEL = [1, 2];
             }
         }
+
+        //Enable &limit=5 via url
+        if($this->request->query('limit')){
+            if(is_numeric($this->request->query('limit'))){
+                $this->Paginator->settings['limit'] = (int)$this->request->query('limit');
+            }
+        }
     }
 
     protected function __getUserRights() {
