@@ -491,6 +491,16 @@ angular.module('openITCOCKPIT')
                     }
                 }
             });
+            let tmptabids = [];
+            $('#nav-tabs li').each(function(){
+                if(this.id.indexOf('tab-') == 0){
+                    if(!tmptabids.includes(this.id)){
+                        tmptabids.push(this.id);
+                    }else{
+                        this.remove();
+                    }
+                }
+            });
         };
 
     });
