@@ -1,26 +1,32 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirective', function($http, $interval, $rootScope, SortService){
+angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirective', function($http, $interval, $rootScope, SortService, QueryStringService){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_host_status_list.html',
         scope: {
             'title': '=wtitle',
             'id': '=wid',
+            'parentTabId': '=tabid',
             'updateTitle': '&'
         },
 
         controller: function($scope){
 
+            SortService.setSort(QueryStringService.getValue('sort', 'Hoststatus.current_state'));
+            SortService.setDirection(QueryStringService.getValue('direction', 'desc'));
+
             $scope.widget = null;
             $scope.ready = false;
             $scope.viewPagingInterval = 0;
+            $scope.tabId = $scope.parentTabId;
+            $scope.currentPage = 1;
 
             $scope.statusListSettings = {
                 limit: 0,
                 paging_interval: 0,
-                paging_autostart: false,
                 filter: {
                     Host: {
-                        name: null
+                        name: null,
+                        output: null
                     },
                     Hoststatus: {
                         acknowledged: false,
@@ -33,6 +39,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     }
                 }
             };
+            $scope.paging_autostart = false;
             $scope.paging = {
                 widget: {
                     from: 0,
@@ -42,6 +49,15 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 pageCount: 1
             };
 
+            $scope.checkAndStopWidget = function(){
+                if($scope.tabId !== $scope.parentTabId){
+                    if($scope.pagingTimer){
+                        $interval.cancel($scope.pagingTimer);
+                    }
+                    return true;
+                }
+                return false;
+            };
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_host_status_list.json', {
@@ -56,7 +72,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     $scope.viewPagingInterval = parseInt($scope.widget.paging_interval);
                     $scope.statusListSettings.limit = parseInt($scope.widget.limit);
                     $scope.statusListSettings.paging_interval = parseInt($scope.widget.paging_interval);
-                    $scope.statusListSettings.paging_autostart = $scope.widget.paging_autostart;
+                    $scope.paging_autostart = $scope.widget.paging_autostart;
 
                     $scope.statusListSettings.filter.Hoststatus.acknowledged = $scope.widget.show_acknowledged;
                     $scope.statusListSettings.filter.Hoststatus.downtime = $scope.widget.show_downtime;
@@ -64,12 +80,17 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     $scope.statusListSettings.filter.Hoststatus.current_state.down = $scope.widget.show_down;
                     $scope.statusListSettings.filter.Hoststatus.current_state.up = $scope.widget.show_up;
 
-                    $scope.statusListSettings.filter.Host.name = $scope.widget.show_filter_search;
+                    $scope.statusListSettings.filter.Host.name = $scope.widget.host_name_filter;
+                    $scope.statusListSettings.filter.Host.output = $scope.widget.host_output_filter;
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
-                    $scope.loadHosts($scope.paging.page);
+                    if($scope.currentPage != 1){
+                        $scope.currentPage = 1;
+                    } else {
+                        $scope.loadHosts();
+                    }
                     setTimeout(function(){
                         $scope.ready = true;
                     }, 500);
@@ -81,12 +102,18 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
 
             $scope.startPaging = function(){
-                $scope.statusListSettings.paging_autostart = true;
+                //$scope.ready = false;
+                $scope.paging_autostart = true;
+                $scope.saveStatuslistSettings();
                 $scope.doPaging();
+                //$scope.ready = true;
             };
             $scope.pausePaging = function(){
-                $scope.statusListSettings.paging_autostart = false;
+                //$scope.ready = false;
+                $scope.paging_autostart = false;
+                $scope.saveStatuslistSettings();
                 $scope.doPaging();
+                //$scope.ready = true;
             };
 
             $scope.toTimeString = function(seconds){
@@ -107,30 +134,37 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
             $scope.doPaging = function(){
                 if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
-                if($scope.statusListSettings.paging_interval > 0 && $scope.statusListSettings.paging_autostart){
+                if($scope.statusListSettings.paging_interval > 0 && $scope.paging_autostart){
                     $scope.pagingTimer = $interval($scope.loadPagingHosts, parseInt($scope.statusListSettings.paging_interval + '000'));
                 }else{
-                    $scope.statusListSettings.paging_autostart = false;
+                    $scope.paging_autostart = false;
                 }
             };
 
             $scope.loadPagingHosts = function(){
-                if($scope.paging.page == $scope.paging.pageCount){
-                    $scope.loadHosts(1);
-                }else{
-                    $scope.loadHosts($scope.paging.page + 1);
+                if($scope.checkAndStopWidget() != true){
+                    if($scope.paging.page == $scope.paging.pageCount){
+                        if($scope.currentPage != 1){
+                            $scope.currentPage = 1;
+                        } else {
+                            $scope.loadHosts();
+                        }
+                    }
+                    if($scope.paging.page < $scope.paging.pageCount){
+                        $scope.currentPage = $scope.paging.page + 1;
+                    }
                 }
             };
 
-            $scope.loadHosts = function(page){
+            $scope.loadHosts = function(){
 
                 let params = {
                     'angular': true,
                     'sort': SortService.getSort(),
-                    'page': page,
+                    'page': $scope.currentPage,
                     'direction': SortService.getDirection(),
                     'filter[Host.name]': $scope.statusListSettings.filter.Host.name,
-                    'filter[Hoststatus.output]': '',
+                    'filter[Hoststatus.output]': $scope.statusListSettings.filter.Host.output,
                     'filter[Hoststatus.current_state][]': $rootScope.currentStateForApi($scope.statusListSettings.filter.Hoststatus.current_state),
                     'filter[Host.keywords]': [],
                     'filter[Hoststatus.problem_has_been_acknowledged]': $scope.statusListSettings.filter.Hoststatus.acknowledged ? "true" : "false",
@@ -152,7 +186,10 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     }else if($scope.paging.page == $scope.paging.pageCount){
                         $scope.paging.widget.from = $scope.paging.count - $scope.paging.current;
                     }else{
-                        $scope.paging.widget.from = 1;
+                        $scope.paging.widget.from = 0;
+                        if($scope.paging.pageCount > 0){
+                            $scope.paging.widget.from = 1;
+                        }
                     }
                     if($scope.paging.pageCount == $scope.paging.page){
                         $scope.paging.widget.from = ($scope.paging.count - $scope.paging.current) + 1;
@@ -168,19 +205,30 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
             };
 
-            $scope.$watch('statusListSettings | json', function(){
+            $scope.setPage = function(page){
+                $scope.currentPage = page;
+            };
+
+            $scope.$watch('currentPage', function(){
+                if($scope.ready === true){
+                    $scope.loadHosts();
+                }
+            });
+
+            $scope.saveStatuslistSettings = function(){
                 if($scope.ready === true){
                     let data = {
                         settings: {
                             limit: $scope.statusListSettings.limit,
                             paging_interval: $scope.statusListSettings.paging_interval.toString(),
-                            paging_autostart: $scope.statusListSettings.paging_autostart,
+                            paging_autostart: $scope.paging_autostart,
                             show_acknowledged: $scope.statusListSettings.filter.Hoststatus.acknowledged ? "1" : "0",
                             show_downtime: $scope.statusListSettings.filter.Hoststatus.downtime ? "1" : "0",
                             show_up: $scope.statusListSettings.filter.Hoststatus.current_state.up ? "1" : "0",
                             show_down: $scope.statusListSettings.filter.Hoststatus.current_state.down ? "1" : "0",
                             show_unreachable: $scope.statusListSettings.filter.Hoststatus.current_state.unreachable ? "1" : "0",
-                            show_filter_search: $scope.statusListSettings.filter.Host.name
+                            host_name_filter: $scope.statusListSettings.filter.Host.name,
+                            host_output_filter: $scope.statusListSettings.filter.Host.output
                         },
                         'widgetId': $scope.id,
                         'widgetTypeId': "9"
@@ -189,13 +237,53 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     $http.post('/dashboards/saveStatuslistSettings.json?angular=true', data).then(function(result){
                         //console.log(result);
                     });
-                    $scope.loadHosts(1);
+                }
+            };
+
+            $scope.$watch('statusListSettings | json', function(){
+                if($scope.ready === true){
+                    $scope.saveStatuslistSettings();
+
+                    if($scope.currentPage != 1){
+                        $scope.currentPage = 1;
+                    } else {
+                        $scope.loadHosts();
+                    }
                 }
             });
 
             $scope.savePagingInterval = function(){
                 $scope.statusListSettings.paging_interval = $scope.viewPagingInterval;
             };
+
+            $scope.getSortClass = function(field){
+                if(field === SortService.getSort()){
+                    if(SortService.getDirection() === 'asc'){
+                        return 'fa-sort-asc';
+                    }
+                    return 'fa-sort-desc';
+                }
+
+                return 'fa-sort';
+            };
+
+            $scope.orderBy = function(field){
+                if(field !== SortService.getSort()){
+                    SortService.setDirection('asc');
+                    SortService.setSort(field);
+                    SortService.triggerReload();
+                    return;
+                }
+
+                if(SortService.getDirection() === 'asc'){
+                    SortService.setDirection('desc');
+                }else{
+                    SortService.setDirection('asc');
+                }
+                SortService.triggerReload();
+            };
+
+            SortService.setCallback($scope.loadHosts);
 
 
             $('.grid-stack').on('change', function(event, items){

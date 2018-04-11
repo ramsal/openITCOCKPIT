@@ -22,11 +22,11 @@
         <div class="padding-10" style="border: 1px solid #c3c3c3;">
             <div class="row">
                 <div class="col-xs-2">
-                    <a href="javascript:void(0);" ng-show="statusListSettings.paging_autostart" ng-click="pausePaging()"
-                       data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="paging_autostart" ng-click="pausePaging()"
+                       data-widget-id="21" title="<?php echo __('disable paging'); ?>"
                        class="btn btn-default btn-xs stopRotation btn-primary"><i class="fa fa-pause"></i></a>
-                    <a href="javascript:void(0);" ng-show="!statusListSettings.paging_autostart"
-                       ng-click="startPaging()" data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="!paging_autostart"
+                       ng-click="startPaging()" data-widget-id="21" title="<?php echo __('enable paging'); ?>"
                        class="btn btn-default btn-xs startRotation btn-primary"><i class="fa fa-play"></i></a>
                 </div>
                 <div class="col-xs-4 height-45px">
@@ -101,16 +101,16 @@
                         </label>
                     </div>
                 </div>
-                <?php /*<div class="col-xs-12 col-md-6">
+                <div class="col-xs-12 col-md-6">
                     <div class="form-group smart-form">
                         <label class="input"> <i class="icon-prepend fa fa-filter"></i>
                             <input type="text" class="input-sm"
-                                   placeholder="<?php echo __('Filter by output'); ?>"
-                                   ng-model="filter.Hoststatus.output"
+                                   placeholder="<?php echo __('Filter by host output'); ?>"
+                                   ng-model="statusListSettings.filter.Host.output"
                                    ng-model-options="{debounce: 500}">
                         </label>
                     </div>
-                </div>*/ ?>
+                </div>
             </div>
         </div>
 
@@ -139,6 +139,10 @@
                     <th class="no-sort" ng-click="orderBy('Hoststatus.last_state_change')">
                         <i class="fa" ng-class="getSortClass('Hoststatus.last_state_change')"></i>
                         <?php echo __('State since'); ?>
+                    </th>
+                    <th class="no-sort" ng-click="orderBy('Hoststatus.output')">
+                        <i class="fa" ng-class="getSortClass('Hoststatus.output')"></i>
+                        <?php echo __('Host output'); ?>
                     </th>
                 </tr>
                 </thead>
@@ -175,6 +179,9 @@
                     <td>
                         {{ host.Hoststatus.last_state_change }}
                     </td>
+                    <td>
+                        {{ host.Hoststatus.output }}
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -195,7 +202,7 @@
                         <li class="paginate_button cursor-pointer" aria-controls="DataTables_Table_0" tabindex="0"
                             ng-repeat="i in [].constructor(paging.pageCount) track by $index"
                             ng-class="$index+1==paging.page ? 'active' : ''">
-                            <a ng-click="loadHosts( $index+1 )">{{ $index+1 }}</a>
+                            <a ng-click="setPage( $index+1 )">{{ $index+1 }}</a>
                         </li>
                     </ul>
                 </div>

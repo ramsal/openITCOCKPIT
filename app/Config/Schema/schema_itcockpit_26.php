@@ -1475,7 +1475,8 @@ class AppSchema extends CakeSchema
         'show_unreachable'   => ['type' => 'boolean', 'null' => false, 'default' => '1'],
         'show_acknowledged'  => ['type' => 'boolean', 'null' => false, 'default' => '0'],
         'show_downtime'      => ['type' => 'boolean', 'null' => false, 'default' => '0'],
-        'show_filter_search' => ['type' => 'text', 'null' => false, 'default' => ''],
+        'host_name_filter'   => ['type' => 'text', 'null' => false, 'default' => ''],
+        'host_output_filter' => ['type' => 'text', 'null' => false, 'default' => ''],
         'indexes'            => [
             'PRIMARY' => ['column' => 'id', 'unique' => 1],
             'KEY'     => ['column' => 'widget_id', 'unique' => 1],
