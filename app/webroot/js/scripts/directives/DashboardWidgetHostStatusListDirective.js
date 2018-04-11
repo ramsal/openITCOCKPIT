@@ -88,7 +88,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
-                    } else {
+                    }else{
                         $scope.loadHosts();
                     }
                     setTimeout(function(){
@@ -102,18 +102,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
 
             $scope.startPaging = function(){
-                //$scope.ready = false;
                 $scope.paging_autostart = true;
                 $scope.saveStatuslistSettings();
                 $scope.doPaging();
-                //$scope.ready = true;
             };
             $scope.pausePaging = function(){
-                //$scope.ready = false;
                 $scope.paging_autostart = false;
                 $scope.saveStatuslistSettings();
                 $scope.doPaging();
-                //$scope.ready = true;
             };
 
             $scope.toTimeString = function(seconds){
@@ -146,7 +142,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                     if($scope.paging.page == $scope.paging.pageCount){
                         if($scope.currentPage != 1){
                             $scope.currentPage = 1;
-                        } else {
+                        }else{
                             $scope.loadHosts();
                         }
                     }
@@ -246,7 +242,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
-                    } else {
+                    }else{
                         $scope.loadHosts();
                     }
                 }

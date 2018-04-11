@@ -22,11 +22,11 @@
         <div class="padding-10" style="border: 1px solid #c3c3c3;">
             <div class="row">
                 <div class="col-xs-2">
-                    <a href="javascript:void(0);" ng-show="statusListSettings.paging_autostart" ng-click="pausePaging()"
-                       data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="paging_autostart" ng-click="pausePaging()"
+                       data-widget-id="21" title="<?php echo __('disable paging'); ?>"
                        class="btn btn-default btn-xs stopRotation btn-primary"><i class="fa fa-pause"></i></a>
-                    <a href="javascript:void(0);" ng-show="!statusListSettings.paging_autostart"
-                       ng-click="startPaging()" data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="!paging_autostart"
+                       ng-click="startPaging()" data-widget-id="21" title="<?php echo __('enable paging'); ?>"
                        class="btn btn-default btn-xs startRotation btn-primary"><i class="fa fa-play"></i></a>
                 </div>
                 <div class="col-xs-4 height-45px">
@@ -142,8 +142,8 @@
                         <i class="fa fa-power-off fa-lg"
                            title="<?php echo __('is in downtime'); ?>"></i>
                     </th>
-                    <th class="no-sort" ng-click="orderBy('Service.hostname')">
-                        <i class="fa" ng-class="getSortClass('Service.hostname')"></i>
+                    <th class="no-sort" ng-click="orderBy('Host.name')">
+                        <i class="fa" ng-class="getSortClass('Host.name')"></i>
                         <?php echo __('Host name'); ?>
                     </th>
                     <th class="no-sort" ng-click="orderBy('Service.name')">
@@ -217,7 +217,7 @@
                         <li class="paginate_button cursor-pointer" aria-controls="DataTables_Table_0" tabindex="0"
                             ng-repeat="i in [].constructor(paging.pageCount) track by $index"
                             ng-class="$index+1==paging.page ? 'active' : ''">
-                            <a ng-click="loadServices( $index+1 )">{{ $index+1 }}</a>
+                            <a ng-click="setPage( $index+1 )">{{ $index+1 }}</a>
                         </li>
                     </ul>
                 </div>
