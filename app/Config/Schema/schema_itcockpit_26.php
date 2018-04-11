@@ -1445,18 +1445,20 @@ class AppSchema extends CakeSchema
     ];
 
     public $widget_service_status_lists = [
-        'id'                 => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
-        'widget_id'          => ['type' => 'integer', 'null' => false],
-        'animation'          => ['type' => 'string', 'null' => false],
-        'animation_interval' => ['type' => 'integer', 'null' => false],
-        'show_ok'            => ['type' => 'boolean', 'null' => false, 'default' => '1'],
-        'show_warning'       => ['type' => 'boolean', 'null' => false, 'default' => '1'],
-        'show_critical'      => ['type' => 'boolean', 'null' => false, 'default' => '1'],
-        'show_unknown'       => ['type' => 'boolean', 'null' => false, 'default' => '1'],
-        'show_acknowledged'  => ['type' => 'boolean', 'null' => false, 'default' => '0'],
-        'show_downtime'      => ['type' => 'boolean', 'null' => false, 'default' => '0'],
-        'show_filter_search' => ['type' => 'text', 'null' => false, 'default' => ''],
-        'indexes'            => [
+        'id'                  => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
+        'widget_id'           => ['type' => 'integer', 'null' => false],
+        'limit'               => ['type' => 'integer', 'null' => false],
+        'paging_interval'     => ['type' => 'integer', 'null' => false],
+        'paging_autostart'    => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'show_ok'             => ['type' => 'boolean', 'null' => false, 'default' => '1'],
+        'show_warning'        => ['type' => 'boolean', 'null' => false, 'default' => '1'],
+        'show_critical'       => ['type' => 'boolean', 'null' => false, 'default' => '1'],
+        'show_unknown'        => ['type' => 'boolean', 'null' => false, 'default' => '1'],
+        'show_acknowledged'   => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'show_downtime'       => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'host_name_filter'    => ['type' => 'text', 'null' => false, 'default' => ''],
+        'service_name_filter' => ['type' => 'text', 'null' => false, 'default' => ''],
+        'indexes'             => [
             'PRIMARY' => ['column' => 'id', 'unique' => 1],
             'KEY'     => ['column' => 'widget_id', 'unique' => 1],
         ],

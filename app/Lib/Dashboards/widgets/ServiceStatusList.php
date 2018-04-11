@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class ServiceStatusList extends Widget
-{
+class ServiceStatusList extends Widget {
     public $isDefault = false;
     public $icon = 'fa-list-alt';
     public $element = 'service_status_list';
@@ -36,26 +35,25 @@ class ServiceStatusList extends Widget
 
     public $initialConfig = [
         'WidgetServiceStatusList' => [
-            'animation'          => 'fadeInUp',
-            'animation_interval' => 0,
-            'show_ok'            => 0,
-            'show_warning'       => 1,
-            'show_critical'      => 1,
-            'show_unknown'       => 1,
-            'show_acknowledged'  => 0,
-            'show_downtime'      => 0,
+            'limit'             => 5,
+            'paging_interval'   => 0,
+            'paging_autostart'  => 0,
+            'show_ok'           => 0,
+            'show_warning'      => 1,
+            'show_critical'     => 1,
+            'show_unknown'      => 1,
+            'show_acknowledged' => 0,
+            'show_downtime'     => 0,
         ],
     ];
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 10;
         $this->title = __('Service status list');
     }
 
-    public function setData($widgetData)
-    {
+    public function setData ($widgetData) {
         //debug($widgetData);
         $widget = $this->Controller->Widget->find('first', [
             'recursive'  => -1,
@@ -147,12 +145,11 @@ class ServiceStatusList extends Widget
         ];
     }
 
-    public function refresh($widget)
-    {
+    public function refresh ($widget) {
         $this->setData($widget);
 
         return [
-            'element' => 'Dashboard'.DS.'service_status_list_table',
+            'element' => 'Dashboard' . DS . 'service_status_list_table',
         ];
     }
 

@@ -1,23 +1,30 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirective', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirective', function($http, $interval, $rootScope, SortService, QueryStringService){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_service_status_list.html',
         scope: {
             'title': '=wtitle',
             'id': '=wid',
+            'parentTabId': '=tabid',
             'updateTitle': '&'
         },
 
         controller: function($scope){
 
+            $rootScope.lastObjectName = null;
+            SortService.setSort(QueryStringService.getValue('sort', ''));
+            SortService.setDirection(QueryStringService.getValue('direction', ''));
+            SortService.setCallback($scope.load);
+
             $scope.widget = null;
             $scope.ready = false;
-            $scope.pagingOn = false;
             $scope.viewPagingInterval = 0;
+            $scope.tabId = $scope.parentTabId;
 
             $scope.statusListSettings = {
-                pagingInterval: 0,
-                animation: "fadeInUp",
+                limit: 0,
+                paging_interval: 0,
+                paging_autostart: false,
                 filter: {
                     Host: {
                         name: null,
@@ -37,6 +44,24 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                     }
                 }
             };
+            $scope.paging = {
+                widget: {
+                    from: 0,
+                    to: 0
+                },
+                count: 0,
+                pageCount: 1
+            };
+
+            $scope.checkAndStopWidget = function(){
+                if($scope.tabId !== $scope.parentTabId){
+                    if($scope.pagingTimer){
+                        $interval.cancel($scope.pagingTimer);
+                    }
+                    return true;
+                }
+                return false;
+            };
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_service_status_list.json', {
@@ -45,12 +70,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
+                    $scope.ready = false;
                     $scope.widget = result.data.service_status_list;
                     console.log($scope.widget);
 
-                    $scope.viewPagingInterval = parseInt($scope.widget.animation_interval);
-                    $scope.statusListSettings.pagingInterval = parseInt($scope.widget.animation_interval);
-                    $scope.statusListSettings.animation = $scope.widget.animation;
+                    $scope.viewPagingInterval = parseInt($scope.widget.paging_interval);
+                    $scope.statusListSettings.limit = parseInt($scope.widget.limit);
+                    $scope.statusListSettings.paging_interval = parseInt($scope.widget.paging_interval);
+                    $scope.statusListSettings.paging_autostart = $scope.widget.paging_autostart;
 
                     $scope.statusListSettings.filter.Servicestatus.acknowledged = $scope.widget.show_acknowledged;
                     $scope.statusListSettings.filter.Servicestatus.downtime = $scope.widget.show_downtime;
@@ -59,12 +86,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                     $scope.statusListSettings.filter.Servicestatus.current_state.warning = $scope.widget.show_warning;
                     $scope.statusListSettings.filter.Servicestatus.current_state.ok = $scope.widget.show_ok;
 
-                    $scope.statusListSettings.filter.Service.name = $scope.widget.show_filter_search;
+                    $scope.statusListSettings.filter.Service.name = $scope.widget.service_name_filter;
+                    $scope.statusListSettings.filter.Host.name = $scope.widget.host_name_filter;
 
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
-                    let mobileheight = (widgetheight - 10.5) * 22;
+                    let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
+                    $scope.loadServices($scope.paging.page);
                     setTimeout(function(){
                         $scope.ready = true;
                     }, 500);
@@ -77,10 +106,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
 
 
             $scope.startPaging = function(){
-                $scope.pagingOn = true;
+                $scope.statusListSettings.paging_autostart = true;
+                $scope.doPaging();
             };
             $scope.pausePaging = function(){
-                $scope.pagingOn = false;
+                $scope.statusListSettings.paging_autostart = false;
+                $scope.doPaging();
             };
 
             $scope.toTimeString = function(seconds){
@@ -94,28 +125,99 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                 $scope.pagingTimeString = $scope.toTimeString($scope.viewPagingInterval);
             });
 
-            $scope.$watch('statusListSettings.pagingInterval', function(){
-                $scope.pagingTimeString = $scope.toTimeString($scope.statusListSettings.pagingInterval);
-                if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
-                if($scope.statusListSettings.pagingInterval > 0){
-                    //$scope.pagingTimer = $interval($scope.tabRotate, parseInt($scope.statusListSettings.pagingInterval + '000'));
-
-                }
+            $scope.$watch('statusListSettings.paging_interval', function(){
+                $scope.pagingTimeString = $scope.toTimeString($scope.statusListSettings.paging_interval);
+                $scope.doPaging();
             });
+
+            $scope.doPaging = function(){
+                if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
+                if($scope.statusListSettings.paging_interval > 0 && $scope.statusListSettings.paging_autostart){
+
+                        $scope.pagingTimer = $interval($scope.loadPagingServices, parseInt($scope.statusListSettings.paging_interval + '000'));
+
+                }else{
+                    $scope.statusListSettings.paging_autostart = false;
+                }
+            };
+
+            $scope.loadPagingServices = function(){
+                if($scope.checkAndStopWidget() != true){
+                    if($scope.paging.page == $scope.paging.pageCount){
+                        $scope.loadServices(1);
+                    }
+                    if($scope.paging.page < $scope.paging.pageCount){
+                        $scope.loadServices($scope.paging.page + 1);    //load next page
+                    }
+                }
+            };
+
+            $scope.loadServices = function(page){
+
+                let passive = '';
+                if($scope.statusListSettings.filter.Servicestatus.passive ^ $scope.statusListSettings.filter.Servicestatus.active){
+                    passive = !$scope.statusListSettings.filter.Servicestatus.passive;
+                }
+
+                let params = {
+                    'angular': true,
+                    'sort': SortService.getSort(),
+                    'page': page,
+                    'direction': SortService.getDirection(),
+                    'filter[Host.name]': $scope.statusListSettings.filter.Host.name,
+                    'filter[Service.servicename]': $scope.statusListSettings.filter.Service.name,
+                    'filter[Servicestatus.output]': '',
+                    'filter[Servicestatus.current_state][]': $rootScope.currentStateForApi($scope.statusListSettings.filter.Servicestatus.current_state),
+                    'filter[Service.keywords]': [],
+                    'filter[Servicestatus.problem_has_been_acknowledged]': $scope.statusListSettings.filter.Servicestatus.acknowledged ? "true" : "false",
+                    'filter[Servicestatus.scheduled_downtime_depth]': $scope.statusListSettings.filter.Servicestatus.downtime ? "true" : "false",
+                    'filter[Servicestatus.active_checks_enabled]': passive,
+                    'limit': $scope.statusListSettings.limit
+                };
+
+                $http.get("/services/index.json", {
+                    params: params
+                }).then(function(result){
+                    $scope.services = result.data.all_services;
+                    $scope.paging = result.data.paging;
+
+                    $scope.paging.widget = {};
+                    if($scope.paging.page > 1 && $scope.paging.page < $scope.paging.pageCount){
+                        $scope.paging.widget.from = (($scope.paging.current * $scope.paging.page) - $scope.paging.current) + 1;
+                    }else if($scope.paging.page == $scope.paging.pageCount){
+                        $scope.paging.widget.from = $scope.paging.count - $scope.paging.current;
+                    }else{
+                        $scope.paging.widget.from = 1;
+                    }
+                    if($scope.paging.pageCount == $scope.paging.page){
+                        $scope.paging.widget.from = ($scope.paging.count - $scope.paging.current) + 1;
+                    }
+
+                    if($scope.paging.pageCount != $scope.paging.page && ($scope.paging.limit * $scope.paging.page) < $scope.paging.count){
+                        $scope.paging.widget.to = $scope.paging.limit * $scope.paging.page;
+                    }else{
+                        $scope.paging.widget.to = $scope.paging.count;
+                    }
+
+                });
+
+            };
 
             $scope.$watch('statusListSettings | json', function(){
                 if($scope.ready === true){
                     let data = {
                         settings: {
-                            animation_interval: $scope.statusListSettings.pagingInterval.toString(),
-                            animation: $scope.statusListSettings.animation,
+                            limit: $scope.statusListSettings.limit,
+                            paging_interval: $scope.statusListSettings.paging_interval.toString(),
+                            paging_autostart: $scope.statusListSettings.paging_autostart,
                             show_acknowledged: $scope.statusListSettings.filter.Servicestatus.acknowledged ? "1" : "0",
                             show_downtime: $scope.statusListSettings.filter.Servicestatus.downtime ? "1" : "0",
                             show_ok: $scope.statusListSettings.filter.Servicestatus.current_state.ok ? "1" : "0",
                             show_warning: $scope.statusListSettings.filter.Servicestatus.current_state.warning ? "1" : "0",
                             show_critical: $scope.statusListSettings.filter.Servicestatus.current_state.critical ? "1" : "0",
                             show_unknown: $scope.statusListSettings.filter.Servicestatus.current_state.unknown ? "1" : "0",
-                            show_filter_search: $scope.statusListSettings.filter.Service.name
+                            service_name_filter: $scope.statusListSettings.filter.Service.name,
+                            host_name_filter: $scope.statusListSettings.filter.Host.name
                         },
                         'widgetId': $scope.id,
                         'widgetTypeId': "10"
@@ -124,26 +226,25 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                     $http.post('/dashboards/saveStatuslistSettings.json?angular=true', data).then(function(result){
                         //console.log(result);
                     });
+                    $scope.loadServices(1);
                 }
             });
 
             $scope.savePagingInterval = function(){
-                $scope.statusListSettings.pagingInterval = $scope.viewPagingInterval;
+                $scope.statusListSettings.paging_interval = $scope.viewPagingInterval;
             };
 
-            $scope.setAnimation = function(animation){
-                $scope.statusListSettings.animation = animation;
-            };
 
             $('.grid-stack').on('change', function(event, items){
                 if(Array.isArray(items) && $scope.ready){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
-                            //console.log(item.height);
-                            let mobileheight = (item.height - 10.5) * 22;
-                            //console.log(mobileheight);
+                            let mobileheight = (item.height - 10) * 22;
                             if(document.getElementById("mobile_table" + $scope.id)){
                                 document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
+                            }
+                            if(mobileheight > 44){
+                                $scope.statusListSettings.limit = Math.round((mobileheight - 44) / 35.7);
                             }
                         }
                     });

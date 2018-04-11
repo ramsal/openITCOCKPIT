@@ -22,14 +22,12 @@
         <div class="padding-10" style="border: 1px solid #c3c3c3;">
             <div class="row">
                 <div class="col-xs-2">
-                    <a href="javascript:void(0);" ng-show="pagingOn" ng-click="pausePaging()" data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="statusListSettings.paging_autostart" ng-click="pausePaging()"
+                       data-widget-id="21"
                        class="btn btn-default btn-xs stopRotation btn-primary"><i class="fa fa-pause"></i></a>
-                    <a href="javascript:void(0);" ng-show="!pagingOn" ng-click="startPaging()" data-widget-id="21"
+                    <a href="javascript:void(0);" ng-show="!statusListSettings.paging_autostart"
+                       ng-click="startPaging()" data-widget-id="21"
                        class="btn btn-default btn-xs startRotation btn-primary"><i class="fa fa-play"></i></a>
-                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInRight')" class="btn btn-default btn-xs"
-                       data-widget-id="21"><i class="fa fa-arrow-left"></i></a>
-                    <a href="javascript:void(0);" ng-click="setAnimation('fadeInUp')" class="btn btn-default btn-xs"
-                       data-widget-id="21"><i class="fa fa-arrow-up"></i></a>
                 </div>
                 <div class="col-xs-4 height-45px">
                     <div class="form-group form-group-slider">
@@ -132,7 +130,7 @@
                    style="">
                 <thead>
                 <tr>
-                    <th colspan="2" class="no-sort" ng-click="orderBy('Servicestatus.current_state')">
+                    <th class="no-sort" ng-click="orderBy('Servicestatus.current_state')">
                         <i class="fa" ng-class="getSortClass('Servicestatus.current_state')"></i>
                         <?php echo __('State'); ?>
                     </th>
@@ -181,19 +179,19 @@
                     <td>
                         <?php if ($this->Acl->hasPermission('browser')): ?>
                             <a href="/hosts/browser/{{ service.Host.id }}">
-                                {{ service.Host.name }}
+                                {{ service.Host.hostname }}
                             </a>
                         <?php else: ?>
-                            {{ service.Host.name }}
+                            {{ service.Host.hostname }}
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($this->Acl->hasPermission('browser')): ?>
                             <a href="/services/browser/{{ service.Service.id }}">
-                                {{ service.Service.name }}
+                                {{ service.Service.servicename }}
                             </a>
                         <?php else: ?>
-                            {{ service.Service.name }}
+                            {{ service.Service.servicename }}
                         <?php endif; ?>
                     </td>
                     <td>
@@ -205,23 +203,26 @@
 
         </div>
 
-        <div class="dt-toolbar-footer">
-            <div class="col-xs-12 col-sm-6">
-                <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">Showing <span
-                            class="txt-color-darken">1</span> to <span class="txt-color-darken">2</span> of <span
-                            class="text-primary">2</span> entries
+        <div class="dt-toolbar-footer" style="margin-top: -9px">
+            <div class="col-xs-12 col-sm-4">
+                <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
+                    Showing <span class="txt-color-darken">{{ paging.widget.from }}</span>
+                    to <span class="txt-color-darken">{{ paging.widget.to }}</span>
+                    of <span class="text-primary">{{ paging.count }}</span> entries
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-8">
                 <div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
                     <ul class="pagination pagination-sm">
-                        <li class="paginate_button active" aria-controls="DataTables_Table_0" tabindex="0"><a
-                                    href="#">1</a></li>
+                        <li class="paginate_button cursor-pointer" aria-controls="DataTables_Table_0" tabindex="0"
+                            ng-repeat="i in [].constructor(paging.pageCount) track by $index"
+                            ng-class="$index+1==paging.page ? 'active' : ''">
+                            <a ng-click="loadServices( $index+1 )">{{ $index+1 }}</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
-
 
     </div>
 </div>
