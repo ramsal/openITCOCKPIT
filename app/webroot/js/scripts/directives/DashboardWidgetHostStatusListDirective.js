@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirective', function($http, $interval, $rootScope, SortService, QueryStringService){
+angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirective', function($http, $interval, $rootScope, QueryStringService){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_host_status_list.html',
@@ -11,8 +11,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
         controller: function($scope){
 
-            SortService.setSort(QueryStringService.getValue('sort', 'Hoststatus.current_state'));
-            SortService.setDirection(QueryStringService.getValue('direction', 'desc'));
+            $scope.sort = QueryStringService.getValue('sort', 'Hoststatus.current_state');
+            $scope.direction = QueryStringService.getValue('direction', 'desc');
 
             $scope.widget = null;
             $scope.ready = false;
@@ -156,9 +156,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
 
                 let params = {
                     'angular': true,
-                    'sort': SortService.getSort(),
+                    'sort': $scope.sort,
                     'page': $scope.currentPage,
-                    'direction': SortService.getDirection(),
+                    'direction': $scope.direction,
                     'filter[Host.name]': $scope.statusListSettings.filter.Host.name,
                     'filter[Hoststatus.output]': $scope.statusListSettings.filter.Host.output,
                     'filter[Hoststatus.current_state][]': $rootScope.currentStateForApi($scope.statusListSettings.filter.Hoststatus.current_state),
@@ -253,8 +253,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
             };
 
             $scope.getSortClass = function(field){
-                if(field === SortService.getSort()){
-                    if(SortService.getDirection() === 'asc'){
+                if(field === $scope.sort){
+                    if($scope.direction === 'asc'){
                         return 'fa-sort-asc';
                     }
                     return 'fa-sort-desc';
@@ -263,24 +263,29 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostStatusListDirectiv
                 return 'fa-sort';
             };
 
+            $scope.triggerCallback = function(){
+                if($scope._callback !== null){
+                    $scope._callback();
+                }
+            };
+
             $scope.orderBy = function(field){
-                if(field !== SortService.getSort()){
-                    SortService.setDirection('asc');
-                    SortService.setSort(field);
-                    SortService.triggerReload();
+                if(field !== $scope.sort){
+                    $scope.direction = 'asc';
+                    $scope.sort = field;
+                    $scope.triggerCallback();
                     return;
                 }
 
-                if(SortService.getDirection() === 'asc'){
-                    SortService.setDirection('desc');
+                if($scope.direction === 'asc'){
+                    $scope.direction = 'desc';
                 }else{
-                    SortService.setDirection('asc');
+                    $scope.direction = 'asc';
                 }
-                SortService.triggerReload();
+                $scope.triggerCallback();
             };
 
-            SortService.setCallback($scope.loadHosts);
-
+            $scope._callback = $scope.loadHosts;
 
             $('.grid-stack').on('change', function(event, items){
                 if(Array.isArray(items) && $scope.ready){

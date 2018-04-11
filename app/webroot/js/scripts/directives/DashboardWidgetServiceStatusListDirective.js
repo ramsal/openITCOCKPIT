@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirective', function($http, $interval, $rootScope, SortService, QueryStringService){
+angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirective', function($http, $interval, $rootScope, QueryStringService){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_service_status_list.html',
@@ -11,8 +11,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
 
         controller: function($scope){
 
-            SortService.setSort(QueryStringService.getValue('sort', ''));
-            SortService.setDirection(QueryStringService.getValue('direction', ''));
+            $scope.sort = QueryStringService.getValue('sort', '');
+            $scope.direction = QueryStringService.getValue('direction', '');
 
             $scope.widget = null;
             $scope.ready = false;
@@ -167,9 +167,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
 
                 let params = {
                     'angular': true,
-                    'sort': SortService.getSort(),
+                    'sort': $scope.sort,
                     'page': $scope.currentPage,
-                    'direction': SortService.getDirection(),
+                    'direction': $scope.direction,
                     'filter[Host.name]': $scope.statusListSettings.filter.Host.name,
                     'filter[Service.servicename]': $scope.statusListSettings.filter.Service.name,
                     'filter[Servicestatus.output]': '',
@@ -265,8 +265,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
             };
 
             $scope.getSortClass = function(field){
-                if(field === SortService.getSort()){
-                    if(SortService.getDirection() === 'asc'){
+                if(field === $scope.sort){
+                    if($scope.direction === 'asc'){
                         return 'fa-sort-asc';
                     }
                     return 'fa-sort-desc';
@@ -275,23 +275,29 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
                 return 'fa-sort';
             };
 
+            $scope.triggerCallback = function(){
+                if($scope._callback !== null){
+                    $scope._callback();
+                }
+            };
+
             $scope.orderBy = function(field){
-                if(field !== SortService.getSort()){
-                    SortService.setDirection('asc');
-                    SortService.setSort(field);
-                    SortService.triggerReload();
+                if(field !== $scope.sort){
+                    $scope.direction = 'asc';
+                    $scope.sort = field;
+                    $scope.triggerCallback();
                     return;
                 }
 
-                if(SortService.getDirection() === 'asc'){
-                    SortService.setDirection('desc');
+                if($scope.direction === 'asc'){
+                    $scope.direction = 'desc';
                 }else{
-                    SortService.setDirection('asc');
+                    $scope.direction = 'asc';
                 }
-                SortService.triggerReload();
+                $scope.triggerCallback();
             };
 
-            SortService.setCallback($scope.loadServices);
+            $scope._callback = $scope.loadServices;
 
             $('.grid-stack').on('change', function(event, items){
                 if(Array.isArray(items) && $scope.ready){
