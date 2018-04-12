@@ -276,13 +276,33 @@ class DashboardsController extends AppController {
         return;
     }
 
-    public function widget_host_downtimes () {
+    public function widget_host_downtime_list () {
         if ($this->isApiRequest()) {
 
-            $host_downtimes = [];
+            $host_downtime_list = [];
 
-            $this->set(compact(['host_downtimes']));
-            $this->set('_serialize', ['host_downtimes']);
+            if (isset($this->request->query['widgetId'])) {
+                $widgetId = $this->request->query['widgetId'];
+
+                if ($this->Widget->exists($widgetId)) {
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'WidgetHostDowntimeList',
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        $host_downtime_list = $widget['WidgetHostDowntimeList'];
+                    }
+                }
+            }
+
+            $this->set(compact(['host_downtime_list']));
+            $this->set('_serialize', ['host_downtime_list']);
             return;
         }
         $this->layout = 'plain';
@@ -525,6 +545,7 @@ class DashboardsController extends AppController {
                 //Check if the tab exists and is owned by the user
                 if (!empty($tab)) {
                     $_widget = $this->DashboardHandler->getWidgetByTypeId($typeId, $tabId);
+                    debug($_widget);
                     $this->Widget->create();
                     if ($this->Widget->saveAll($_widget)) {
                         $_widget['Widget']['id'] = $this->Widget->id;
@@ -534,50 +555,7 @@ class DashboardsController extends AppController {
             }
         }
 
-
         return;
-        $this->autoRender = false;
-        $widget = [];
-        if (!$this->isApiRequest()) {
-            throw new MethodNotAllowedException();
-        }
-        if (isset($this->request->data['typeId']) && isset($this->request->data['tabId'])) {
-            $typeId = $this->request->data['typeId'];
-            $tabId = $this->request->data['tabId'];
-            $tab = $this->DashboardTab->find('first', [
-                'recursive'  => -1,
-                'contain'    => [],
-                'conditions' => [
-                    'user_id' => $this->Auth->user('id'),
-                    'id'      => $tabId,
-                ],
-            ]);
-            //Check if the tab exists and is owned by the user
-            if (!empty($tab)) {
-                $_widget = $this->DashboardHandler->getWidgetByTypeId($typeId, $tabId);
-                $this->Widget->create();
-                if ($this->Widget->saveAll($_widget)) {
-                    $resultForRender = $this->Widget->find('first', [
-                        'conditions' => [
-                            'Widget.id' => $this->Widget->id,
-                        ],
-                        'recursive'  => -1,
-                        'contain'    => [],
-                    ]);
-                    //prepareForRender requires multidimensional Widget array
-                    $resultForRender = [
-                        'Widget' => [
-                            $resultForRender['Widget'],
-                        ],
-                    ];
-                    $widget = $this->DashboardHandler->prepareForRender($resultForRender);
-                    $this->DashboardTab->id = $tabId;
-                    $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
-                }
-            }
-        }
-        //Set the widget or an empty array
-        //$this->set('widget', $widget);
     }
 
     public function createTab () {
@@ -976,6 +954,55 @@ class DashboardsController extends AppController {
 
                 if ($widgetTypeId == 10) {
                     $contain = 'WidgetServiceStatusList';
+                }
+                if ($this->Widget->exists($widgetId)) {
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            $contain,
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        foreach ($settings as $dbField => $value) {
+                            if ($value !== null && isset($widget[$contain][$dbField])) {
+                                $widget[$contain][$dbField] = $value;
+                            }
+                        }
+                        $this->Widget->saveAll($widget);
+                        $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                        $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                    }
+                }
+            }
+        }
+        $this->set(compact(['error']));
+        $this->set('_serialize', ['error']);
+        return;
+    }
+
+    public function saveDowntimeListSettings () {
+        $this->layout = "blank";
+        $error = null;
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
+
+        if (isset($this->request->data['widgetId']) && isset($this->request->data['settings']) && isset($this->request->data['widgetTypeId'])) {
+            $widgetId = $this->request->data['widgetId'];
+            $settings = $this->request->data['settings'];
+            $widgetTypeId = $this->request->data['widgetTypeId'];
+
+            if ($widgetTypeId == 5 || $widgetTypeId == 6) {
+                if ($widgetTypeId == 5) {
+                    $contain = 'WidgetHostDowntimeList';
+                }
+
+                if ($widgetTypeId == 6) {
+                    $contain = 'WidgetServiceDowntimeList';
                 }
                 if ($this->Widget->exists($widgetId)) {
                     $userId = $this->Auth->user('id');

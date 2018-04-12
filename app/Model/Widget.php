@@ -37,6 +37,9 @@ class Widget extends AppModel
         'WidgetHostStatusList'    => [
             'dependent' => true,
         ],
+        'WidgetHostDowntimeList'      => [
+            'dependent' => true,
+        ],
         'WidgetNotice'            => [
             'dependent' => true,
         ],

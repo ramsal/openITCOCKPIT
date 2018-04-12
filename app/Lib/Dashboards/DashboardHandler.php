@@ -37,7 +37,7 @@ class DashboardHandler {
         'Host180',
         'Service360',
         'Service180',
-        'Hostdowntimes',
+        'HostDowntimeList',
         'Servicedowntimes',
         'HostStatusList',
         'ServiceStatusList',
