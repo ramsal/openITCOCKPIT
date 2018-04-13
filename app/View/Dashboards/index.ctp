@@ -137,6 +137,12 @@
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>
+                    <div class="widget-toolbar" rile="menu">
+                        <button type="button" class="btn btn-xs btn-default" ng-click="reloadWidgets()">
+                            <i class="fa fa-refresh"></i>
+                            <?php echo __('Refresh'); ?>
+                        </button>
+                    </div>
 
                 </header>
                 <div>

@@ -24,28 +24,24 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Notice extends Widget
-{
+class Notice extends Widget {
     public $isDefault = false;
     public $icon = 'fa-pencil-square-o';
     public $element = 'notice';
     public $width = 5;
     public $height = 18;
+    public $hasInitialConfig = true;
+    public $directive = "dashboard-widget-notice-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public $initialConfig = [
+        'WidgetNotice' => [
+            'note' => '',
+        ],
+    ];
+
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 13;
         $this->title = __('Notice');
     }
-
-    public function setData($widgetData)
-    {
-        $widgetNotice = $this->Controller->WidgetNotice->findByWidgetId($widgetData['Widget']['id']);
-
-        $this->Controller->viewVars['widgetNotices'][$widgetData['Widget']['id']] = [
-            'Widget' => $widgetNotice,
-        ];
-    }
-
 }

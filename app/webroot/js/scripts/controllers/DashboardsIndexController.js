@@ -38,6 +38,7 @@ angular.module('openITCOCKPIT')
                 $scope.tabs = result.data.tabs;
                 $scope.sharedTabs = result.data.sharedTabs;
                 $scope.tabRotateInterval = parseInt(result.data.tabRotateInterval);
+                $scope.viewTabRotateInterval = parseInt(result.data.tabRotateInterval);
                 if($scope.tabs[0] && !$scope.tab.id){
                     $scope.tab.id = $scope.tabs[0].DashboardTab.id;
                     $scope.tabRotateLastTab = $scope.tab.id;
@@ -228,21 +229,24 @@ angular.module('openITCOCKPIT')
             });
         };
 
+        $scope.reloadWidgets = function (){
+            $scope.openEditModals = [];
+            $scope.getPreparedWidgets();
+        };
+
         $scope.clearTab = function(){
             $http.post('/dashboards/clearTab.json?angular=true',
                 {
                     'tabId': $scope.tab.id
                 }
             ).then(function(result){
-                $scope.openEditModals = [];
-                $scope.getPreparedWidgets();
+                $scope.reloadWidgets();
             });
         };
 
         $scope.restoreDefaultTabSort = function(){
             $http.get('/dashboards/restoreDefault/'+$scope.tab.id).then(function(result){
-                $scope.openEditModals = [];
-                $scope.getPreparedWidgets();
+                $scope.reloadWidgets();
             });
         };
 
@@ -250,8 +254,7 @@ angular.module('openITCOCKPIT')
             if($scope.tab.id != null){
                 //$scope.ready = 0;
                 //$scope.orderTabs();
-                $scope.openEditModals = [];
-                $scope.getPreparedWidgets();
+                $scope.reloadWidgets();
             }
         });
 

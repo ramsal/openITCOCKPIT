@@ -74,6 +74,41 @@ class DashboardsController extends AppController {
         }
     }
 
+    public function widget_notice () {
+        if ($this->isApiRequest()) {
+
+            $notice = [];
+
+            if (isset($this->request->query['widgetId'])) {
+                $widgetId = $this->request->query['widgetId'];
+                if ($this->Widget->exists($widgetId)) {
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'WidgetNotice',
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        $notice = $widget;
+                        $parsedown = new ParsedownExtra();
+                        $notice['notice'] = $parsedown->text($widget['WidgetNotice']['note']);
+                    }
+                }
+            }
+
+            $this->set(compact(['notice']));
+            $this->set('_serialize', ['notice']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
     public function widget_tachometer () {
         if ($this->isApiRequest()) {
 
@@ -1249,5 +1284,44 @@ class DashboardsController extends AppController {
         return;
     }
 
+    public function saveNotice () {
+        $this->layout = "blank";
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
+        $notice = null;
+        if (isset($this->request->data['widgetId']) && isset($this->request->data['note']) && isset($this->request->data['widgetTypeId'])) {
+            $widgetId = $this->request->data['widgetId'];
+            $note = $this->request->data['note'];
+            $widgetTypeId = $this->request->data['widgetTypeId'];
+            if ($widgetTypeId == 13) {
+                if ($this->Widget->exists($widgetId)) {
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'WidgetNotice',
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        $widget['WidgetNotice']['note'] = $note;
+
+                        $parsedown = new ParsedownExtra();
+                        $notice = $parsedown->text($note);
+
+                        $this->Widget->saveAll($widget);
+                        $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                        $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                    }
+                }
+            }
+        }
+        $this->set(compact(['notice']));
+        $this->set('_serialize', ['notice']);
+        return;
+    }
 
 }
