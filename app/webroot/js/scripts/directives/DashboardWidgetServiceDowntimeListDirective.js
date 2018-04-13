@@ -1,7 +1,7 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirective', function($http, $interval, QueryStringService){
+angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDirective', function($http, $interval, QueryStringService){
     return {
         restrict: 'A',
-        templateUrl: '/dashboards/widget_host_downtime_list.html',
+        templateUrl: '/dashboards/widget_service_downtime_list.html',
         scope: {
             'title': '=wtitle',
             'id': '=wid',
@@ -11,7 +11,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
 
         controller: function($scope){
 
-            $scope.sort = QueryStringService.getValue('sort', 'DowntimeHost.scheduled_start_time');
+            $scope.sort = QueryStringService.getValue('sort', 'DowntimeService.scheduled_start_time');
             $scope.direction = QueryStringService.getValue('direction', 'desc');
 
             $scope.widget = null;
@@ -28,13 +28,16 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                 limit: 0,
                 paging_interval: 0,
                 filter: {
-                    DowntimeHost: {
+                    DowntimeService: {
                         author_name: '',
                         comment_data: '',
                         was_cancelled: false,
                         was_not_cancelled: false
                     },
                     Host: {
+                        name: ''
+                    },
+                    Service: {
                         name: ''
                     },
                     from: date('d.m.Y H:i', now.getTime() / 1000 - (3600 * 24 * 30)),
@@ -67,13 +70,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
 
             $scope.load = function(){
 
-                $http.get('/dashboards/widget_host_downtime_list.json', {
+                $http.get('/dashboards/widget_service_downtime_list.json', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.host_downtime_list;
+                    $scope.widget = result.data.service_downtime_list;
                     console.log(result.data);
 
 
@@ -84,16 +87,16 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                     $scope.paging_autostart = $scope.widget.paging_autostart;
 
                     $scope.downtimeListSettings.filter.Host.name = $scope.widget.host_name_filter;
-                    $scope.downtimeListSettings.filter.DowntimeHost.comment_data = $scope.widget.comment_filter;
-                    $scope.downtimeListSettings.filter.DowntimeHost.was_cancelled = $scope.widget.show_was_cancelled;
-                    $scope.downtimeListSettings.filter.DowntimeHost.was_not_cancelled = $scope.widget.show_was_not_cancelled;
+                    $scope.downtimeListSettings.filter.Service.name = $scope.widget.service_name_filter;
+                    $scope.downtimeListSettings.filter.DowntimeService.was_cancelled = $scope.widget.show_was_cancelled;
+                    $scope.downtimeListSettings.filter.DowntimeService.was_not_cancelled = $scope.widget.show_was_not_cancelled;
                     $scope.downtimeListSettings.filter.is_running = $scope.widget.show_is_running;
                     $scope.downtimeListSettings.filter.hideExpired = $scope.widget.hide_expired;
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
-                    $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                    $scope.widgetheight = document.getElementById($scope.id).clientHeight - 60;
 
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
@@ -160,29 +163,30 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
             $scope.loadHosts = function(){
 
                 let wasCancelled = '';
-                if($scope.downtimeListSettings.filter.DowntimeHost.was_cancelled ^ $scope.downtimeListSettings.filter.DowntimeHost.was_not_cancelled){
-                    wasCancelled = $scope.downtimeListSettings.filter.DowntimeHost.was_cancelled === true;
+                if($scope.downtimeListSettings.filter.DowntimeService.was_cancelled ^ $scope.downtimeListSettings.filter.DowntimeService.was_not_cancelled){
+                    wasCancelled = $scope.downtimeListSettings.filter.DowntimeService.was_cancelled === true;
                 }
                 let limit = $scope.downtimeListSettings.limit;
                 let page = $scope.currentPage;
-                let sort= $scope.sort;
+                let sort = $scope.sort;
                 let direction = $scope.direction;
                 if($scope.downtimeListSettings.minify){
                     limit = 0;
                     page = 1;
-                    sort = QueryStringService.getValue('sort', 'DowntimeHost.scheduled_start_time');
+                    sort = QueryStringService.getValue('sort', 'DowntimeService.scheduled_start_time');
                     direction = 'desc';
                 }
-                $http.get("/downtimes/host.json", {
+                $http.get("/downtimes/service.json", {
                     params: {
                         'angular': true,
                         'sort': sort,
                         'page': page,
                         'direction': direction,
-                        'filter[DowntimeHost.author_name]': $scope.downtimeListSettings.filter.DowntimeHost.author_name,
-                        'filter[DowntimeHost.comment_data]': $scope.downtimeListSettings.filter.DowntimeHost.comment_data,
+                        'filter[DowntimeHost.author_name]': $scope.downtimeListSettings.filter.DowntimeService.author_name,
+                        'filter[DowntimeHost.comment_data]': $scope.downtimeListSettings.filter.DowntimeService.comment_data,
                         'filter[DowntimeHost.was_cancelled]': wasCancelled,
                         'filter[Host.name]': $scope.downtimeListSettings.filter.Host.name,
+                        'filter[Service.name]': $scope.downtimeListSettings.filter.Service.name,
                         'filter[from]': $scope.downtimeListSettings.filter.from,
                         'filter[to]': $scope.downtimeListSettings.filter.to,
                         'filter[hideExpired]': ($scope.downtimeListSettings.filter.hideExpired == 1),
@@ -190,7 +194,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                         'limit': limit
                     }
                 }).then(function(result){
-                    $scope.downtimes = result.data.all_host_downtimes;
+                    $scope.downtimes = result.data.all_service_downtimes;
                     $scope.paging = result.data.paging;
 
                     $scope.paging.widget = {};
@@ -226,14 +230,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                             paging_interval: $scope.downtimeListSettings.paging_interval.toString(),
                             paging_autostart: $scope.paging_autostart,
                             show_is_running: $scope.downtimeListSettings.filter.isRunning ? "1" : "0",
-                            show_was_not_cancelled: $scope.downtimeListSettings.filter.DowntimeHost.was_not_cancelled ? "1" : "0",
-                            show_was_cancelled: $scope.downtimeListSettings.filter.DowntimeHost.was_cancelled ? "1" : "0",
+                            show_was_not_cancelled: $scope.downtimeListSettings.filter.DowntimeService.was_not_cancelled ? "1" : "0",
+                            show_was_cancelled: $scope.downtimeListSettings.filter.DowntimeService.was_cancelled ? "1" : "0",
                             hide_expired: $scope.downtimeListSettings.filter.hideExpired ? "1" : "0",
                             host_name_filter: $scope.downtimeListSettings.filter.Host.name,
-                            comment_filter: $scope.downtimeListSettings.filter.DowntimeHost.comment_data
+                            service_name_filter: $scope.downtimeListSettings.filter.Service.name,
                         },
                         'widgetId': $scope.id,
-                        'widgetTypeId': "5"
+                        'widgetTypeId': "6"
                     };
 
                     if($scope.downtimeListSettings.minify && $scope.minify_status_before != $scope.downtimeListSettings.minify){
@@ -330,7 +334,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                             if(mobileheight > 44 && !$scope.downtimeListSettings.minify){
                                 $scope.downtimeListSettings.limit = Math.round((mobileheight - 44) / 35.7);
                             }
-                            $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                            $scope.widgetheight = document.getElementById($scope.id).clientHeight - 60;
                         }
                     });
                 }

@@ -1502,6 +1502,25 @@ class AppSchema extends CakeSchema
         ],
     ];
 
+    public $widget_service_downtime_lists = [
+        'id'                     => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
+        'widget_id'              => ['type' => 'integer', 'null' => false],
+        'minify'                 => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'limit'                  => ['type' => 'integer', 'null' => false],
+        'paging_interval'        => ['type' => 'integer', 'null' => false],
+        'paging_autostart'       => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'show_is_running'        => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'show_was_not_cancelled' => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'show_was_cancelled'     => ['type' => 'boolean', 'null' => false, 'default' => '0'],
+        'hide_expired'           => ['type' => 'boolean', 'null' => false, 'default' => '1'],
+        'host_name_filter'       => ['type' => 'text', 'null' => false, 'default' => ''],
+        'service_name_filter'    => ['type' => 'text', 'null' => false, 'default' => ''],
+        'indexes'                => [
+            'PRIMARY' => ['column' => 'id', 'unique' => 1],
+            'KEY'     => ['column' => 'widget_id', 'unique' => 1],
+        ],
+    ];
+
     public $widget_notices = [
         'id'        => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'widget_id' => ['type' => 'integer', 'null' => false],

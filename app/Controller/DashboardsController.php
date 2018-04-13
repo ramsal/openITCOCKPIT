@@ -262,13 +262,33 @@ class DashboardsController extends AppController {
         return;
     }
 
-    public function widget_service_downtimes () {
+    public function widget_service_downtime_list () {
         if ($this->isApiRequest()) {
 
-            $service_downtimes = [];
+            $service_downtime_list = [];
 
-            $this->set(compact(['service_downtimes']));
-            $this->set('_serialize', ['service_downtimes']);
+            if (isset($this->request->query['widgetId'])) {
+                $widgetId = $this->request->query['widgetId'];
+
+                if ($this->Widget->exists($widgetId)) {
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'WidgetServiceDowntimeList',
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        $service_downtime_list = $widget['WidgetServiceDowntimeList'];
+                    }
+                }
+            }
+
+            $this->set(compact(['service_downtime_list']));
+            $this->set('_serialize', ['service_downtime_list']);
             return;
         }
         $this->layout = 'plain';

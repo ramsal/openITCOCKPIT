@@ -24,23 +24,25 @@
 //	confirmation.
 
 
-class Widget extends AppModel
-{
+class Widget extends AppModel {
     public $belongsTo = ['DashboardTab', 'Service'];
     public $hasOne = [
-        'WidgetTacho'             => [
+        'WidgetTacho'               => [
             'dependent' => true,
         ],
-        'WidgetServiceStatusList' => [
+        'WidgetServiceStatusList'   => [
             'dependent' => true,
         ],
-        'WidgetHostStatusList'    => [
+        'WidgetHostStatusList'      => [
             'dependent' => true,
         ],
-        'WidgetHostDowntimeList'      => [
+        'WidgetHostDowntimeList'    => [
             'dependent' => true,
         ],
-        'WidgetNotice'            => [
+        'WidgetServiceDowntimeList' => [
+            'dependent' => true,
+        ],
+        'WidgetNotice'              => [
             'dependent' => true,
         ],
         //'WidgetGraphgenerator' => [
@@ -86,8 +88,7 @@ class Widget extends AppModel
         ],
     ];
 
-    public function copySharedWidgets($sourceTab, $targetTab, $userId)
-    {
+    public function copySharedWidgets ($sourceTab, $targetTab, $userId) {
         $sourceWidgets = $this->find('all', [
             'conditions' => [
                 'Widget.dashboard_tab_id' => $sourceTab['DashboardTab']['id'],
