@@ -54,15 +54,27 @@ class HostDowntimeList extends Widget {
 
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
-            'dashboard_tab_id' => $tabId,
-            'type_id'          => $this->typeId,
-            'row'              => 24,
-            'col'              => 0,
-            'width'            => $this->width,
-            'height'           => $this->height,
-            'title'            => $this->title,
-            'color'            => $this->defaultColor,
-            'directive'        => $this->directive
+            'Widget' => [
+                'dashboard_tab_id' => $tabId,
+                'type_id'          => $this->typeId,
+                'row'              => 24,
+                'col'              => 0,
+                'width'            => 5,
+                'height'           => 12,
+                'title'            => $this->title,
+                'color'            => $this->defaultColor,
+                'directive'        => $this->directive
+            ],
+            'WidgetHostDowntimeList' => [
+                'minify'                 => 1,
+                'limit'                  => 0,
+                'paging_interval'        => 0,
+                'paging_autostart'       => 0,
+                'show_is_running'        => 0,
+                'show_was_not_cancelled' => 0,
+                'show_was_cancelled'     => 0,
+                'hide_expired'           => 1,
+            ],
         ];
 
         return $restoreConfig;

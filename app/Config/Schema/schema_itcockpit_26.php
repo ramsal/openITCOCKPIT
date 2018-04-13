@@ -1486,6 +1486,7 @@ class AppSchema extends CakeSchema
     public $widget_host_downtime_lists = [
         'id'                     => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'widget_id'              => ['type' => 'integer', 'null' => false],
+        'minify'                 => ['type' => 'boolean', 'null' => false, 'default' => '0'],
         'limit'                  => ['type' => 'integer', 'null' => false],
         'paging_interval'        => ['type' => 'integer', 'null' => false],
         'paging_autostart'       => ['type' => 'boolean', 'null' => false, 'default' => '0'],

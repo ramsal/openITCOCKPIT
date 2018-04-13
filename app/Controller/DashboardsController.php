@@ -743,7 +743,10 @@ class DashboardsController extends AppController {
         }
         if ($this->Widget->deleteAll(['Widget.dashboard_tab_id' => $tab['DashboardTab']['id']])) {
             $defaultWidgets = $this->DashboardHandler->getDefaultDashboards($tabId);
-            $this->Widget->saveAll($defaultWidgets);
+            foreach($defaultWidgets as $widget){
+                $this->Widget->create();
+                $this->Widget->saveAll($widget);
+            }
             $this->DashboardTab->id = $tabId;
             $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
         }

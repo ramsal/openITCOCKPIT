@@ -19,10 +19,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
             $scope.viewPagingInterval = 0;
             $scope.tabId = $scope.parentTabId;
             $scope.currentPage = 1;
+            $scope.minify_status_before = 1;
 
             let now = new Date();
 
             $scope.downtimeListSettings = {
+                minify: 0,
                 limit: 0,
                 paging_interval: 0,
                 filter: {
@@ -76,6 +78,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
 
 
                     $scope.viewPagingInterval = parseInt($scope.widget.paging_interval);
+                    $scope.downtimeListSettings.minify = $scope.widget.minify;
                     $scope.downtimeListSettings.limit = parseInt($scope.widget.limit);
                     $scope.downtimeListSettings.paging_interval = parseInt($scope.widget.paging_interval);
                     $scope.paging_autostart = $scope.widget.paging_autostart;
@@ -90,6 +93,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
+                    $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
 
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
@@ -131,7 +135,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
 
             $scope.doPaging = function(){
                 if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
-                if($scope.downtimeListSettings.paging_interval > 0 && $scope.paging_autostart){
+                if($scope.downtimeListSettings.paging_interval > 0 && $scope.paging_autostart && !$scope.downtimeListSettings.minify){
                     $scope.pagingTimer = $interval($scope.loadPagingHosts, parseInt($scope.downtimeListSettings.paging_interval + '000'));
                 }else{
                     $scope.paging_autostart = false;
@@ -159,12 +163,22 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                 if($scope.downtimeListSettings.filter.DowntimeHost.was_cancelled ^ $scope.downtimeListSettings.filter.DowntimeHost.was_not_cancelled){
                     wasCancelled = $scope.downtimeListSettings.filter.DowntimeHost.was_cancelled === true;
                 }
+                let limit = $scope.downtimeListSettings.limit;
+                let page = $scope.currentPage;
+                let sort= $scope.sort;
+                let direction = $scope.direction;
+                if($scope.downtimeListSettings.minify){
+                    limit = 0;
+                    page = 1;
+                    sort = QueryStringService.getValue('sort', 'DowntimeHost.scheduled_start_time');
+                    direction = 'desc';
+                }
                 $http.get("/downtimes/host.json", {
                     params: {
                         'angular': true,
-                        'sort': $scope.sort,
-                        'page': $scope.currentPage,
-                        'direction': $scope.direction,
+                        'sort': sort,
+                        'page': page,
+                        'direction': direction,
                         'filter[DowntimeHost.author_name]': $scope.downtimeListSettings.filter.DowntimeHost.author_name,
                         'filter[DowntimeHost.comment_data]': $scope.downtimeListSettings.filter.DowntimeHost.comment_data,
                         'filter[DowntimeHost.was_cancelled]': wasCancelled,
@@ -173,7 +187,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                         'filter[to]': $scope.downtimeListSettings.filter.to,
                         'filter[hideExpired]': ($scope.downtimeListSettings.filter.hideExpired == 1),
                         'filter[isRunning]': ($scope.downtimeListSettings.filter.isRunning == 1),
-                        'limit': $scope.downtimeListSettings.limit
+                        'limit': limit
                     }
                 }).then(function(result){
                     $scope.downtimes = result.data.all_host_downtimes;
@@ -207,6 +221,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                 if($scope.ready === true){
                     let data = {
                         settings: {
+                            minify: $scope.downtimeListSettings.minify,
                             limit: $scope.downtimeListSettings.limit,
                             paging_interval: $scope.downtimeListSettings.paging_interval.toString(),
                             paging_autostart: $scope.paging_autostart,
@@ -220,6 +235,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                         'widgetId': $scope.id,
                         'widgetTypeId': "5"
                     };
+
+                    if($scope.downtimeListSettings.minify && $scope.minify_status_before != $scope.downtimeListSettings.minify){
+                        data.settings.limit = 0;
+                        /*document.getElementById($scope.id).attributes['data-gs-height'].nodeValue = 12;
+                        document.getElementById($scope.id).attributes['data-gs-width'].nodeValue = 5;*/
+                        $scope.minify_status_before = $scope.downtimeListSettings.minify;
+                    }
+                    if(!$scope.downtimeListSettings.minify && $scope.minify_status_before != $scope.downtimeListSettings.minify){
+                        data.settings.limit = 0;
+                        /*document.getElementById($scope.id).attributes['data-gs-height'].nodeValue = 22;
+                        document.getElementById($scope.id).attributes['data-gs-width'].nodeValue = 10;*/
+                        $scope.minify_status_before = $scope.downtimeListSettings.minify;
+                    }
 
                     $http.post('/dashboards/saveDowntimeListSettings.json?angular=true', data).then(function(result){
                         //console.log(result);
@@ -302,6 +330,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                             if(mobileheight > 44){
                                 $scope.downtimeListSettings.limit = Math.round((mobileheight - 44) / 35.7);
                             }
+                            $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
                         }
                     });
                 }

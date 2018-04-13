@@ -5,7 +5,7 @@
         update-title="updateTitle({id:id,title:title})">
 </header>
 
-<div class="content" style="">
+<div class="content">
 
     <!-- widget edit box -->
     <div class="jarviswidget-editbox not-draggable" style="display: none;">
@@ -15,9 +15,80 @@
         <span class="note"><i class="fa fa-check text-success"></i>
             <?php echo __('Change title to update and save instantly'); ?>
         </span>
+        <hr>
+        <div class="form-group smart-form">
+            <div class="col-xs-6">
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked=""
+                           ng-model="downtimeListSettings.minify"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Minify list'); ?>
+                </label>
+                <label ng-show="downtimeListSettings.minify" class="small-checkbox-label display-inline margin-right-5">
+                    <input type="number" min="0" name="limitbox" style="height:0px;"
+                           ng-model="downtimeListSettings.limit"
+                           ng-model-options="{debounce: 500}">
+                    <?php echo __('Limit (0=default user setting)'); ?>
+                </label>
+            </div>
+            <div class="col-xs-6" ng-show="downtimeListSettings.minify">
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked="checked"
+                           ng-model="downtimeListSettings.filter.isRunning"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Is running'); ?>
+                </label>
+
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked="checked"
+                           ng-model="downtimeListSettings.filter.DowntimeHost.was_not_cancelled"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Was not cancelled'); ?>
+                </label>
+
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked="checked"
+                           ng-model="downtimeListSettings.filter.DowntimeHost.was_cancelled"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Was cancelled'); ?>
+                </label>
+
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked="checked"
+                           ng-model="downtimeListSettings.filter.hideExpired"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Hide expired'); ?>
+                </label>
+            </div>
+        </div>
     </div>
 
-    <div class="widget-body padding-0 not-draggable">
+    <div ng-show="downtimeListSettings.minify" class="widget-body padding-0 not-draggable">
+        <div class="table-responsive" style="overflow-y: auto; height: {{widgetheight}}px;">
+            <table class="table table-bordered table-striped">
+                <tbody>
+                <tr ng-repeat="downtime in downtimes">
+                    <td title="{{ downtime.Host.hostname }}" class="dashboard-table">
+                        <?php if ($this->Acl->hasPermission('browser', 'hosts')): ?>
+                            <a href="/hosts/browser/{{ downtime.Host.id }}">
+                                {{ downtime.Host.hostname }}
+                            </a>
+                        <?php else: ?>
+                            {{ downtime.Host.hostname }}
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div ng-show="!downtimeListSettings.minify" class="widget-body padding-0 not-draggable" style="overflow:hidden;">
 
         <div class="padding-10" style="border: 1px solid #c3c3c3;">
             <div class="row">
@@ -79,7 +150,6 @@
                             <i class="checkbox-primary"></i>
                             <?php echo __('Hide expired'); ?>
                         </label>
-
                     </div>
                 </div>
             </div>
@@ -114,7 +184,8 @@
             </h5>
         </div>
 
-        <div ng-show="downtimes.length" id="mobile_table{{id}}" class="mobile_table margin-top-10" style="overflow: hidden; height: 200px;">
+        <div ng-show="downtimes.length" id="mobile_table{{id}}" class="mobile_table margin-top-10"
+             style="overflow: hidden; height: 200px;">
             <table id="host_list"
                    class="table table-striped table-hover table-bordered smart-form"
                    style="">
