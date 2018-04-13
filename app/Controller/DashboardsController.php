@@ -752,6 +752,7 @@ class DashboardsController extends AppController {
     }
 
     public function restoreDefault ($tabId = null) {
+        $this->autoRender = false;
         $tab = $this->DashboardTab->find('first', [
             'conditions' => [
                 'user_id' => $this->Auth->user('id'),
@@ -763,14 +764,14 @@ class DashboardsController extends AppController {
         }
         if ($this->Widget->deleteAll(['Widget.dashboard_tab_id' => $tab['DashboardTab']['id']])) {
             $defaultWidgets = $this->DashboardHandler->getDefaultDashboards($tabId);
-            foreach($defaultWidgets as $widget){
+            foreach ($defaultWidgets as $widget) {
                 $this->Widget->create();
                 $this->Widget->saveAll($widget);
             }
             $this->DashboardTab->id = $tabId;
             $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
         }
-        $this->redirect(['action' => 'index', $tabId]);
+        //$this->redirect(['action' => 'index', $tabId]);
     }
 
     public function updateTitle () {
@@ -876,6 +877,29 @@ class DashboardsController extends AppController {
                     $this->DashboardTab->id = $widget['DashboardTab']['id'];
                     $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
                 }
+            }
+        }
+    }
+
+    public function clearTab () {
+        $this->autoRender = false;
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
+        if (isset($this->request->data['tabId'])) {
+            $tabId = $this->request->data['tabId'];
+            $tab = $this->DashboardTab->find('first', [
+                'conditions' => [
+                    'user_id' => $this->Auth->user('id'),
+                    'id'      => $tabId,
+                ],
+            ]);
+            if (empty($tab) || $tab['DashboardTab']['id'] == null) {
+                throw new NotFoundException(__('Invalid tab'));
+            }
+            if ($this->Widget->deleteAll(['Widget.dashboard_tab_id' => $tab['DashboardTab']['id']])) {
+                $this->DashboardTab->id = $tabId;
+                $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
             }
         }
     }

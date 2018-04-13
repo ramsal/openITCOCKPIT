@@ -228,6 +228,24 @@ angular.module('openITCOCKPIT')
             });
         };
 
+        $scope.clearTab = function(){
+            $http.post('/dashboards/clearTab.json?angular=true',
+                {
+                    'tabId': $scope.tab.id
+                }
+            ).then(function(result){
+                $scope.openEditModals = [];
+                $scope.getPreparedWidgets();
+            });
+        };
+
+        $scope.restoreDefaultTabSort = function(){
+            $http.get('/dashboards/restoreDefault/'+$scope.tab.id).then(function(result){
+                $scope.openEditModals = [];
+                $scope.getPreparedWidgets();
+            });
+        };
+
         $scope.$watch('tab.id', function(){
             if($scope.tab.id != null){
                 //$scope.ready = 0;

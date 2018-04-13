@@ -74,8 +74,8 @@
                 <tbody>
                 <tr ng-repeat="downtime in downtimes">
                     <td title="{{ downtime.Host.hostname }}" class="dashboard-table">
-                        <?php if ($this->Acl->hasPermission('browser', 'hosts')): ?>
-                            <a href="/hosts/browser/{{ downtime.Host.id }}">
+                        <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
+                            <a href="/services/browser/{{ downtime.Host.id }}">
                                 {{ downtime.Host.hostname }}/{{ downtime.Service.servicename }}
                             </a>
                         <?php else: ?>

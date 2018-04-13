@@ -72,6 +72,13 @@
                                             <?php echo __('Stop sharing'); ?>
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="pointer tab-select-menu-fix"
+                                           ng-click="clearTab()">
+                                            <i class="fa fa-ban"></i>
+                                            <?php echo __('Clear'); ?>
+                                        </a>
+                                    </li>
                                     <li class="divider"></li>
                                     <li>
                                         <a class="pointer txt-color-red"
@@ -112,7 +119,7 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li>
-                                    <a href="/dashboards/restoreDefault/{{ tab.id }}">
+                                    <a href="javascript:void(0);" ng-click="restoreDefaultTabSort()">
                                         <i class="fa fa-recycle"></i>&nbsp;
                                         <?php echo __('Restore default'); ?>
                                     </a>
