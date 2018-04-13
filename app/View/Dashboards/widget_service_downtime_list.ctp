@@ -69,7 +69,7 @@
     </div>
 
     <div ng-show="downtimeListSettings.minify" class="widget-body padding-0 not-draggable">
-        <div class="table-responsive" style="overflow-y: auto; height: {{widgetheight}}px;">
+        <div ng-show="downtimes.length" class="table-responsive" style="overflow-y: auto; height: {{widgetheight}}px;">
             <table class="table table-bordered table-striped">
                 <tbody>
                 <tr ng-repeat="downtime in downtimes">
@@ -85,6 +85,12 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
+        <div ng-show="!downtimes.length" class="text-center text-success">
+            <h5 class="padding-top-50">
+                <i class="fa fa-check"></i>
+                <?php echo __('Currently are no services in scheduled downtime'); ?>
+            </h5>
         </div>
     </div>
 

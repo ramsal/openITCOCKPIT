@@ -74,8 +74,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                     }
                 }).then(function(result){
                     $scope.widget = result.data.host_downtime_list;
-                    console.log(result.data);
-
 
                     $scope.viewPagingInterval = parseInt($scope.widget.paging_interval);
                     $scope.downtimeListSettings.minify = $scope.widget.minify;
@@ -330,7 +328,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                             if(mobileheight > 44 && !$scope.downtimeListSettings.minify){
                                 $scope.downtimeListSettings.limit = Math.round((mobileheight - 44) / 35.7);
                             }
-                            $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                            if(document.getElementById($scope.id)){
+                                $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                            }
                         }
                     });
                 }
