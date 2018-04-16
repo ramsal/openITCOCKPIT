@@ -19,6 +19,9 @@
         <textarea name="notes" class="form-control notice-text" maxlength="4000" cols="30" rows="4"
                   ng-model-options="{debounce: 500}" ng-model="widget.WidgetNotice.note">
         </textarea>
+        <span class="note"><i class="fa fa-code text-primary"></i>
+            <?php echo __('Insert text, html or markdown code'); ?>
+        </span>
     </div>
 
 

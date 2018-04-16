@@ -15,7 +15,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
             $scope.tabId = $scope.parentTabId;
 
             $scope.checkAndStopWidget = function(){
-                if($scope.tabId !== $scope.parentTabId){
+                if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id)){
                     if($scope.valueTimer){
                         $interval.cancel($scope.valueTimer);
                     }

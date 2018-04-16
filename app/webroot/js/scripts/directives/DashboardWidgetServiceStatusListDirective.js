@@ -53,7 +53,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceStatusListDirec
             };
 
             $scope.checkAndStopWidget = function(){
-                if($scope.tabId !== $scope.parentTabId){
+                if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id)){
                     if($scope.pagingTimer){
                         $interval.cancel($scope.pagingTimer);
                     }
