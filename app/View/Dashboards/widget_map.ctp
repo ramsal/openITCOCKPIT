@@ -29,7 +29,7 @@
 
 
     <div class="widget-body padding-0 not-draggable">
-        <div class="col col-xs-12" ng-show="!widget.id">
+        <div class="col col-xs-12" ng-show="(!widget.id && !error) || error == 'Invalid map'">
             <select id="map-{{id}}"
                     data-placeholder="<?php echo __('Please select...'); ?>"
                     class="form-control"
@@ -38,8 +38,11 @@
                     ng-model="widget.id">
             </select>
         </div>
+        <div class="col col-xs-12" ng-show="error">
+            <p ng-bind="error" class="font-lg text-danger margin-top-10"></p>
+        </div>
         <iframe id="map-iframe-{{id}}"
-                ng-show="widget.id"
+                ng-show="widget.id && !error"
                 style="border: 0px none; overflow: hidden;"
                 scrolling="no"
                 width="100%"

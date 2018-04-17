@@ -38,6 +38,11 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetMapDirective', functio
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
+
+                    if(result.data.map.error){
+                        $scope.error = result.data.map.error;
+                    }
+
                     $scope.widget = result.data.map;
                     $scope.getMapInterval();
 
@@ -54,7 +59,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetMapDirective', functio
 
             $scope.loadMap = function(){    //load or reload map widget content
                 if($scope.checkAndStopWidget() != true && $scope.widget.id != null){
-
                     document.getElementById("map-iframe-" + $scope.id).src = "/map_module/mapeditors/view/" + $scope.widget.id + "/fullscreen:1/widget:1";
                 }
             };
@@ -90,6 +94,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetMapDirective', functio
             $scope.$watch('widget.id', function(){
                 if($scope.widget.id != null && $scope.ready == true){
                     $scope.saveMap();
+                    delete $scope.error;
                     $scope.getMapInterval();
                 }
             });

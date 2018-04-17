@@ -79,44 +79,49 @@ class DashboardsController extends AppController {
 
             $map = [];
 
-            if (isset($this->request->data['params']['widgetId'])) {
-                $widgetId = $this->request->data['params']['widgetId'];
+            $ModuleManager = new \itnovum\openITCOCKPIT\Core\ModuleManager('MapModule');
+            if ($ModuleManager->moduleExists()) {
+                if (isset($this->request->data['params']['widgetId'])) {
+                    $widgetId = $this->request->data['params']['widgetId'];
 
-                if ($this->Widget->exists($widgetId)) {
+                    if ($this->Widget->exists($widgetId)) {
 
-                    $userId = $this->Auth->user('id');
-                    $widget = $this->Widget->find('first', [
-                        'contain'    => [
-                            'DashboardTab',
-                        ],
-                        'conditions' => [
-                            'Widget.id' => $widgetId,
-                        ],
-                    ]);
-                    if ($widget['DashboardTab']['user_id'] == $userId) {
-                        if (isset($this->request->data['params']['mapId'])) {
-                            $mapId = $this->request->data['params']['mapId'];
-                            if (!$this->Map->exists($mapId)) {
-                                throw new NotFoundException('Invalid map');
+                        $userId = $this->Auth->user('id');
+                        $widget = $this->Widget->find('first', [
+                            'contain'    => [
+                                'DashboardTab',
+                            ],
+                            'conditions' => [
+                                'Widget.id' => $widgetId,
+                            ],
+                        ]);
+                        if ($widget['DashboardTab']['user_id'] == $userId) {
+                            if (isset($this->request->data['params']['mapId'])) {
+                                $mapId = $this->request->data['params']['mapId'];
+                                if (!$this->Map->exists($mapId)) {
+                                    //throw new NotFoundException('Invalid map');
+                                    $map['error'] = __("Invalid map");
+                                }
+                                if ($widget['Widget']['map_id'] != $mapId) {
+                                    $widget['Widget']['map_id'] = $mapId;
+                                    $this->Widget->saveAll($widget);
+                                    //$this->Widget->saveField('map_id', $mapId);
+                                    $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                                    $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                                }
                             }
-                            if ($widget['Widget']['map_id'] != $mapId) {
-                                $widget['Widget']['map_id'] = $mapId;
-                                $this->Widget->saveAll($widget);
-                                //$this->Widget->saveField('map_id', $mapId);
-                                $this->DashboardTab->id = $widget['DashboardTab']['id'];
-                                $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                            if ($widget['Widget']['map_id']) {
+                                if (!$this->Map->exists($widget['Widget']['map_id'])) {
+                                    //throw new NotFoundException('Invalid map');
+                                    $map['error'] = __("Invalid map");
+                                }
+                                $map['id'] = $widget['Widget']['map_id'];
                             }
-                        }
-                        if ($widget['Widget']['map_id']) {
-                            if (!$this->Map->exists($widget['Widget']['map_id'])) {
-                                throw new NotFoundException('Invalid map');
-                            }
-                            $map = [
-                                'id' => $widget['Widget']['map_id'],
-                            ];
                         }
                     }
                 }
+            } else {
+                $map['error'] = __("Map module not found");
             }
 
             $this->set(compact(['map']));
