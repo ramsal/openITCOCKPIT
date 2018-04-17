@@ -87,10 +87,11 @@ class GraphgenTmpl extends AppModel
      * It can be used to render the hosts and services of the templates.
      *
      * @param array $templates
+     * @param bool $jsonDecodeAsArray
      *
      * @return array
      */
-    public function addHostsAndServices(array $templates)
+    public function addHostsAndServices(array $templates, $jsonDecodeAsArray = false)
     {
         foreach ($templates as $i => $template) {
             // Iterate and collect all hosts for one graph configuration.
@@ -120,7 +121,7 @@ class GraphgenTmpl extends AppModel
                 $host_and_services[$host_id]['services'][$service_id] = [
                     'service_name' => $service_name,
                     'service_uuid' => $graphgen_conf['Service']['uuid'],
-                    'data_sources' => json_decode($graphgen_conf['data_sources']),
+                    'data_sources' => json_decode($graphgen_conf['data_sources'], $jsonDecodeAsArray),
                 ];
             }
 

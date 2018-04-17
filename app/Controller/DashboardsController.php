@@ -74,6 +74,61 @@ class DashboardsController extends AppController {
         }
     }
 
+    public function widget_graphgenerator () {
+        if ($this->isApiRequest()) {
+
+            $graphgenerator = [];
+
+            if (isset($this->request->data['params']['widgetId'])) {
+                $widgetId = $this->request->data['params']['widgetId'];
+
+                if ($this->Widget->exists($widgetId)) {
+
+                    $userId = $this->Auth->user('id');
+                    $widget = $this->Widget->find('first', [
+                        'contain'    => [
+                            'DashboardTab',
+                        ],
+                        'conditions' => [
+                            'Widget.id' => $widgetId,
+                        ],
+                    ]);
+                    if ($widget['DashboardTab']['user_id'] == $userId) {
+                        if (isset($this->request->data['params']['graphId'])) {
+                            $graphId = $this->request->data['params']['graphId'];
+                            if (!$this->GraphgenTmpl->exists($graphId)) {
+                                //throw new NotFoundException('Invalid map');
+                                $graphgenerator['error'] = __("Invalid graph");
+                            }
+                            if ($widget['Widget']['graph_id'] != $graphId) {
+                                $widget['Widget']['graph_id'] = $graphId;
+                                $this->Widget->saveAll($widget);
+                                //$this->Widget->saveField('map_id', $mapId);
+                                $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                                $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                            }
+                        }
+                        if ($widget['Widget']['graph_id']) {
+                            if (!$this->GraphgenTmpl->exists($widget['Widget']['graph_id'])) {
+                                //throw new NotFoundException('Invalid map');
+                                $graphgenerator['error'] = __("Invalid graph");
+                            }
+                            $graphgenerator['id'] = $widget['Widget']['graph_id'];
+                        }
+                    }
+                }
+            }
+
+            $this->set(compact(['graphgenerator']));
+            $this->set('_serialize', ['graphgenerator']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
+
     public function widget_map () {
         if ($this->isApiRequest()) {
 

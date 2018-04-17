@@ -195,6 +195,7 @@ class GraphgeneratorsController extends AppController
         $this->Paginator->settings = array_merge($this->Paginator->settings, $query);
 
         $all_templates = $this->Paginator->paginate('GraphgenTmpl');
+
         $all_templates = $this->GraphgenTmpl->addHostsAndServices($all_templates);
 
         $this->set([
@@ -363,7 +364,9 @@ class GraphgeneratorsController extends AppController
      */
     public function fetchGraphData()
     {
-        $this->allowOnlyAjaxRequests();
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
 
         $result = [];
 
