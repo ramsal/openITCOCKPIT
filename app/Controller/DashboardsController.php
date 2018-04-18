@@ -532,23 +532,60 @@ class DashboardsController extends AppController {
 
             $welcome = [];
 
-            /*
-            if ($this->Auth->user('image') != null && $this->Auth->user('image') != '') {
-                if (file_exists(WWW_ROOT.'userimages'.DS.$this->Auth->user('image'))) {
-                    $welcome['image'] = $this->Html->image('/userimages'.DS.$this->Auth->user('image'), ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
-                } else {
-                    $welcome['image'] =  $this->Html->image('fallback_user.png', ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
-                }
-            } else {
-                $welcome['image'] =  $this->Html->image('fallback_user.png', ['width' => 120, 'height' => 'auto', 'id' => 'userImage', 'style' => 'border-left: 3px solid #40AC2B;']);
-            }
-            */
+            $hostQuery = [
+                'recursive'  => -1,
+                'conditions' => [
+                    'Host.disabled'                  => 0,
+                    'HostsToContainers.container_id' => $this->MY_RIGHTS
+                ],
+                'joins'      => [
+                    [
+                        'table'      => 'hosts_to_containers',
+                        'alias'      => 'HostsToContainers',
+                        'type'       => 'LEFT',
+                        'conditions' => [
+                            'HostsToContainers.host_id = Host.id',
+                        ],
+                    ],
+                ],
+                'group'      => [
+                    'Host.id',
+                ],
+            ];
+
+            $serviceQuery = [
+                'recursive'  => -1,
+                'conditions' => [
+                    'Service.disabled'               => 0,
+                    'HostsToContainers.container_id' => $this->MY_RIGHTS
+                ],
+                'joins'      => [
+                    [
+                        'table'      => 'hosts',
+                        'type'       => 'INNER',
+                        'alias'      => 'Host',
+                        'conditions' => 'Service.host_id = Host.id',
+                    ],
+                    [
+                        'table'      => 'hosts_to_containers',
+                        'alias'      => 'HostsToContainers',
+                        'type'       => 'LEFT',
+                        'conditions' => [
+                            'HostsToContainers.host_id = Host.id',
+                        ],
+                    ],
+                ],
+                'group'      => [
+                    'Service.id',
+                ],
+            ];
+
 
             $UserTime = new \itnovum\openITCOCKPIT\Core\Views\UserTime($this->Auth->user('timezone'), $this->Auth->user('dateformat'));
             $welcome['date'] = $UserTime->format(time());
             $welcome['timezone'] = h($this->Auth->user('timezone'));
-            $welcome['hosts'] = 1337;
-            $welcome['services'] = 1337;
+            $welcome['hosts'] = $this->Host->find('count', $hostQuery);
+            $welcome['services'] = $this->Service->find('count', $serviceQuery);
 
             $this->set(compact(['welcome']));
             $this->set('_serialize', ['welcome']);
