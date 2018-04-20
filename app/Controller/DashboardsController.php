@@ -510,13 +510,63 @@ class DashboardsController extends AppController {
     public function widget_parent_outages () {
         if ($this->isApiRequest()) {
 
-            $parent_outages = [];
+            //$parent_outages = [];
             /*
             require_once 'widgets'.DS.'Widget.php';
             require_once 'widgets'.DS.'QueryCache.php';
             $QueryCache = new Widget\QueryCache($this->Controller);
             $parent_outages = $QueryCache->parentOutages();
             */
+
+            $conditions = [
+                'Hoststatus.current_state >' => 0,
+            ];
+            if ($this->Parenthost->hasRootPrivileges === false) {
+                $conditions = \Hash::merge($conditions, ['HostsToContainers.container_id' => $this->Parenthost->MY_RIGHTS]);
+            }
+
+            $parent_outages = $this->Parenthost->find('all', [
+                'joins'      => [
+                    [
+                        'table'      => 'nagios_objects',
+                        'type'       => 'INNER',
+                        'alias'      => 'Objects',
+                        'conditions' => 'Objects.object_id = Parenthost.parent_host_object_id',
+                    ],
+                    [
+                        'table'      => 'nagios_hoststatus',
+                        'type'       => 'INNER',
+                        'alias'      => 'Hoststatus',
+                        'conditions' => 'Hoststatus.host_object_id = Parenthost.parent_host_object_id',
+                    ],
+                    [
+                        'table'      => 'hosts',
+                        'type'       => 'INNER',
+                        'alias'      => 'Host',
+                        'conditions' => 'Host.uuid = Objects.name1',
+                    ],
+                    [
+                        'table'      => 'hosts_to_containers',
+                        'alias'      => 'HostsToContainers',
+                        'type'       => 'LEFT',
+                        'conditions' => [
+                            'HostsToContainers.host_id = Host.id',
+                        ],
+                    ],
+                ],
+                'fields'     => [
+                    'Parenthost.parent_host_object_id',
+                    'Hoststatus.current_state',
+                    'Hoststatus.output',
+                    'Objects.name1',
+                    'Host.name',
+                    'Host.id',
+                ],
+                'conditions' => [
+                    $conditions,
+                ],
+                'group'      => ['Host.uuid'],
+            ]);
 
             $this->set(compact(['parent_outages']));
             $this->set('_serialize', ['parent_outages']);

@@ -10,7 +10,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutagesDirective
 
         controller: function($scope){
 
-            $scope.widget = null;
+            $scope.widget = {};
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_parent_outages.json', {
