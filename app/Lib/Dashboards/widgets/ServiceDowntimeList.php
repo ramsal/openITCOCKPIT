@@ -51,7 +51,6 @@ class ServiceDowntimeList extends Widget {
         $this->title = __('Service downtime list');
     }
 
-
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
             'Widget'                    => [

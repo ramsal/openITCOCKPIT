@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Trafficlight extends Widget
-{
+class Trafficlight extends Widget {
     public $isDefault = false;
     public $icon = 'fa-road';
     public $element = 'trafficlight';
@@ -33,8 +32,7 @@ class Trafficlight extends Widget
     public $height = 14;
     public $directive = "dashboard-widget-traffic-light-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 11;
         $this->title = __('Traffic light');

@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Host180 extends Widget
-{
+class Host180 extends Widget {
     public $isDefault = false;
     public $icon = 'fa-pie-chart';
     public $element = 'host_piechart_180';
@@ -33,18 +32,10 @@ class Host180 extends Widget
     public $height = 14;
     public $directive = "dashboard-widget-hosts-piechart-180-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 7;
         $this->title = __('Hosts Piechart 180');
-    }
-
-    public function setData($widgetData)
-    {
-        //Prefix every widget variable with $widgetFoo
-        $widgetHostStateArray180 = $this->QueryCache->hostStateCount180();
-        $this->Controller->set(compact(['widgetHostStateArray180']));
     }
 
 }

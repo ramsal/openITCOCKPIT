@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Service360 extends Widget
-{
+class Service360 extends Widget {
     public $isDefault = true;
     public $icon = 'fa-pie-chart';
     public $element = 'service_piechart_360';
@@ -33,29 +32,20 @@ class Service360 extends Widget
     public $height = 14;
     public $directive = "dashboard-widget-services-piechart-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 4;
         $this->title = __('Services Piechart');
     }
 
-    public function setData($widgetData)
-    {
-        //Prefix every widget variable with $widgetFoo
-        $widgetServiceStateArray = $this->QueryCache->serviceStateCount();
-        $this->Controller->set(compact(['widgetServiceStateArray']));
-    }
-
-    public function getRestoreConfig($tabId)
-    {
+    public function getRestoreConfig ($tabId) {
         $restorConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
             'row'              => 10,
             'col'              => 5,
-            'width'            => 5,
-            'height'           => 14,
+            'width'            => $this->width,
+            'height'           => $this->height,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
             'directive'        => $this->directive

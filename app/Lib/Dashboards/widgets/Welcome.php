@@ -38,21 +38,14 @@ class Welcome extends Widget {
         $this->title = __('Welcome');
     }
 
-    public function setData ($widgetData) {
-        //Prefix every widget variable with $widgetFoo
-        $widgetHostStateArray = $this->QueryCache->hostStateCount();
-        $widgetServiceStateArray = $this->QueryCache->serviceStateCount();
-        $this->Controller->set(compact(['widgetHostStateArray', 'widgetServiceStateArray']));
-    }
-
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
             'row'              => 0,
             'col'              => 0,
-            'width'            => 5,
-            'height'           => 10,
+            'width'            => $this->width,
+            'height'           => $this->height,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
             'directive'        => $this->directive

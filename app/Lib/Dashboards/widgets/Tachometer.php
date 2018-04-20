@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Tachometer extends Widget
-{
+class Tachometer extends Widget {
     public $isDefault = false;
     public $icon = 'fa-dashboard';
     public $element = 'tachometer';
@@ -33,8 +32,7 @@ class Tachometer extends Widget
     public $height = 18;
     public $directive = "dashboard-widget-tachometer-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 12;
         $this->title = __('Tachometer');

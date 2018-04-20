@@ -24,8 +24,7 @@
 //	confirmation.
 
 namespace Dashboard\Widget;
-class Host360 extends Widget
-{
+class Host360 extends Widget {
     public $isDefault = true;
     public $icon = 'fa-pie-chart';
     public $element = 'host_piechart_360';
@@ -33,35 +32,25 @@ class Host360 extends Widget
     public $height = 14;
     public $directive = "dashboard-widget-hosts-piechart-directive";
 
-    public function __construct(\Controller $controller, $QueryCache)
-    {
+    public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 3;
         $this->title = __('Hosts Piechart');
     }
 
-    public function setData($widgetData)
-    {
-        //Prefix every widget variable with $widgetFoo
-        $widgetHostStateArray = $this->QueryCache->hostStateCount();
-        $this->Controller->set(compact(['widgetHostStateArray']));
-    }
-
-    public function getRestoreConfig($tabId)
-    {
-        $restorConfig = [
+    public function getRestoreConfig ($tabId) {
+        $restoreConfig = [
             'dashboard_tab_id' => $tabId,
             'type_id'          => $this->typeId,
             'row'              => 10,
             'col'              => 0,
-            'width'            => 5,
-            'height'           => 14,
+            'width'            => $this->width,
+            'height'           => $this->height,
             'title'            => $this->title,
             'color'            => $this->defaultColor,
             'directive'        => $this->directive
         ];
 
-        return $restorConfig;
+        return $restoreConfig;
     }
-
 }

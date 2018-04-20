@@ -51,10 +51,9 @@ class HostDowntimeList extends Widget {
         $this->title = __('Host downtime list');
     }
 
-
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
-            'Widget' => [
+            'Widget'                 => [
                 'dashboard_tab_id' => $tabId,
                 'type_id'          => $this->typeId,
                 'row'              => 24,
