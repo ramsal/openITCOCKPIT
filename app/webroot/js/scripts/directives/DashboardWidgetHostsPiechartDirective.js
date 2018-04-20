@@ -11,6 +11,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
         controller: function($scope){
 
             $scope.widget = {};
+            $scope.showpng = true;
+            $scope.isHalf = 0;
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_hosts_piechart.json', {
@@ -18,9 +20,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.hosts_piechart;
-                    let x = [$scope.widget.state[0], $scope.widget.state[1], $scope.widget.state[2]];
-                    let total = $scope.widget.total;
+                    let widget = result.data.hosts_piechart;
+                    let x = [widget.state[0], widget.state[1], widget.state[2]];
+                    let total = widget.total;
 
                     $scope.widget = {
                         'up': [x[0], Math.round((x[0] / total) * 100)],
@@ -39,7 +41,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                                 'rgba(146, 162, 168, 1)'
                             ];
 
-                            if($scope.title === "Pacman"){
+                            if($scope.title === "Pacman" && !$scope.showpng){
                                 $backgroundColor = [
                                     'rgba(243, 232, 20, 1)',
                                     'rgba(0, 0, 0, 1)',

@@ -15,6 +15,18 @@
         <span class="note"><i class="fa fa-check text-success"></i>
             <?php echo __('Change title to update and save instantly'); ?>
         </span>
+        <hr>
+        <div class="form-group smart-form">
+            <div class="col-xs-6">
+                <label class="checkbox small-checkbox-label display-inline margin-right-5">
+                    <input type="checkbox" name="checkbox" checked=""
+                           ng-model="showpng"
+                           ng-model-options="{debounce: 500}">
+                    <i class="checkbox-primary"></i>
+                    <?php echo __('Use png instead of JS pie chart'); ?>
+                </label>
+            </div>
+        </div>
     </div>
 
     <div class="widget-body padding-0">
@@ -22,7 +34,8 @@
 
             <div class="col-xs-12 text-center">
                 <div class="text-center" style="height: 199px; width: 399px;margin-left: auto; margin-right: auto;">
-                    <canvas id="myChart{{id}}"></canvas>
+                    <img ng-show="showpng" ng-src="/angular/getPieChart/{{widget.up[0]}}/{{widget.down[0]}}/{{widget.unreachable[0]}}/_/{{isHalf}}/.png">
+                    <canvas ng-show="!showpng" id="myChart{{id}}"></canvas>
                 </div>
                 <div class="text-center font-xs margin-top-10">
                     <?php if ($this->Acl->hasPermission('index', 'hosts')): ?>

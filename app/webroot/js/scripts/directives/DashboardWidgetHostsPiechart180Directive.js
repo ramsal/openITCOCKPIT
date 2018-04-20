@@ -11,6 +11,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart180Direct
         controller: function($scope){
 
             $scope.widget = null;
+            $scope.showpng = true;
+            $scope.isHalf = 1;
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_hosts_piechart.json', {
@@ -18,9 +20,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart180Direct
                         'angular': true
                     }
                 }).then(function(result){
-                    $scope.widget = result.data.hosts_piechart;
-                    let x = [$scope.widget.state[0], $scope.widget.state[1], $scope.widget.state[2]];
-                    let total = $scope.widget.total;
+                    let widget = result.data.hosts_piechart;
+                    let x = [widget.state[0], widget.state[1], widget.state[2]];
+                    let total = widget.total;
 
                     $scope.widget = {
                         'up': [x[0], Math.round((x[0] / total) * 100)],

@@ -35,7 +35,7 @@ class Service180 extends Widget {
     public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
         $this->typeId = 8;
-        $this->title = __('Services Piechart 180');
+        $this->title = __('Services pie chart 180');
     }
 
     public function setData ($widgetData) {
