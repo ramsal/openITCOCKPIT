@@ -168,7 +168,7 @@
                            ng-show="host.Hoststatus.scheduledDowntimeDepth > 0"></i>
                     </td>
                     <td>
-                        <?php if ($this->Acl->hasPermission('browser')): ?>
+                        <?php if ($this->Acl->hasPermission('browser', 'hosts')): ?>
                             <a href="/hosts/browser/{{ host.Host.id }}">
                                 {{ host.Host.hostname }}
                             </a>

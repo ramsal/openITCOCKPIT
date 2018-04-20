@@ -37,14 +37,22 @@
             </div>
         </div>
 
-        <div style="padding:13px;">
-
-            <div class="traffic-light" id="traffic-light{{id}}">
-                <div id="redLight{{id}}" class="bulb"></div>
-                <div id="yellowLight{{id}}" class="bulb"></div>
-                <div id="greenLight{{id}}" class="bulb"></div>
-            </div>
-
+        <div>
+            <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
+                <a ng-attr-href="{{ widget.serviceId ? '/services/browser/'+widget.serviceId : '#none'}}">
+                    <div class="traffic-light" style="margin-top:-10px;" id="traffic-light{{id}}">
+                        <div id="redLight{{id}}" class="bulb"></div>
+                        <div id="yellowLight{{id}}" class="bulb"></div>
+                        <div id="greenLight{{id}}" class="bulb"></div>
+                    </div>
+                </a>
+            <?php else: ?>
+                <div class="traffic-light" id="traffic-light{{id}}">
+                    <div id="redLight{{id}}" class="bulb"></div>
+                    <div id="yellowLight{{id}}" class="bulb"></div>
+                    <div id="greenLight{{id}}" class="bulb"></div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

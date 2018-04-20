@@ -19,23 +19,20 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
                     }
                 }).then(function(result){
                     $scope.widget = result.data.services_piechart;
-                    let x = [4, 1, 3, 1];
-                    let xsum = 0;
-                    x.forEach(function(num){
-                        xsum = (xsum + num);
-                    });
+                    let x = [$scope.widget.state[0], $scope.widget.state[1], $scope.widget.state[2], $scope.widget.state[3]];
+                    let total = $scope.widget.total;
+
                     $scope.widget = {
-                        'ok': [x[0], Math.round((x[0] / xsum) * 100)],
-                        'warning': [x[1], Math.round((x[1] / xsum) * 100)],
-                        'critical': [x[2], Math.round((x[2] / xsum) * 100)],
-                        'unknown': [x[3], Math.round((x[3] / xsum) * 100)]
+                        'ok': [x[0], Math.round((x[0] / total) * 100)],
+                        'warning': [x[1], Math.round((x[1] / total) * 100)],
+                        'critical': [x[2], Math.round((x[2] / total) * 100)],
+                        'unknown': [x[3], Math.round((x[3] / total) * 100)]
                     };
 
 
                     angular.element(function(){        //page loading completed
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
-                            console.log($scope.widget);
                             $scope.myPieChart = new Chart($scope.ctx, {
                                 type: 'pie',
                                 data: {

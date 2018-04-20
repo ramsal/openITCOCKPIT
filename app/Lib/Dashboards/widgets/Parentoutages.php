@@ -38,12 +38,6 @@ class Parentoutages extends Widget {
         $this->title = __('Parent outages');
     }
 
-    public function setData ($widgetData) {
-        //Prefix every widget variable with $widgetFoo
-        $widgetParentOutages = $this->QueryCache->parentOutages();
-        $this->Controller->set(compact(['widgetParentOutages']));
-    }
-
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
             'dashboard_tab_id' => $tabId,

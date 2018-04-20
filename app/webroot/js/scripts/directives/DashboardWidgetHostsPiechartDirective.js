@@ -10,7 +10,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
 
         controller: function($scope){
 
-            $scope.widget = null;
+            $scope.widget = {};
 
             $scope.load = function(){
                 $http.get('/dashboards/widget_hosts_piechart.json', {
@@ -19,22 +19,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                     }
                 }).then(function(result){
                     $scope.widget = result.data.hosts_piechart;
-                    let x = [12, 5, 2];
-                    let xsum = 0;
-                    x.forEach(function(num){
-                        xsum = (xsum + num);
-                    });
+                    let x = [$scope.widget.state[0], $scope.widget.state[1], $scope.widget.state[2]];
+                    let total = $scope.widget.total;
+
                     $scope.widget = {
-                        'up': [x[0], Math.round((x[0] / xsum) * 100)],
-                        'down': [x[1], Math.round((x[1] / xsum) * 100)],
-                        'unreachable': [x[2], Math.round((x[2] / xsum) * 100)]
+                        'up': [x[0], Math.round((x[0] / total) * 100)],
+                        'down': [x[1], Math.round((x[1] / total) * 100)],
+                        'unreachable': [x[2], Math.round((x[2] / total) * 100)]
                     };
 
 
                     angular.element(function(){        //page loading completed
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
-                            console.log($scope.widget);
 
                             let $backgroundColor = [
                                 'rgba(68, 157, 68, 1)',

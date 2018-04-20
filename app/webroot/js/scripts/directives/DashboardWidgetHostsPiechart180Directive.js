@@ -19,22 +19,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechart180Direct
                     }
                 }).then(function(result){
                     $scope.widget = result.data.hosts_piechart;
-                    let x = [4, 1, 1];
-                    let xsum = 0;
-                    x.forEach(function(num){
-                        xsum = (xsum + num);
-                    });
+                    let x = [$scope.widget.state[0], $scope.widget.state[1], $scope.widget.state[2]];
+                    let total = $scope.widget.total;
+
                     $scope.widget = {
-                        'up': [x[0], Math.round((x[0] / xsum) * 100)],
-                        'down': [x[1], Math.round((x[1] / xsum) * 100)],
-                        'unreachable': [x[2], Math.round((x[2] / xsum) * 100)]
+                        'up': [x[0], Math.round((x[0] / total) * 100)],
+                        'down': [x[1], Math.round((x[1] / total) * 100)],
+                        'unreachable': [x[2], Math.round((x[2] / total) * 100)]
                     };
 
 
                     angular.element(function(){        //page loading completed
                         if(document.getElementById("myChart" + $scope.id)){
                             $scope.ctx = document.getElementById("myChart" + $scope.id);
-                            console.log($scope.widget);
                             $scope.myPieChart = new Chart($scope.ctx, {
                                 type: 'pie',
                                 data: {

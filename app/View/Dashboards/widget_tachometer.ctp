@@ -96,7 +96,13 @@
     <div class="widget-body padding-0 not-draggable">
 
         <div class="text-center">
-            <canvas id="canvas-{{id}}"></canvas>
+            <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
+                <a ng-attr-href="{{ widget.serviceId ? '/services/browser/'+widget.serviceId : '#none'}}">
+                    <canvas style="margin: 0px auto 0px auto;" id="canvas-{{id}}"></canvas>
+                </a>
+            <?php else: ?>
+                <canvas style="margin: 0px auto 0px auto;" id="canvas-{{id}}"></canvas>
+            <?php endif; ?>
         </div>
 
     </div>
