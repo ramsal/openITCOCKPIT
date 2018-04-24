@@ -43,7 +43,7 @@
 
                 <label class="checkbox small-checkbox-label display-inline margin-right-5">
                     <input type="checkbox" name="checkbox" checked="checked"
-                           ng-model="downtimeListSettings.filter.DowntimeHost.was_not_cancelled"
+                           ng-model="downtimeListSettings.filter.DowntimeService.was_not_cancelled"
                            ng-model-options="{debounce: 500}">
                     <i class="checkbox-primary"></i>
                     <?php echo __('Was not cancelled'); ?>
@@ -51,7 +51,7 @@
 
                 <label class="checkbox small-checkbox-label display-inline margin-right-5">
                     <input type="checkbox" name="checkbox" checked="checked"
-                           ng-model="downtimeListSettings.filter.DowntimeHost.was_cancelled"
+                           ng-model="downtimeListSettings.filter.DowntimeService.was_cancelled"
                            ng-model-options="{debounce: 500}">
                     <i class="checkbox-primary"></i>
                     <?php echo __('Was cancelled'); ?>
@@ -135,7 +135,7 @@
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="downtimeListSettings.filter.DowntimeHost.was_not_cancelled"
+                                   ng-model="downtimeListSettings.filter.DowntimeService.was_not_cancelled"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-primary"></i>
                             <?php echo __('Was not cancelled'); ?>
@@ -143,7 +143,7 @@
 
                         <label class="checkbox small-checkbox-label display-inline margin-right-5">
                             <input type="checkbox" name="checkbox" checked="checked"
-                                   ng-model="downtimeListSettings.filter.DowntimeHost.was_cancelled"
+                                   ng-model="downtimeListSettings.filter.DowntimeService.was_cancelled"
                                    ng-model-options="{debounce: 500}">
                             <i class="checkbox-primary"></i>
                             <?php echo __('Was cancelled'); ?>

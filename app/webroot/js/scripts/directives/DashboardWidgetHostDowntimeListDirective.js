@@ -19,7 +19,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
             $scope.viewPagingInterval = 0;
             $scope.tabId = $scope.parentTabId;
             $scope.currentPage = 1;
-            $scope.minify_status_before = 1;
+            $scope.minify_status_before = 0;
 
             let now = new Date();
 
@@ -56,7 +56,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
             };
 
             $scope.checkAndStopWidget = function(){
-                if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id)){
+                if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id) || $scope.downtimeListSettings.minify){
                     if($scope.pagingTimer){
                         $interval.cancel($scope.pagingTimer);
                     }
@@ -77,6 +77,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
 
                     $scope.viewPagingInterval = parseInt($scope.widget.paging_interval);
                     $scope.downtimeListSettings.minify = $scope.widget.minify;
+                    $scope.minify_status_before = $scope.widget.minify;
                     $scope.downtimeListSettings.limit = parseInt($scope.widget.limit);
                     $scope.downtimeListSettings.paging_interval = parseInt($scope.widget.paging_interval);
                     $scope.paging_autostart = $scope.widget.paging_autostart;
@@ -85,7 +86,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                     $scope.downtimeListSettings.filter.DowntimeHost.comment_data = $scope.widget.comment_filter;
                     $scope.downtimeListSettings.filter.DowntimeHost.was_cancelled = $scope.widget.show_was_cancelled;
                     $scope.downtimeListSettings.filter.DowntimeHost.was_not_cancelled = $scope.widget.show_was_not_cancelled;
-                    $scope.downtimeListSettings.filter.is_running = $scope.widget.show_is_running;
+                    $scope.downtimeListSettings.filter.isRunning = $scope.widget.show_is_running;
                     $scope.downtimeListSettings.filter.hideExpired = $scope.widget.hide_expired;
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
@@ -166,7 +167,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                 let sort= $scope.sort;
                 let direction = $scope.direction;
                 if($scope.downtimeListSettings.minify){
-                    limit = 0;
                     page = 1;
                     sort = QueryStringService.getValue('sort', 'DowntimeHost.scheduled_start_time');
                     direction = 'desc';
@@ -234,13 +234,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                         'widgetTypeId': "5"
                     };
 
-                    if($scope.downtimeListSettings.minify && $scope.minify_status_before != $scope.downtimeListSettings.minify){
+                    if($scope.downtimeListSettings.minify && $scope.minify_status_before !== $scope.downtimeListSettings.minify){
                         $scope.downtimeListSettings.limit = 0;
                         /*document.getElementById($scope.id).attributes['data-gs-height'].nodeValue = 12;
                         document.getElementById($scope.id).attributes['data-gs-width'].nodeValue = 5;*/
                         $scope.minify_status_before = $scope.downtimeListSettings.minify;
                     }
-                    if(!$scope.downtimeListSettings.minify && $scope.minify_status_before != $scope.downtimeListSettings.minify){
+                    if(!$scope.downtimeListSettings.minify && $scope.minify_status_before !== $scope.downtimeListSettings.minify){
                         $scope.downtimeListSettings.limit = 5;
                         /*document.getElementById($scope.id).attributes['data-gs-height'].nodeValue = 22;
                         document.getElementById($scope.id).attributes['data-gs-width'].nodeValue = 10;*/
