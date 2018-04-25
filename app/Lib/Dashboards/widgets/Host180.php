@@ -30,7 +30,14 @@ class Host180 extends Widget {
     public $element = 'host_piechart_180';
     public $width = 5;
     public $height = 14;
+    public $hasInitialConfig = true;
     public $directive = "dashboard-widget-hosts-piechart-180-directive";
+
+    public $initialConfig = [
+        'WidgetPiechart' => [
+            'use_png' => 1,
+        ],
+    ];
 
     public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);

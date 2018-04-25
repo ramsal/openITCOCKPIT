@@ -47,7 +47,6 @@ class DashboardsController extends AppController {
         'WidgetHostStatusList',
         'WidgetServiceStatusList',
         'Service',
-        MONITORING_OBJECTS,
         'Rrd',
         'User',
         'Servicegroup',
@@ -482,65 +481,7 @@ class DashboardsController extends AppController {
     public function widget_hosts_piechart () {
         if ($this->isApiRequest()) {
 
-            $conditions = [
-                'Host.disabled' => 0,
-            ];
-            if ($this->Host->hasRootPrivileges === false) {
-                $conditions = \Hash::merge($conditions, ['HostsToContainers.container_id' => $this->Host->MY_RIGHTS]);
-            }
-
-            $query = [
-                'recursive'  => -1,
-                'contain'    => [],
-                'fields'     => [
-                    'Host.id',
-                    'Host.uuid',
-                    'Hoststatus.current_state',
-                ],
-                'conditions' => $conditions,
-                'joins'      => [
-                    [
-                        'table'      => 'nagios_objects',
-                        'type'       => 'INNER',
-                        'alias'      => 'HostObject',
-                        'conditions' => 'Host.uuid = HostObject.name1 AND HostObject.objecttype_id = 1',
-                    ], [
-                        'table'      => 'nagios_hoststatus',
-                        'type'       => 'INNER',
-                        'alias'      => 'Hoststatus',
-                        'conditions' => 'Hoststatus.host_object_id = HostObject.object_id',
-                    ], [
-                        'table'      => 'hosts_to_containers',
-                        'alias'      => 'HostsToContainers',
-                        'type'       => 'LEFT',
-                        'conditions' => [
-                            'HostsToContainers.host_id = Host.id',
-                        ],
-                    ],
-                ],
-                'group'      => [
-                    'Host.id',
-                ],
-            ];
-
-            $hosts = $this->Host->find('all', $query);
-
-            $hosts_piechart = [
-                'state' => [
-                    0 => 0,
-                    1 => 0,
-                    2 => 0,
-                ],
-                'total' => 0,
-            ];
-            foreach ($hosts as $host) {
-                if ($host['Hoststatus']['current_state'] > 2) {
-                    $host['Hoststatus']['current_state'] = 2;
-                }
-
-                $hosts_piechart['state'][$host['Hoststatus']['current_state']]++;
-                $hosts_piechart['total']++;
-            }
+            $hosts_piechart = [];
 
             $this->set(compact(['hosts_piechart']));
             $this->set('_serialize', ['hosts_piechart']);
@@ -554,88 +495,7 @@ class DashboardsController extends AppController {
     public function widget_services_piechart () {
         if ($this->isApiRequest()) {
 
-            $conditions = [
-                'Host.disabled'    => 0,
-                'Service.disabled' => 0,
-            ];
-            if ($this->Host->hasRootPrivileges === false) {
-                $conditions = \Hash::merge($conditions, ['HostsToContainers.container_id' => $this->Host->MY_RIGHTS]);
-            }
-
-            $query = [
-                'recursive'  => -1,
-                'conditions' => $conditions,
-                'contain'    => [],
-                'fields'     => [
-                    'Service.id',
-                    'Service.uuid',
-                    'Servicestatus.current_state',
-                ],
-                'joins'      => [
-                    [
-                        'table'      => 'hosts',
-                        'type'       => 'INNER',
-                        'alias'      => 'Host',
-                        'conditions' => 'Service.host_id = Host.id',
-                    ],
-                    [
-                        'table'      => 'nagios_objects',
-                        'type'       => 'INNER',
-                        'alias'      => 'HostObject',
-                        'conditions' => 'Host.uuid = HostObject.name1 AND HostObject.objecttype_id = 1',
-                    ],
-                    [
-                        'table'      => 'nagios_hoststatus',
-                        'type'       => 'INNER',
-                        'alias'      => 'Hoststatus',
-                        'conditions' => 'Hoststatus.host_object_id = HostObject.object_id',
-                    ],
-                    [
-                        'table'      => 'nagios_objects',
-                        'type'       => 'INNER',
-                        'alias'      => 'ServiceObject',
-                        'conditions' => 'ServiceObject.name1 = Host.uuid AND Service.uuid = ServiceObject.name2 AND ServiceObject.objecttype_id = 2',
-                    ],
-                    [
-                        'table'      => 'nagios_servicestatus',
-                        'type'       => 'INNER',
-                        'alias'      => 'Servicestatus',
-                        'conditions' => 'Servicestatus.service_object_id = ServiceObject.object_id',
-                    ],
-                    [
-                        'table'      => 'hosts_to_containers',
-                        'alias'      => 'HostsToContainers',
-                        'type'       => 'LEFT',
-                        'conditions' => [
-                            'HostsToContainers.host_id = Host.id',
-                        ],
-                    ],
-                ],
-                'group'      => [
-                    'Service.id',
-                ],
-            ];
-
-            $services = $this->Service->find('all', $query);
-
-            $services_piechart = [
-                'state' => [
-                    0 => 0,
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                ],
-                'total' => 0,
-            ];
-            foreach ($services as $service) {
-                if ($service['Servicestatus']['current_state'] > 3) {
-                    $service['Servicestatus']['current_state'] = 3;
-                }
-                if (isset($service['Servicestatus']['current_state'])) {
-                    $services_piechart['state'][$service['Servicestatus']['current_state']]++;
-                    $services_piechart['total']++;
-                }
-            }
+            $services_piechart = [];
 
             $this->set(compact(['services_piechart']));
             $this->set('_serialize', ['services_piechart']);
@@ -1661,6 +1521,69 @@ class DashboardsController extends AppController {
         }
         $this->set(compact(['notice']));
         $this->set('_serialize', ['notice']);
+        return;
+    }
+
+    public function savePiechartSettings () {
+        $this->layout = "blank";
+        $settings = [];
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
+        if (isset($this->request->data['widgetId']) && isset($this->request->data['use_png'])) {
+            $widgetId = $this->request->data['widgetId'];
+            $use_png = $this->request->data['use_png'];
+
+            if ($this->Widget->exists($widgetId)) {
+                $userId = $this->Auth->user('id');
+                $widget = $this->Widget->find('first', [
+                    'contain'    => [
+                        'WidgetPiechart',
+                        'DashboardTab',
+                    ],
+                    'conditions' => [
+                        'Widget.id' => $widgetId,
+                    ],
+                ]);
+                if ($widget['DashboardTab']['user_id'] == $userId) {
+                    $widget['WidgetPiechart']['use_png'] = $use_png;
+                    $this->Widget->saveAll($widget);
+                    $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                    $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                }
+            }
+        }
+        $this->set(compact(['settings']));
+        $this->set('_serialize', ['settings']);
+        return;
+    }
+
+    public function getPiechartSettings () {
+        $this->layout = "blank";
+        $settings = [];
+        if (!$this->isApiRequest()) {
+            throw new MethodNotAllowedException();
+        }
+        if (isset($this->request->query['widgetId'])) {
+            $widgetId = $this->request->query['widgetId'];
+            if ($this->Widget->exists($widgetId)) {
+                $userId = $this->Auth->user('id');
+                $widget = $this->Widget->find('first', [
+                    'contain'    => [
+                        'WidgetPiechart',
+                        'DashboardTab',
+                    ],
+                    'conditions' => [
+                        'Widget.id' => $widgetId,
+                    ],
+                ]);
+                if ($widget['DashboardTab']['user_id'] == $userId) {
+                    $settings['use_png'] = $widget['WidgetPiechart']['use_png'];
+                }
+            }
+        }
+        $this->set(compact(['settings']));
+        $this->set('_serialize', ['settings']);
         return;
     }
 

@@ -15,22 +15,30 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
             $scope.isHalf = 1;
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_services_piechart.json', {
+                $http.get('/dashboards/getPiechartSettings.json', {
+                    params: {
+                        'angular': true,
+                        'widgetId': $scope.id
+                    }
+                }).then(function(result){
+                    $scope.showpng = result.data.settings.use_png;
+                });
+
+                $http.get('/angular/serviceStats.json', {
                     params: {
                         'angular': true
                     }
                 }).then(function(result){
-                    let widget = result.data.services_piechart;
-                    let x = [widget.state[0], widget.state[1], widget.state[2], widget.state[3]];
-                    let total = widget.total;
+                    let servicestatusCount = result.data.servicestatusCount;
+                    let states = [servicestatusCount[0], servicestatusCount[1], servicestatusCount[2], servicestatusCount[3]];
+                    let total = servicestatusCount.total;
 
                     $scope.widget = {
-                        'ok': [x[0], Math.round((x[0] / total) * 100)],
-                        'warning': [x[1], Math.round((x[1] / total) * 100)],
-                        'critical': [x[2], Math.round((x[2] / total) * 100)],
-                        'unknown': [x[3], Math.round((x[3] / total) * 100)]
+                        'ok': [states[0], Math.round((states[0] / total) * 100)],
+                        'warning': [states[1], Math.round((states[1] / total) * 100)],
+                        'critical': [states[2], Math.round((states[2] / total) * 100)],
+                        'unknown': [states[3], Math.round((states[3] / total) * 100)]
                     };
-
 
                     angular.element(function(){        //page loading completed
                         if(document.getElementById("myChart" + $scope.id)){
@@ -74,6 +82,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServicesPiechart180Dir
                     });
 
                 });
+            };
+
+            $scope.saveSettings = function(){
+                let data = {
+                    widgetId: $scope.id,
+                    use_png: $scope.showpng ? "1" : "0"
+                };
+                $http.post('/dashboards/savePiechartSettings.json?angular=true', data);
             };
 
             $scope.load();

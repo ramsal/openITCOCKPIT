@@ -123,6 +123,55 @@ class AngularController extends AppController {
         $this->set('_serialize', ['newVersionAvailable']);
     }
 
+    public function hostStats () {
+        if (!$this->isApiRequest()) {
+            //Only ship HTML template
+            return;
+        }
+        session_write_close();
+
+        $hoststatusCount = [
+            '1' => 0,
+            '2' => 0,
+        ];
+
+        if ($this->DbBackend->isNdoUtils()) {
+            $hoststatusCount = $this->Host->getHoststatusCount($this->MY_RIGHTS, true);
+        }
+        if ($this->DbBackend->isCrateDb()) {
+            $hoststatusCount = $this->Hoststatus->getHoststatusCount($this->MY_RIGHTS, true);
+        }
+        $hoststatusCount['total'] = array_sum($hoststatusCount);
+
+        $this->set(compact(['hoststatusCount']));
+        $this->set('_serialize', ['hoststatusCount']);
+    }
+
+    public function serviceStats () {
+        if (!$this->isApiRequest()) {
+            //Only ship HTML template
+            return;
+        }
+        session_write_close();
+
+        $servicestatusCount = [
+            '1' => 0,
+            '2' => 0,
+            '3' => 0,
+        ];
+
+        if ($this->DbBackend->isNdoUtils()) {
+            $servicestatusCount = $this->Host->getServicestatusCount($this->MY_RIGHTS, true);
+        }
+        if ($this->DbBackend->isCrateDb()) {
+            $servicestatusCount = $this->Servicestatus->getServicestatusCount($this->MY_RIGHTS, true);
+        }
+        $servicestatusCount['total'] = array_sum($servicestatusCount);
+
+        $this->set(compact(['servicestatusCount']));
+        $this->set('_serialize', ['servicestatusCount']);
+    }
+
     public function menustats() {
         if (!$this->isApiRequest()) {
             //Only ship HTML template
@@ -540,16 +589,17 @@ class AngularController extends AppController {
     public function getPieChart($up = 0, $down = 0, $unreachable = 1, $unknown = null, $half = false) {
         session_write_close();
         $PieChart = new PieChart();
-        if($half){
-            $PieChart->setHalfChart();
-        }
 
         $chartData = [$up, $down, $unreachable];
         if ($unknown !== null && $unknown != "_") {
             $chartData = [$up, $down, $unreachable, $unknown];
         }
 
-        $PieChart->createPieChart($chartData);
+        if($half){
+            $PieChart->createHalfPieChart($chartData);
+        } else {
+            $PieChart->createPieChart($chartData);
+        }
 
         $image = $PieChart->getImage();
 

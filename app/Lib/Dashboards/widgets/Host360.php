@@ -30,7 +30,14 @@ class Host360 extends Widget {
     public $element = 'host_piechart_360';
     public $width = 5;
     public $height = 14;
+    public $hasInitialConfig = true;
     public $directive = "dashboard-widget-hosts-piechart-directive";
+
+    public $initialConfig = [
+        'WidgetPiechart' => [
+            'use_png' => 1,
+        ],
+    ];
 
     public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
@@ -40,15 +47,20 @@ class Host360 extends Widget {
 
     public function getRestoreConfig ($tabId) {
         $restoreConfig = [
-            'dashboard_tab_id' => $tabId,
-            'type_id'          => $this->typeId,
-            'row'              => 10,
-            'col'              => 0,
-            'width'            => $this->width,
-            'height'           => $this->height,
-            'title'            => $this->title,
-            'color'            => $this->defaultColor,
-            'directive'        => $this->directive
+            'Widget'         => [
+                'dashboard_tab_id' => $tabId,
+                'type_id'          => $this->typeId,
+                'row'              => 10,
+                'col'              => 0,
+                'width'            => $this->width,
+                'height'           => $this->height,
+                'title'            => $this->title,
+                'color'            => $this->defaultColor,
+                'directive'        => $this->directive
+            ],
+            'WidgetPiechart' => [
+                'use_png' => 1,
+            ]
         ];
 
         return $restoreConfig;

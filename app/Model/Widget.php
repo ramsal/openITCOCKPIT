@@ -45,6 +45,9 @@ class Widget extends AppModel {
         'WidgetNotice'              => [
             'dependent' => true,
         ],
+        'WidgetPiechart'            => [
+            'dependent' => true,
+        ],
         //'WidgetGraphgenerator' => [
         //	'dependent' => true
         //],

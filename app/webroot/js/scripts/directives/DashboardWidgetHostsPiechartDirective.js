@@ -15,21 +15,29 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
             $scope.isHalf = 0;
 
             $scope.load = function(){
-                $http.get('/dashboards/widget_hosts_piechart.json', {
+                $http.get('/dashboards/getPiechartSettings.json', {
+                    params: {
+                        'angular': true,
+                        'widgetId': $scope.id
+                    }
+                }).then(function(result){
+                    $scope.showpng = result.data.settings.use_png;
+                });
+
+                $http.get('/angular/hostStats.json', {
                     params: {
                         'angular': true
                     }
                 }).then(function(result){
-                    let widget = result.data.hosts_piechart;
-                    let x = [widget.state[0], widget.state[1], widget.state[2]];
-                    let total = widget.total;
+                    let hoststatusCount = result.data.hoststatusCount;
+                    let states = [hoststatusCount[0], hoststatusCount[1], hoststatusCount[2]];
+                    let total = hoststatusCount.total;
 
                     $scope.widget = {
-                        'up': [x[0], Math.round((x[0] / total) * 100)],
-                        'down': [x[1], Math.round((x[1] / total) * 100)],
-                        'unreachable': [x[2], Math.round((x[2] / total) * 100)]
+                        'up': [states[0], Math.round((states[0] / total) * 100)],
+                        'down': [states[1], Math.round((states[1] / total) * 100)],
+                        'unreachable': [states[2], Math.round((states[2] / total) * 100)]
                     };
-
 
                     angular.element(function(){        //page loading completed
                         if(document.getElementById("myChart" + $scope.id)){
@@ -94,6 +102,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostsPiechartDirective
                     $scope.load();
                 }
             });
+
+            $scope.saveSettings = function(){
+                let data = {
+                    widgetId: $scope.id,
+                    use_png: $scope.showpng ? "1" : "0"
+                };
+                $http.post('/dashboards/savePiechartSettings.json?angular=true', data);
+            };
         }
     };
 });

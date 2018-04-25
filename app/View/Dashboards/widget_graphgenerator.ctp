@@ -16,7 +16,7 @@
             <?php echo __('Change title to update and save instantly'); ?>
         </span>
         <hr>
-        <div class="col col-xs-12" ng-show="widget.id">
+        <div class="col col-xs-12" ng-show="widget.id>0">
             <select id="map-{{id}}"
                     data-placeholder="<?php echo __('Please select...'); ?>"
                     class="form-control"
@@ -28,7 +28,7 @@
     </div>
 
     <div class="widget-body padding-0 not-draggable">
-        <div class="col col-xs-12" ng-show="(!widget.id && !error) || error == 'Invalid graph'">
+        <div class="col col-xs-12" ng-show="((!widget.id || widget.id==0) && !error) || error == 'Invalid graph'">
             <select id="map-{{id}}"
                     data-placeholder="<?php echo __('Please select...'); ?>"
                     class="form-control"

@@ -39,6 +39,11 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                     }
                 }).then(function(result){
                     $scope.widget = result.data.graphgenerator;
+                    if(result.data.graphgenerator.id){
+                        $scope.widget.id=result.data.graphgenerator.id.toString();
+                    } else {
+                        $scope.widget.id = "0";
+                    }
                     $scope.getGraphUuids();
                     setTimeout(function(){
                         $scope.ready = true;
@@ -79,11 +84,11 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             };
 
             $scope.saveGraph = function(){
-                $http.post('/Graphgenerators/fetchGraphData/.json', {
-                    host_and_service_uuids: {
+                $http.post('/dashboards/widget_graphgenerator.json', {
+                    params: {
                         'angular': true,
                         'widgetId': $scope.id,
-                        'graphId': $scope.widget.id
+                        'graphId': parseInt($scope.widget.id)
                     }
                 });
             };
@@ -174,17 +179,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             var renderGraph = function(performance_data){
                 var graph_data = [];
                 //console.log(performance_data.length);
-                for(var dsCount in performance_data){
-                    console.log(dsCount);
+                for(var hostuuid in performance_data){
+                    //console.log(hostuuid);
+                    graph_data[hostuuid] = [];
 
-                    graph_data[dsCount] = [];
-                    for(var timestamp in performance_data[dsCount].data){
-                        graph_data[dsCount].push([timestamp, performance_data[dsCount].data[timestamp]]);
-                        console.log(graph_data);
+                    for(var serviceuuid in performance_data[hostuuid]){
+                        for(var timestamp in performance_data[hostuuid][serviceuuid].data){
+                            graph_data[hostuuid].push([timestamp, performance_data[hostuuid][serviceuuid].data[timestamp]]);
+                            //console.log(graph_data);
+                        }
                     }
                     //graph_data.push(performance_data[key].data);
                 }
-
+                console.log(graph_data);
 
                 var color_amount = performance_data.length < 3 ? 3 : performance_data.length;
                 var color_generator = new ColorGenerator();

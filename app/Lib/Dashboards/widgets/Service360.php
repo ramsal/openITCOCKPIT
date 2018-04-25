@@ -30,7 +30,14 @@ class Service360 extends Widget {
     public $element = 'service_piechart_360';
     public $width = 5;
     public $height = 14;
+    public $hasInitialConfig = true;
     public $directive = "dashboard-widget-services-piechart-directive";
+
+    public $initialConfig = [
+        'WidgetPiechart' => [
+            'use_png' => 1,
+        ],
+    ];
 
     public function __construct (\Controller $controller, $QueryCache) {
         parent::__construct($controller, $QueryCache);
@@ -39,18 +46,23 @@ class Service360 extends Widget {
     }
 
     public function getRestoreConfig ($tabId) {
-        $restorConfig = [
-            'dashboard_tab_id' => $tabId,
-            'type_id'          => $this->typeId,
-            'row'              => 10,
-            'col'              => 5,
-            'width'            => $this->width,
-            'height'           => $this->height,
-            'title'            => $this->title,
-            'color'            => $this->defaultColor,
-            'directive'        => $this->directive
+        $restoreConfig = [
+            'Widget' => [
+                'dashboard_tab_id' => $tabId,
+                'type_id'          => $this->typeId,
+                'row'              => 10,
+                'col'              => 5,
+                'width'            => $this->width,
+                'height'           => $this->height,
+                'title'            => $this->title,
+                'color'            => $this->defaultColor,
+                'directive'        => $this->directive
+            ],
+            'WidgetPiechart' => [
+                'use_png' => 1,
+            ]
         ];
 
-        return $restorConfig;
+        return $restoreConfig;
     }
 }

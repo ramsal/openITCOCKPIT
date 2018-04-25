@@ -123,15 +123,6 @@ class PieChart {
         imagefill($this->image, 0, 0, $transparent);
     }
 
-    public function setHalfChart() {
-        $this->DEF_CHART_START = deg2rad(0);
-        $this->CHART_END = deg2rad(180);
-
-        $this->x = $this->width / 2;
-        $this->y = 90;
-        $this->offset_3d = $this->y + 13;
-    }
-
     private function create($chart_data) {
         $startAngle = 0.0; //Start
         $endAngle = 0.0; //End
