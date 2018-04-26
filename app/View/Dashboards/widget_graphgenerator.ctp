@@ -40,6 +40,6 @@
         <div class="col col-xs-12" ng-show="error">
             <p ng-bind="error" class="font-lg text-danger margin-top-10"></p>
         </div>
-        <div id="graphCanvas" class="col col-xs-12" ng-show="!error" style="padding: 0px; position: relative;"></div>
+        <div id="graphCanvas" class="col col-xs-12" ng-hide="error" style="padding: 0px; position: relative;"></div>
     </div>
 </div>

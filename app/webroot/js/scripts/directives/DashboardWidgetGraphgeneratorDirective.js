@@ -103,7 +103,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                             for(let y in result.data.rrd_data[i][z]['xml_data']){   //iterate threw available data options
                                 //console.log(result.data.rrd_data[i][z]['xml_data'][y]);
                                 let ds = parseInt(result.data.rrd_data[i][z]['xml_data'][y]['ds']); //get array key for "data" value
-                                if(graphgenTmplConf[y].data_sources.indexOf(ds) > 0){   //check if data option in configured to use in graph
+                                if(graphgenTmplConf[y] && graphgenTmplConf[y].data_sources.indexOf(ds) > 0){   //check if data option in configured to use in graph
                                     arr.push({
                                         'data': result.data.rrd_data[i][z]['data'][ds],
                                         'datasource': result.data.rrd_data[i][z]['xml_data'][y]
@@ -200,7 +200,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                     }
                     //graph_data.push(performance_data[key].data);
                 }
-                console.log(graph_data);
+                //console.log(graph_data);
 
                 let color_amount = performance_data.length < 3 ? 3 : performance_data.length;
                 let color_generator = new ColorGenerator();
@@ -268,8 +268,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                         mode: "x"
                     }
                 };
-
                 self.plot = $.plot('#graphCanvas', graph_data, options);
+                console.log(graph_data);
             };
 
             $scope.loadTimezone = function(){
@@ -282,9 +282,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                 });
             };
 
-
-            $scope.load();
             $scope.loadTimezone();
+            $scope.load();
             $('[data-toggle="tooltip"]').tooltip();
 
             $scope.$watch('widget.id', function(){
