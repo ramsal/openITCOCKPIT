@@ -14,7 +14,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             $scope.widget = {
                 id: null
             };
-            $scope.ready = false;
             $scope.tabId = $scope.parentTabId;
             $scope.perfdata = [];
 
@@ -40,34 +39,24 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                 }).then(function(result){
                     $scope.widget = result.data.graphgenerator;
                     if(result.data.graphgenerator.id){
-                        $scope.widget.id=result.data.graphgenerator.id.toString();
-                    } else {
+                        $scope.widget.id = result.data.graphgenerator.id.toString();
+                        $scope.origWidgetId = result.data.graphgenerator.id.toString();
+                    }else{
                         $scope.widget.id = "0";
+                        $scope.origWidgetId = "0";
                     }
-                    $scope.getGraphUuids();
                     setTimeout(function(){
-                        $scope.ready = true;
-                    }, 500);
+                        $scope.getGraphUuids();
+                    }, 200);
                 });
             };
-
-            /*$scope.getGraphData = function(){
-                if($scope.widget.gconf){
-                    //$scope.widget.gconf['isUpdate'] = false;
-                    $http.post('/Graphgenerators/fetchGraphData/.json', {
-                        host_and_service_uuids: $scope.widget.gconf
-                    }).then(function(result){
-                        $scope.perfdata = result.data.rrd_data[$scope.widget.host_uuid];
-                        console.log($scope.perfdata);
-                    });
-                }
-            };*/
 
             $scope.getGraphUuids = function(){
                 if($scope.widget.id != null && $scope.all_templates){
                     $scope.all_templates.forEach(function(graph, index){
                         if(graph.GraphgenTmpl.id == $scope.widget.id){
                             $scope.widget.gconf = {};
+                            let serviceUuids = [];
                             $scope.perfdata = [];
                             let host_duration = (graph.GraphgenTmpl.relative_time / 60) / 60;
                             graph.GraphgenTmplConf.forEach(function(gconf, index){
@@ -76,8 +65,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                                     $scope.widget.gconf[$scope.widget.host_uuid] = [];
                                 }
                                 $scope.widget.gconf[$scope.widget.host_uuid].push(gconf.Service.uuid);
+                                serviceUuids.push(gconf.Service.uuid);
                             });
-                            loadGraph($scope.widget.gconf);
+                            loadGraph($scope.widget.gconf, graph.GraphgenTmplConf, serviceUuids);
                         }
                     });
                 }
@@ -94,19 +84,43 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             };
 
 
-            var loadGraph = function(gconf){
+            let loadGraph = function(gconf, graphgenTmplConf, serviceUuids){
                 $scope.isLoadingGraph = true;
                 //$scope.widget.gconf['isUpdate'] = false;
+
                 $http.post('/Graphgenerators/fetchGraphData/.json', {
                     host_and_service_uuids: gconf
                 }).then(function(result){
-                    renderGraph(result.data.rrd_data);
+                    //console.warn(serviceUuids);
+
+                    let arr = [];
+                    //console.log(result.data.rrd_data[0]);
+                    for(let i in result.data.rrd_data){     //iterate threw hosts
+                        //console.log(result.data.rrd_data[i]);
+                        for(let z in result.data.rrd_data[i]){      //iterate threw services in one host
+                            //console.log(result.data.rrd_data[i][z]);
+                            //console.log("index found");
+                            for(let y in result.data.rrd_data[i][z]['xml_data']){   //iterate threw available data options
+                                //console.log(result.data.rrd_data[i][z]['xml_data'][y]);
+                                let ds = parseInt(result.data.rrd_data[i][z]['xml_data'][y]['ds']); //get array key for "data" value
+                                if(graphgenTmplConf[y].data_sources.indexOf(ds) > 0){   //check if data option in configured to use in graph
+                                    arr.push({
+                                        'data': result.data.rrd_data[i][z]['data'][ds],
+                                        'datasource': result.data.rrd_data[i][z]['xml_data'][y]
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    console.warn(arr);
+                    //renderGraph(result.data.rrd_data);
+                    renderGraph(arr);
                 });
             };
 
-            var initTooltip = function(){
-                var previousPoint = null;
-                var $graph_data_tooltip = $('#graph_data_tooltip');
+            let initTooltip = function(){
+                let previousPoint = null;
+                let $graph_data_tooltip = $('#graph_data_tooltip');
 
                 $graph_data_tooltip.css({
                     position: 'absolute',
@@ -152,19 +166,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                 });
             };
 
-            var showTooltip = function(x, y, contents, timestamp){
-                var self = this;
-                var $graph_data_tooltip = $('#graph_data_tooltip');
+            let showTooltip = function(x, y, contents, timestamp){
+                let self = this;
+                let $graph_data_tooltip = $('#graph_data_tooltip');
 
-                var fooJS = new Date(timestamp + ($scope.timezone.server_timezone_offset * 1000));
-                var fixTime = function(value){
+                let fooJS = new Date(timestamp + ($scope.timezone.server_timezone_offset * 1000));
+                let fixTime = function(value){
                     if(value < 10){
                         return '0' + value;
                     }
                     return value;
                 };
 
-                var humanTime = fixTime(fooJS.getUTCDate()) + '.' + fixTime(fooJS.getUTCMonth() + 1) + '.' + fooJS.getUTCFullYear() + ' ' + fixTime(fooJS.getUTCHours()) + ':' + fixTime(fooJS.getUTCMinutes());
+                let humanTime = fixTime(fooJS.getUTCDate()) + '.' + fixTime(fooJS.getUTCMonth() + 1) + '.' + fooJS.getUTCFullYear() + ' ' + fixTime(fooJS.getUTCHours()) + ':' + fixTime(fooJS.getUTCMinutes());
 
                 $graph_data_tooltip
                     .html('<i class="fa fa-clock-o"></i> ' + humanTime + '<br /><strong>' + contents + '</strong>')
@@ -176,26 +190,21 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                     .fadeIn(200);
             };
 
-            var renderGraph = function(performance_data){
-                var graph_data = [];
-                //console.log(performance_data.length);
-                for(var hostuuid in performance_data){
-                    //console.log(hostuuid);
-                    graph_data[hostuuid] = [];
+            let renderGraph = function(performance_data){
 
-                    for(var serviceuuid in performance_data[hostuuid]){
-                        for(var timestamp in performance_data[hostuuid][serviceuuid].data){
-                            graph_data[hostuuid].push([timestamp, performance_data[hostuuid][serviceuuid].data[timestamp]]);
-                            //console.log(graph_data);
-                        }
+                let graph_data = [];
+                for(let dsCount in performance_data){
+                    graph_data[dsCount] = [];
+                    for(let timestamp in performance_data[dsCount].data){
+                        graph_data[dsCount].push([timestamp, performance_data[dsCount].data[timestamp]]);
                     }
                     //graph_data.push(performance_data[key].data);
                 }
                 console.log(graph_data);
 
-                var color_amount = performance_data.length < 3 ? 3 : performance_data.length;
-                var color_generator = new ColorGenerator();
-                var options = {
+                let color_amount = performance_data.length < 3 ? 3 : performance_data.length;
+                let color_generator = new ColorGenerator();
+                let options = {
                     width: '100%',
                     height: '500px',
                     colors: color_generator.generate(color_amount, 90, 120),
@@ -218,8 +227,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                         mode: 'time',
                         timeformat: '%d.%m.%y %H:%M:%S', // This is handled by a plugin, if it is used -> jquery.flot.time.js
                         tickFormatter: function(val, axis){
-                            var fooJS = new Date(val + ($scope.timezone.server_timezone_offset * 1000));
-                            var fixTime = function(value){
+                            let fooJS = new Date(val + ($scope.timezone.server_timezone_offset * 1000));
+                            let fixTime = function(value){
                                 if(value < 10){
                                     return '0' + value;
                                 }
@@ -234,12 +243,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                         fill: true,
                         steps: 0,
                         fillColor: {
-                            colors: [{
-                                opacity: 0.5
-                            },
+                            colors: [
+                                {
+                                    opacity: 0.5
+                                },
                                 {
                                     opacity: 0.3
-                                }]
+                                }
+                            ]
                         }
                     },
                     points: {
@@ -277,7 +288,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             $('[data-toggle="tooltip"]').tooltip();
 
             $scope.$watch('widget.id', function(){
-                if($scope.widget.id != null && $scope.ready === true){
+                if($scope.widget.id != null && $scope.origWidgetId != $scope.widget.id){
                     $scope.saveGraph();
                     delete $scope.error;
                     $scope.getGraphUuids();

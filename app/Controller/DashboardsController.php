@@ -510,12 +510,6 @@ class DashboardsController extends AppController {
         if ($this->isApiRequest()) {
 
             //$parent_outages = [];
-            /*
-            require_once 'widgets'.DS.'Widget.php';
-            require_once 'widgets'.DS.'QueryCache.php';
-            $QueryCache = new Widget\QueryCache($this->Controller);
-            $parent_outages = $QueryCache->parentOutages();
-            */
 
             $conditions = [
                 'Hoststatus.current_state >' => 0,

@@ -195,7 +195,7 @@ class GraphgeneratorsController extends AppController
 
         $all_templates = $this->Paginator->paginate('GraphgenTmpl');
 
-        $all_templates = $this->GraphgenTmpl->addHostsAndServices($all_templates);
+        $all_templates = $this->GraphgenTmpl->addHostsAndServices($all_templates, true);
 
         $this->set([
             'all_templates' => $all_templates,
@@ -262,11 +262,20 @@ class GraphgeneratorsController extends AppController
 
     public function loadGraphTemplate($id)
     {
-        $this->allowOnlyAjaxRequests();
+        if(!$this->isApiRequest()){
+            throw new MethodNotAllowedException();
+        }
 
         $data = $this->GraphgenTmpl->find('all', [
             'conditions' => ['id' => $id],
         ]);
+
+        foreach ($data as $datapos => $graph) {
+            foreach ($graph['GraphgenTmplConf'] as $tmplpos => $graphgen_conf) {
+                $data[$datapos]['GraphgenTmplConf'][$tmplpos]['data_sources'] = json_decode($graphgen_conf['data_sources'], true);
+            }
+        }
+
         $this->set('data', $data);
         $this->set('_serialize', ['data']); // Needs the header 'application/json' or `.json` suffix.
     }
