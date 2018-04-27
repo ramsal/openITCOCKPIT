@@ -196,11 +196,12 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                 for(let dsCount in performance_data){
                     graph_data[dsCount] = [];
                     for(let timestamp in performance_data[dsCount].data){
-                        graph_data[dsCount].push([timestamp, performance_data[dsCount].data[timestamp]]);
+                        // (timestamp*1000) formats timestamp to timestamp in milliseconds for correct time display
+                        graph_data[dsCount].push([(timestamp*1000), performance_data[dsCount].data[timestamp]]);
                     }
                     //graph_data.push(performance_data[key].data);
                 }
-                //console.log(graph_data);
+                console.log(graph_data);
 
                 let color_amount = performance_data.length < 3 ? 3 : performance_data.length;
                 let color_generator = new ColorGenerator();
@@ -269,7 +270,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                     }
                 };
                 self.plot = $.plot('#graphCanvas', graph_data, options);
-                console.log(graph_data);
             };
 
             $scope.loadTimezone = function(){
