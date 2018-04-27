@@ -73,6 +73,105 @@ class DashboardsController extends AppController {
         }
     }
 
+    public function widget_grafana () {
+        if ($this->isApiRequest()) {
+
+            $grafana = [
+                'GrafanaDashboardExists' => false,
+                'GrafanaConfiguration'   => null,
+                'GrafanaHostList'        => null,
+                'error'                  => null,
+                'host_id'                => null
+            ];
+
+            $grafanaDashboard = null;
+
+            $ModuleManager = new ModuleManager('GrafanaModule');
+            if ($ModuleManager->moduleExists()) {
+                $hostUuid = null;   //convert id to uuid
+                $this->loadModel('GrafanaModule.GrafanaDashboard');
+                $this->loadModel('GrafanaModule.GrafanaConfiguration');
+                $grafanaConfiguration = $this->GrafanaConfiguration->find('first');
+                if (!empty($grafanaConfiguration) && $this->GrafanaDashboard->existsForUuid($hostUuid)) {
+                    $GrafanaConfiguration = \itnovum\openITCOCKPIT\Grafana\GrafanaApiConfiguration::fromArray($grafanaConfiguration);
+                    $GrafanaConfiguration->setHostUuid($hostUuid);
+                    //$this->set('GrafanaConfiguration', $GrafanaConfiguration);
+                    $grafana['GrafanaConfiguration'] = $GrafanaConfiguration;
+                }
+
+                $grafana['GrafanaHostList'] = $this->GrafanaDashboard->find('all', [
+                    'fields' => [
+                        'GrafanaDashboard.id',
+                        'GrafanaDashboard.host_id',
+                        'GrafanaDashboard.host_uuid',
+                        'Host.name'
+                    ],
+                    'joins'  => [
+                        [
+                            'table'      => 'hosts',
+                            'alias'      => 'Host',
+                            'type'       => 'LEFT',
+                            'conditions' => [
+                                'Host.id = GrafanaDashboard.host_id',
+                            ],
+                        ],
+                    ],
+                ]);
+
+                if (isset($this->request->data['params']['widgetId'])) {
+                    $widgetId = $this->request->data['params']['widgetId'];
+
+                    if ($this->Widget->exists($widgetId)) {
+
+                        $userId = $this->Auth->user('id');
+                        $widget = $this->Widget->find('first', [
+                            'contain'    => [
+                                'DashboardTab',
+                            ],
+                            'conditions' => [
+                                'Widget.id' => $widgetId,
+                            ],
+                        ]);
+                        if ($widget['DashboardTab']['user_id'] == $userId) {
+                            if (isset($this->request->data['params']['hostId'])) {
+                                $hostId = $this->request->data['params']['hostId'];
+                                if (empty($grafanaConfiguration) || !$this->GrafanaDashboard->existsForUuid($hostUuid)) {
+                                    //throw new NotFoundException('Invalid grafana host');
+                                    $map['error'] = __("Invalid grafana configuration");
+                                }
+                                if ($widget['Widget']['host_id'] != $hostId) {
+                                    $widget['Widget']['host_id'] = $hostId;
+                                    $this->Widget->saveAll($widget);
+                                    //$this->Widget->saveField('map_id', $mapId);
+                                    $this->DashboardTab->id = $widget['DashboardTab']['id'];
+                                    $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                                }
+                            }
+                            if ($widget['Widget']['host_id']) {
+                                if ($this->GrafanaDashboard->existsForUuid($hostUuid)) {
+                                    $GrafanaConfiguration = \itnovum\openITCOCKPIT\Grafana\GrafanaApiConfiguration::fromArray($grafanaConfiguration);
+                                    $GrafanaConfiguration->setHostUuid($hostUuid);
+                                    //$this->set('GrafanaConfiguration', $GrafanaConfiguration);
+                                    $grafana['GrafanaConfiguration'] = $GrafanaConfiguration;
+                                    $grafana['host_id'] = $widget['Widget']['host_id'];
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                $grafana['error'] = __("Grafana module not found");
+            }
+
+            $this->set(compact(['grafana']));
+            $this->set('_serialize', ['grafana']);
+            return;
+        }
+        $this->layout = 'plain';
+        $this->set('excludeActionWrapper', true);
+        return;
+    }
+
     public function widget_graphgenerator () {
         if ($this->isApiRequest()) {
 
