@@ -19,7 +19,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetParentOutagesDirective
                     }
                 }).then(function(result){
                     $scope.widget = result.data.parent_outages;
-                    console.log(result.data);
                 });
             };
 

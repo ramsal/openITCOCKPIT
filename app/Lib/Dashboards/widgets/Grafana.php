@@ -30,7 +30,7 @@ class Grafana extends Widget {
     public $icon = 'fa-area-chart';
     public $element = 'grafana';
     public $width = 5;
-    public $height = 18;
+    public $height = 17;
     public $directive = "dashboard-widget-grafana-directive";
 
     public function __construct (\Controller $controller, $QueryCache) {

@@ -5,91 +5,80 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGrafanaDirective', fun
         scope: {
             'title': '=wtitle',
             'id': '=wid',
-            'parentTabId': '=tabid',
             'updateTitle': '&'
         },
 
         controller: function($scope){
 
-            $scope.widget = {
-                id: null
-            };
-            $scope.all_maps = [];
+            $scope.widget = {};
             $scope.ready = false;
-            $scope.tabId = $scope.parentTabId;
-
-            $scope.checkAndStopWidget = function(){
-                if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id)){
-                    if($scope.valueTimer){
-                        $interval.cancel($scope.valueTimer);
-                    }
-                    return true;
-                }
-                return false;
-            };
 
             $scope.load = function(){
-                $http.get('map_module/maps/index.json', {}).then(function(result){
-                    $scope.all_maps = result.data.all_maps;
-                });
-                $http.post('/dashboards/widget_map.json', {
+
+                $http.post('/dashboards/widget_grafana.json', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
 
-                    if(result.data.map.error){
-                        $scope.error = result.data.map.error;
+                    if(result.data.grafana.error){
+                        $scope.error = result.data.grafana.error;
                     }
 
-                    $scope.widget = result.data.map;
-                    $scope.getMapInterval();
+                    $scope.widget = result.data.grafana;
 
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
-                    let mobileheight = (widgetheight * 18.6667);
-                    if(document.getElementById("map-iframe-" + $scope.id)){
-                        document.getElementById("map-iframe-" + $scope.id).height = mobileheight + "px";
+                    let mobileheight = (widgetheight * 19.5);
+                    if(document.getElementById("grafana-iframe-" + $scope.id)){
+                        document.getElementById("grafana-iframe-" + $scope.id).height = mobileheight + "px";
                     }
+                    $scope.loadGrafanaDashboard();
                     setTimeout(function(){
                         $scope.ready = true;
                     }, 500);
                 });
             };
 
-            $scope.getMapInterval = function(){
-                if($scope.widget.id != null){
-                    $scope.all_maps.forEach(function(map, index){
-                        if(map.Map.id == $scope.widget.id){
-                            $scope.widget.refresh_interval = map.Map.refresh_interval;
-                            if($scope.valueTimer){
-                                $interval.cancel($scope.valueTimer);
-                            }
-                            $scope.loadMap();
-                            $scope.valueTimer = $interval($scope.loadMap, parseInt($scope.widget.refresh_interval));
-                        }
-                    });
+            $scope.addhttp = function(url){
+                if(!/^(?:f|ht)tp?\:\/\//.test(url)){
+                    url = "https://" + url;
+                }
+                return url;
+            };
+
+            $scope.loadGrafanaDashboard = function(){
+                if($scope.widget.host_id != null){
+                    let iframeurl = $scope.widget.GrafanaConfiguration.api_url +
+                        "/dashboard/db/" + $scope.widget.GrafanaConfiguration.hostUuid +
+                        "?theme=" + $scope.widget.GrafanaConfiguration.dashboard_style + "&kiosk";
+                    document.getElementById("grafana-iframe-" + $scope.id).src = $scope.addhttp(iframeurl);
                 }
             };
 
-            $scope.saveMap = function(){
-                $http.post('/dashboards/widget_map.json', {
+            $scope.saveGrafana = function(){
+                $http.post('/dashboards/widget_grafana.json', {
                     params: {
                         'angular': true,
                         'widgetId': $scope.id,
-                        'mapId': $scope.widget.id
+                        'hostId': $scope.widget.host_id
                     }
+                }).then(function(result){
+                    delete $scope.error;
+                    if(result.data.grafana.error){
+                        $scope.error = result.data.grafana.error;
+                    }
+                    $scope.widget = result.data.grafana;
+                    $scope.loadGrafanaDashboard();
                 });
             };
 
-            //$scope.load();
+            $scope.load();
             $('[data-toggle="tooltip"]').tooltip();
 
-            $scope.$watch('widget.id', function(){
-                if($scope.widget.id != null && $scope.ready == true){
-                    $scope.saveMap();
-                    delete $scope.error;
-                    $scope.getMapInterval();
+            $scope.$watch('widget.host_id', function(){
+                if($scope.widget.host_id != null && $scope.ready == true){
+                    $scope.saveGrafana();
                 }
             });
 
@@ -97,14 +86,10 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGrafanaDirective', fun
                 if(Array.isArray(items) && $scope.ready){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
-                            let mobileheight = (item.height * 18.6667);
-                            if(document.getElementById("map-iframe-" + $scope.id)){
-                                document.getElementById("map-iframe-" + $scope.id).height = mobileheight + "px";
-                                if($scope.valueTimer){
-                                    $interval.cancel($scope.valueTimer);
-                                }
-                                $scope.loadMap();
-                                $scope.valueTimer = $interval($scope.loadMap, parseInt($scope.widget.refresh_interval));
+                            let mobileheight = (item.height * 19.5);
+                            if(document.getElementById("grafana-iframe-" + $scope.id)){
+                                document.getElementById("grafana-iframe-" + $scope.id).height = mobileheight + "px";
+                                //$scope.loadGrafanaDashboard();
                             }
                         }
                     });
