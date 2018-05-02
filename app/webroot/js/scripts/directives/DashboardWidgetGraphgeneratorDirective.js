@@ -30,24 +30,25 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
             $scope.load = function(){
                 $http.get('/graphgenerators/listing.json', {}).then(function(result){
                     $scope.all_templates = result.data.all_templates;
-                });
-                $http.post('/dashboards/widget_graphgenerator.json', {
-                    params: {
-                        'angular': true,
-                        'widgetId': $scope.id
-                    }
-                }).then(function(result){
-                    $scope.widget = result.data.graphgenerator;
-                    if(result.data.graphgenerator.id){
-                        $scope.widget.id = result.data.graphgenerator.id.toString();
-                        $scope.origWidgetId = result.data.graphgenerator.id.toString();
-                    }else{
-                        $scope.widget.id = "0";
-                        $scope.origWidgetId = "0";
-                    }
-                    setTimeout(function(){
-                        $scope.getGraphUuids();
-                    }, 200);
+
+                    $http.post('/dashboards/widget_graphgenerator.json', {
+                        params: {
+                            'angular': true,
+                            'widgetId': $scope.id
+                        }
+                    }).then(function(result){
+                        $scope.widget = result.data.graphgenerator;
+                        if(result.data.graphgenerator.id){
+                            $scope.widget.id = result.data.graphgenerator.id.toString();
+                            $scope.origWidgetId = result.data.graphgenerator.id.toString();
+                        }else{
+                            $scope.widget.id = "0";
+                            $scope.origWidgetId = "0";
+                        }
+                        setTimeout(function(){
+                            $scope.getGraphUuids();
+                        }, 200);
+                    });
                 });
             };
 

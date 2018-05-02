@@ -111,9 +111,8 @@
                             </button>
                             <ul class="dropdown-menu pull-right">
                                 <li ng-repeat="widget in allWidgets">
-                                    <a href="javascript:void(0);" class="addWidget"
-                                       data-type-id="{{ widget.typeId }}">
-                                        <i class="fa {{ widget.icon }}"></i>&nbsp;
+                                    <a href="javascript:void(0);" class="addWidget" data-type-id="{{ widget.typeId }}">
+                                        <i class="fa {{ widget.icon }}"></i>
                                         {{ widget.title }}
                                     </a>
                                 </li>
@@ -133,7 +132,7 @@
                         </button>
                     </div>
                     <div class="widget-toolbar" rile="menu">
-                        <button class="btn btn-xs btn-success" data-toggle="modal" ng-click='openNewTabModal()'>
+                        <button class="btn btn-xs btn-success" data-toggle="modal" ng-click="openNewTabModal()">
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>

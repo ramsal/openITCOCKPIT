@@ -1,4 +1,4 @@
-angular.module('openITCOCKPIT').directive('dashboardWidgetGrafanaDirective', function($http, $interval){
+angular.module('openITCOCKPIT').directive('dashboardWidgetGrafanaDirective', function($http){
     return {
         restrict: 'A',
         templateUrl: '/dashboards/widget_grafana.html',
@@ -77,7 +77,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGrafanaDirective', fun
             $('[data-toggle="tooltip"]').tooltip();
 
             $scope.$watch('widget.host_id', function(){
-                if($scope.widget.host_id != null && $scope.ready == true){
+                if($scope.widget.host_id != null && $scope.ready === true){
                     $scope.saveGrafana();
                 }
             });

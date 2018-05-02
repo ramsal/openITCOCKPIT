@@ -94,19 +94,20 @@ class DashboardsController extends AppController {
                 $grafanaConfiguration = $this->GrafanaConfiguration->find('first');
 
                 $grafana['GrafanaHostList'] = $this->GrafanaDashboard->find('all', [
-                    'fields'     => [
+                    'fields' => [
                         'GrafanaDashboard.id',
                         'GrafanaDashboard.host_id',
                         'GrafanaDashboard.host_uuid',
-                        'Host.name'
+                        'Host.name',
                     ],
-                    'joins'      => [
+                    'joins'  => [
                         [
                             'table'      => 'hosts',
                             'alias'      => 'Host',
                             'type'       => 'LEFT',
                             'conditions' => [
                                 'Host.id = GrafanaDashboard.host_id',
+                                'Host.disabled' => 0,
                             ],
                         ],
                         [
@@ -115,13 +116,12 @@ class DashboardsController extends AppController {
                             'type'       => 'LEFT',
                             'conditions' => [
                                 'HostsToContainers.host_id = GrafanaDashboard.host_id',
+                                'HostsToContainers.host_id = Host.id',
+                                'HostsToContainers.container_id' => $this->MY_RIGHTS
                             ],
                         ],
                     ],
-                    'conditions' => [
-                        'Host.disabled'                  => 0,
-                        'HostsToContainers.container_id' => $this->MY_RIGHTS
-                    ],
+                    'group' => 'Host.id'
                 ]);
 
                 if (isset($this->request->data['params']['widgetId'])) {
