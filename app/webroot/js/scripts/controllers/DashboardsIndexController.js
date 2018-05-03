@@ -8,6 +8,7 @@ angular.module('openITCOCKPIT')
         $scope.tabSortStorage = [];
         $scope.tabSortDisabled = false;
         $scope.tabRotateInterval = 0;
+        $scope.sharedTabUpdatesRememberOption = false;
         $scope.viewTabRotateInterval = 0;
         $scope.tabRotateLastTab = 0;
         $scope.openEditModals = [];
@@ -100,6 +101,29 @@ angular.module('openITCOCKPIT')
 
         $scope.closeNewTabModal = function(){
             $('#addTabModal').modal('hide');
+        };
+
+        $scope.openUpdateSharedTabModal = function(){
+            $('#sharedTabUpdateAvailable').modal('show');
+        };
+
+        $scope.closeUpdateSharedTabModal = function(){
+            $('#sharedTabUpdateAvailable').modal('hide');
+
+            if($scope.sharedTabUpdatesRememberOption){
+                $http.post('/dashboards/updateSharedTab.json?angular=true', {
+                    'tabId': $scope.tab.id,
+                    'checkForUpdates': "0",
+                });
+                $http.get('/dashboards/index.json', {
+                    params: {
+                        'angular': true
+                    }
+                }).then(function(result){
+                    $scope.tabs = result.data.tabs;
+                });
+                $scope.sharedTabUpdatesRememberOption = false;
+            }
         };
 
         $scope.renameTab = function(){
@@ -229,7 +253,7 @@ angular.module('openITCOCKPIT')
             });
         };
 
-        $scope.reloadWidgets = function (){
+        $scope.reloadWidgets = function(){
             $scope.openEditModals = [];
             $scope.getPreparedWidgets();
         };
@@ -245,8 +269,68 @@ angular.module('openITCOCKPIT')
         };
 
         $scope.restoreDefaultTabSort = function(){
-            $http.get('/dashboards/restoreDefault/'+$scope.tab.id).then(function(result){
+            $http.get('/dashboards/restoreDefault/' + $scope.tab.id).then(function(result){
                 $scope.reloadWidgets();
+            });
+        };
+
+        $scope.checkForSharedTabUpdate = function(performUpdate){
+            $scope.tabs.forEach(function(tab){
+                if(tab.DashboardTab.id === $scope.tab.id){
+                    if(tab.DashboardTab.source_tab_id){
+
+                        $http.get('/dashboards/index.json', {
+                            params: {
+                                'angular': true
+                            }
+                        }).then(function(result){
+                            $scope.tabs = result.data.tabs;
+
+                            result.data.tabs.forEach(function(parent_tab){
+                                if(parent_tab.DashboardTab.id === tab.DashboardTab.source_tab_id && parent_tab.DashboardTab.shared === true){
+
+                                    if(Date.parse(tab.DashboardTab.modified) < Date.parse(parent_tab.DashboardTab.modified)){
+                                        if(!performUpdate && tab.DashboardTab.check_for_updates == 1){
+                                            $scope.sharedTabUpdatesRememberOption = false;
+                                        }
+                                        if(!performUpdate && tab.DashboardTab.check_for_updates != 1){
+                                            $scope.sharedTabUpdatesRememberOption = true;
+                                        }
+                                        if(performUpdate || tab.DashboardTab.check_for_updates == 2){
+
+                                            $http.post('/dashboards/updateSharedTab.json?angular=true', {
+                                                'tabId': tab.DashboardTab.id,
+                                                'parentTabId': tab.DashboardTab.source_tab_id,
+                                                'checkForUpdates': $scope.sharedTabUpdatesRememberOption ? "2" : "1",
+                                            }).then(function(result){
+                                                if(result.data.action === true){
+                                                    $http.get('/dashboards/index.json', {
+                                                        params: {
+                                                            'angular': true
+                                                        }
+                                                    }).then(function(result){
+                                                        $scope.tabs = result.data.tabs;
+                                                    });
+                                                    $scope.errors = null;
+                                                    $scope.reloadWidgets();
+                                                }else{
+                                                    $scope.errors = result.data.error;
+                                                    console.log(result.data.error);
+                                                }
+                                            });
+                                            $scope.sharedTabUpdatesRememberOption = false;
+
+                                        }else if(tab.DashboardTab.check_for_updates != 0){
+                                            $scope.openUpdateSharedTabModal();
+                                        }
+                                    }
+
+                                }
+                            });
+                        });
+
+                    }
+                }
             });
         };
 
@@ -254,6 +338,7 @@ angular.module('openITCOCKPIT')
             if($scope.tab.id != null){
                 //$scope.ready = 0;
                 //$scope.orderTabs();
+                $scope.checkForSharedTabUpdate(false);
                 $scope.reloadWidgets();
             }
         });

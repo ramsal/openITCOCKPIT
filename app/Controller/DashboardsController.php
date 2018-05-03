@@ -954,6 +954,60 @@ class DashboardsController extends AppController {
         return;
     }
 
+    public function updateSharedTab () {
+        if (!$this->request->data('parentTabId') &&
+            !empty($this->request->data('tabId'))) {   //save only check_for_updates value
+            $this->DashboardTab->id = $this->request->data('tabId');
+            $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+            $this->DashboardTab->saveField('check_for_updates', $this->request->data('checkForUpdates'));
+        }
+        if (!empty($this->request->data('tabId')) &&
+            !empty($this->request->data('parentTabId')) &&
+            !empty($this->request->data('checkForUpdates'))) {   //update shared tab
+
+            $tabId = $this->request->data('tabId');
+            $checkForUpdates = $this->request->data('checkForUpdates');
+            $parentTabId = $this->request->data('parentTabId');
+            $userId = $this->Auth->user('id');
+            $sourceTab = $this->DashboardTab->find('first', [
+                'recursive'  => -1,
+                'contain'    => [],
+                'conditions' => [
+                    'id'     => $parentTabId,
+                    'shared' => 1,
+                ],
+            ]);
+            $targetTab = $this->DashboardTab->find('first', [
+                'recursive'  => -1,
+                'contain'    => [],
+                'conditions' => [
+                    'id' => $tabId,
+                ],
+            ]);
+            if (empty($sourceTab)) {
+                $error = ['source_tab' => [__('Invalid tab')]];
+            } else {
+                if ($this->Widget->deleteAll(['Widget.dashboard_tab_id' => $tabId])) {
+                    $this->DashboardTab->id = $tabId;
+                    $this->DashboardTab->saveField('modified', date('Y-m-d H:i:s'));
+                    $this->DashboardTab->saveField('check_for_updates', $checkForUpdates);
+                }
+                if ($this->Widget->copySharedWidgets($sourceTab, $targetTab, $userId) === false) {
+                    //$this->setFlash(__('Tab copied successfully'));
+                    $action = true;
+                    $this->set(compact(['action']));
+                    $this->set('_serialize', ['action']);
+                    return;
+                }
+                $error = ['source_tab' => [__('Could not use shared tab')]];
+            }
+        }
+
+        $this->set(compact(['error']));
+        $this->set('_serialize', ['error']);
+        return;
+    }
+
     public function createTabFromSharing () {
         $error = null;
         $sourceTabId = $this->request->data('dashboard.source_tab');

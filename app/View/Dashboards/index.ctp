@@ -287,50 +287,39 @@
     </div>
 </div>
 
-<div class="modal fade" id="updateAvailableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="sharedTabUpdateAvailable" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                    &times;
-                </button>
-                <h4 class="modal-title" id="myModalLabel"><?php echo __('For your tab is an update available'); ?></h4>
-            </div>
-            <div class="modal-body">
-                <h3><?php echo __('Do you want to perform a update?'); ?></h3>
-                <?php
-                echo $this->Form->create('dashboard', [
-                    'class' => 'form-horizontal clear',
-                    'url'   => 'updateSharedTab',
-                ]);
-                echo $this->Form->input('ask_again', [
-                    'type'    => 'checkbox',
-                    'checked' => false,
-                    'label'   => __('Don\'t ask again for this tab'),
-                ]);
-                echo $this->Form->input('tabId', [
-                    'type'  => 'hidden',
-                    'value' => $tab['DashboardTab']['id'],
-                ]);
-                ?>
-            </div>
-            <div class="modal-footer">
-                <div style="height:35px;">
-                    <?php
-                    echo $this->Form->submit(__('Yes'), [
-                        'class' => [
-                            'btn btn-primary',
-                        ],
-                        'div'   => false,
-                        'value' => 1,
-                    ]); ?>
-                    <button class="btn btn-default" data-dismiss="modal" id="noAutoUpdate">
-                        <?php echo __('No'); ?>
+            <form onsubmit="return false;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title"
+                        id="myModalLabel"><?php echo __('For your tab is an update available'); ?></h4>
+                </div>
+                <div class="modal-body">
+                    <h3><?php echo __('Do you want to perform a update?'); ?></h3>
+                    <div class="form-group smart-form">
+                        <label class="checkbox small-checkbox-label">
+                            <input type="checkbox" name="checkbox" checked=""
+                                   ng-model="sharedTabUpdatesRememberOption"
+                                   ng-model-options="{debounce: 500}">
+                            <i class="checkbox-primary"></i>
+                            <?php echo __('Don\'t ask again for this tab (remember selection)'); ?>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" ng-click="checkForSharedTabUpdate(true)"
+                            data-dismiss="modal">
+                        <?php echo __('Update'); ?>
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="closeUpdateSharedTabModal()">
+                        <?php echo __('Cancel'); ?>
                     </button>
                 </div>
-                <?php echo $this->Form->end(); ?>
-            </div>
+            </form>
         </div>
     </div>
 </div>
