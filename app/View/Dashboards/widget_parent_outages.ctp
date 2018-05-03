@@ -32,10 +32,14 @@
                     <tbody>
                     <tr ng-repeat="host in widget">
                         <td title="{{host.Hoststatus.output}}" class="dashboard-table">
-                            <a class="{{host.Hoststatus.current_state == 2 ? 'txt-color-blueDark' : 'text-danger'}}"
-                               href="/hosts/browser/{{host.Host.id}}">
+                            <?php if ($this->Acl->hasPermission('browser', 'hosts')): ?>
+                                <a class="{{host.Hoststatus.current_state == 2 ? 'txt-color-blueDark' : 'text-danger'}}"
+                                   href="/hosts/browser/{{host.Host.id}}">
+                                    {{host.Host.name}}
+                                </a>
+                            <?php else: ?>
                                 {{host.Host.name}}
-                            </a>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     </tbody>

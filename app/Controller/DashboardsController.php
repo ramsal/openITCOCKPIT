@@ -40,7 +40,6 @@ class DashboardsController extends AppController {
     public $uses = [
         MONITORING_HOSTSTATUS,
         MONITORING_SERVICESTATUS,
-        MONITORING_PARENTHOST,
         'Host',
         'DashboardTab',
         'Widget',
@@ -55,6 +54,7 @@ class DashboardsController extends AppController {
         'WidgetNotice',
         'MapModule.Map',
         'GraphgenTmpl',
+        'Parenthost'
     ];
 
     const UPDATE_DISABLED = 0;
@@ -121,7 +121,7 @@ class DashboardsController extends AppController {
                             ],
                         ],
                     ],
-                    'group' => 'Host.id'
+                    'group'  => 'Host.id'
                 ]);
 
                 if (isset($this->request->data['params']['widgetId'])) {
@@ -625,37 +625,36 @@ class DashboardsController extends AppController {
     }
 
     public function widget_parent_outages () {
+
         if ($this->isApiRequest()) {
 
-            //$parent_outages = [];
-
-            $conditions = [
-                'Hoststatus.current_state >' => 0,
-            ];
-            if ($this->Parenthost->hasRootPrivileges === false) {
-                $conditions = \Hash::merge($conditions, ['HostsToContainers.container_id' => $this->Parenthost->MY_RIGHTS]);
+            $containerIds = [];
+            if ($this->hasRootPrivileges === false) {
+                $containerIds = $this->Tree->easyPath($this->MY_RIGHTS, OBJECT_HOST, [], $this->hasRootPrivileges, [CT_HOSTGROUP]);
             }
 
-            $parent_outages = $this->Parenthost->find('all', [
-                'joins'      => [
-                    [
-                        'table'      => 'nagios_objects',
-                        'type'       => 'INNER',
-                        'alias'      => 'Objects',
-                        'conditions' => 'Objects.object_id = Parenthost.parent_host_object_id',
-                    ],
-                    [
-                        'table'      => 'nagios_hoststatus',
-                        'type'       => 'INNER',
-                        'alias'      => 'Hoststatus',
-                        'conditions' => 'Hoststatus.host_object_id = Parenthost.parent_host_object_id',
-                    ],
+            $query = [
+                'recursive' => -1,
+                'fields'    => [
+                    'DISTINCT Host.uuid',
+                    'Host.id',
+                    'Host.name'
+                ],
+
+                'joins' => [
                     [
                         'table'      => 'hosts',
                         'type'       => 'INNER',
                         'alias'      => 'Host',
-                        'conditions' => 'Host.uuid = Objects.name1',
-                    ],
+                        'conditions' => 'Parenthost.parenthost_id = Host.id'
+
+                    ]
+                ],
+                'group' => 'Parenthost.parenthost_id'
+            ];
+
+            if (!empty($containerIds)) {
+                $query['joins'] = \Hash::merge($query['joins'], [
                     [
                         'table'      => 'hosts_to_containers',
                         'alias'      => 'HostsToContainers',
@@ -663,21 +662,21 @@ class DashboardsController extends AppController {
                         'conditions' => [
                             'HostsToContainers.host_id = Host.id',
                         ],
-                    ],
-                ],
-                'fields'     => [
-                    'Parenthost.parent_host_object_id',
-                    'Hoststatus.current_state',
-                    'Hoststatus.output',
-                    'Objects.name1',
-                    'Host.name',
-                    'Host.id',
-                ],
-                'conditions' => [
-                    $conditions,
-                ],
-                'group'      => ['Host.uuid'],
-            ]);
+                    ]
+                ]);
+                $query['conditions']['HostsToContainers.container_id'] = $containerIds;
+            }
+
+            $parentHosts = $this->Parenthost->find('all', $query);
+            $hostUuids = Hash::extract($parentHosts, '{n}.Host.uuid');
+            $HoststatusFields = new \itnovum\openITCOCKPIT\Core\HoststatusFields($this->DbBackend);
+            $HoststatusFields->currentState();
+            $HoststatusConditions = new \itnovum\openITCOCKPIT\Core\HoststatusConditions($this->DbBackend);
+            $HoststatusConditions->hostsDownAndUnreachable();
+            $hoststatus = $this->Hoststatus->byUuid($hostUuids, $HoststatusFields, $HoststatusConditions);
+            $query['conditions']['Host.uuid'] = array_keys($hoststatus);
+
+            $parent_outages = $this->Parenthost->find('all', $query);
 
             $this->set(compact(['parent_outages']));
             $this->set('_serialize', ['parent_outages']);
