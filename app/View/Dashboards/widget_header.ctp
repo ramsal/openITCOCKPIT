@@ -1,5 +1,8 @@
 
     <div class="jarviswidget-ctrls" role="menu">
+        <a href="javascript:void(0);" class="button-icon jarviswidget-edit-btn"
+           data-toggle="tooltip" title="" data-placement="left"
+           data-original-title="<?php echo __('Edit'); ?>"><i class="fa fa-cog "></i></a>
         <div class="widget-toolbar pull-left" role="menu">
             <a data-toggle="dropdown"
                class="dropdown-toggle color-box selector"
@@ -47,9 +50,6 @@
                 </li>
             </ul>
         </div>
-        <a href="javascript:void(0);" class="button-icon jarviswidget-edit-btn"
-           data-toggle="tooltip" title="" data-placement="left"
-           data-original-title="<?php echo __('Edit'); ?>"><i class="fa fa-cog "></i></a>
         <!--<a href="javascript:void(0);" class="button-icon jarviswidget-toggle-btn" data-toggle="tooltip" title="" data-placement="bottom"
            data-original-title="Collapse"><i class="fa fa-minus "></i></a>
         <a href="javascript:void(0);"

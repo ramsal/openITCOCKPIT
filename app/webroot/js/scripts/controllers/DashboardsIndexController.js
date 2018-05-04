@@ -6,7 +6,6 @@ angular.module('openITCOCKPIT')
 
         $scope.dashboardLock = false;
         $scope.fullscreen = false;
-        $scope.enableFullscreenOption = true;
         $scope.sortable = null;
         $scope.tabSortStorage = [];
         $scope.tabSortDisabled = false;
@@ -597,52 +596,50 @@ angular.module('openITCOCKPIT')
 
         $scope.tabSortCreated = false;
         $scope.createTabSort = function(){
-
-            if($scope.tabSortCreated == true){
-                $scope.sortable.destroy();
-                $scope.tabOrder = [];
-            }
-            if($scope.fullscreen){
-                $scope.tabSortDisabled = true;
-            }
-
-            $scope.tabSortCreated = true;
-            $scope.sortable = Sortable.create(document.getElementById('nav-tabs'), {
-                group: "tabs",
-                disabled: $scope.tabSortDisabled,
-                scroll: true,
-                sort: true,
-                store: {
-                    /**
-                     * Get the order of elements. Called once during initialization.
-                     * @param   {Sortable}  sortable
-                     * @returns {Array}
-                     */
-                    get: function(sortable){
-                        return $scope.tabOrder;
-                    },
-
-                    /**
-                     * Save the order of elements. Called onEnd (when the item is dropped).
-                     * @param {Sortable}  sortable
-                     */
-                    set: function(sortable){
-                        $scope.tabOrder = sortable.toArray();
-                        $scope.generateSortIdsFromTabs();
-                        $scope.load();
-                    }
+            if($scope.dashboardLock == false && $scope.fullscreen == false){
+                if($scope.tabSortCreated == true){
+                    $scope.sortable.destroy();
+                    $scope.tabOrder = [];
                 }
-            });
-            let tmptabids = [];
-            $('#nav-tabs li').each(function(){
-                if(this.id.indexOf('tab-') == 0){
-                    if(!tmptabids.includes(this.id)){
-                        tmptabids.push(this.id);
-                    }else{
-                        this.remove();
+
+                $scope.tabSortCreated = true;
+                $scope.sortable = Sortable.create(document.getElementById('nav-tabs'), {
+                    group: "tabs",
+                    disabled: $scope.tabSortDisabled,
+                    scroll: true,
+                    sort: true,
+                    store: {
+                        /**
+                         * Get the order of elements. Called once during initialization.
+                         * @param   {Sortable}  sortable
+                         * @returns {Array}
+                         */
+                        get: function(sortable){
+                            return $scope.tabOrder;
+                        },
+
+                        /**
+                         * Save the order of elements. Called onEnd (when the item is dropped).
+                         * @param {Sortable}  sortable
+                         */
+                        set: function(sortable){
+                            $scope.tabOrder = sortable.toArray();
+                            $scope.generateSortIdsFromTabs();
+                            $scope.load();
+                        }
                     }
-                }
-            });
+                });
+                let tmptabids = [];
+                $('#nav-tabs li').each(function(){
+                    if(this.id.indexOf('tab-') == 0){
+                        if(!tmptabids.includes(this.id)){
+                            tmptabids.push(this.id);
+                        }else{
+                            this.remove();
+                        }
+                    }
+                });
+            }
         };
 
         if(document.addEventListener){
@@ -655,6 +652,10 @@ angular.module('openITCOCKPIT')
         function fullscreenExitHandler(){
             if(document.webkitIsFullScreen === false || document.mozFullScreen === false || document.msFullscreenElement === false){
                 $scope.fullscreen = false;
+                $('#widget-grid').css({
+                    'width': '100%',
+                    'height': '100%',
+                });
                 if(!$scope.dashboardLock){
                     if($scope.sortable) $scope.sortable.option("disabled", false);
                     $scope.tabSortDisabled = false;
@@ -664,7 +665,7 @@ angular.module('openITCOCKPIT')
 
         $scope.toggleFullscreenMode = function(){
             let elem = document.getElementById("widget-grid");
-            if($scope.fullscreen === true){
+            if($scope.fullscreen == true){
                 $scope.fullscreen = false;
                 if(document.exitFullscreen){
                     document.exitFullscreen();
@@ -685,14 +686,16 @@ angular.module('openITCOCKPIT')
                 }else if(elem.msRequestFullscreen){
                     elem.msRequestFullscreen();
                 }
+
+                $('#widget-grid').css({
+                    'width': $(window).width(),
+                    'height': $(window).height(),
+                });
+
                 $scope.fullscreen = true;
                 $scope.tabSortDisabled = true;
-                if($scope.sortable) $scope.sortable.option("disabled", true);
+                $scope.createTabSort();
             }
         };
-
-        if(navigator.userAgent.search("Firefox") <= -1){   //fullscreen-dashboard option only for firefox
-            $scope.enableFullscreenOption = false;
-        }
 
     });

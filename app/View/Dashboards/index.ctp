@@ -140,7 +140,7 @@
                             <i class="fa fa-lock" id="dashboardLockIcon" ng-hide="!dashboardLock"></i>
                         </button>
                     </div>
-                    <div class="widget-toolbar" rile="menu" ng-show="enableFullscreenOption">
+                    <div class="widget-toolbar" rile="menu">
                         <button class="btn btn-xs btn-success" ng-click="toggleFullscreenMode()"
                                 title="<?php echo __('Fullscreen mode'); ?>">
                             <i class="fa fa-arrows-alt"></i>
