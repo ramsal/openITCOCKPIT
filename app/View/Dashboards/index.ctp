@@ -48,9 +48,9 @@
                                 ng-if="tab.id == _tab.DashboardTab.id">
                                 <a class="pointer" data-toggle="dropdown" href="javascript:void(0);">
                                     <span ng-class="_tab.DashboardTab.shared ? 'text-primary' : ''" class="text">{{ _tab.DashboardTab.name }}</span>
-                                    <b class="caret"></b>
+                                    <b class="caret" ng-hide="dashboardLock || fullscreen"></b>
                                 </a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu" ng-hide="dashboardLock || fullscreen">
                                     <li>
                                         <a class="pointer tab-select-menu-fix"
                                            ng-click="openEditModal(); tab.name = _tab.DashboardTab.name; tab.renameId = tab.id">
@@ -126,13 +126,29 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="widget-toolbar" rile="menu">
-                        <button class="btn btn-xs btn-primary" data-toggle="modal" data-target="#tabRotateModal">
+                    <div class="widget-toolbar" rile="menu" ng-hide="fullscreen">
+                        <button class="btn btn-xs btn-primary" data-toggle="modal" data-target="#tabRotateModal"
+                                title="<?php echo __('Setup tab rotation'); ?>">
                             <i class="fa fa-refresh" id="tabRotationIcon"></i>
                         </button>
                     </div>
                     <div class="widget-toolbar" rile="menu">
-                        <button class="btn btn-xs btn-success" data-toggle="modal" ng-click="openNewTabModal()">
+                        <button class="btn btn-xs btn-primary" ng-click="changeDashboardLockState()"
+                                title="<?php echo __('Lock positions'); ?>">
+                            <i class="fa fa-unlock-alt fa-flip-horizontal" id="dashboardUnlockIcon"
+                               ng-hide="dashboardLock"></i>
+                            <i class="fa fa-lock" id="dashboardLockIcon" ng-hide="!dashboardLock"></i>
+                        </button>
+                    </div>
+                    <div class="widget-toolbar" rile="menu" ng-show="enableFullscreenOption">
+                        <button class="btn btn-xs btn-success" ng-click="toggleFullscreenMode()"
+                                title="<?php echo __('Fullscreen mode'); ?>">
+                            <i class="fa fa-arrows-alt"></i>
+                        </button>
+                    </div>
+                    <div class="widget-toolbar" rile="menu" ng-hide="fullscreen">
+                        <button class="btn btn-xs btn-success" data-toggle="modal" ng-click="openNewTabModal()"
+                                title="<?php echo __('New tab'); ?>">
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>

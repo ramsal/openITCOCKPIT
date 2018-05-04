@@ -1899,3 +1899,6 @@ input[type="range"]::-ms-fill-upper {
     border: 1px solid #ddd;
 }
 
+#widget-grid {
+    background: #EEEEEF;
+}

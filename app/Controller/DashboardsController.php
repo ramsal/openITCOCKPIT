@@ -880,13 +880,15 @@ class DashboardsController extends AppController {
             ],
             'fields'     => [
                 'dashboard_tab_rotation',
+                'dashboard_lock'
             ],
         ]);
         $tabRotateInterval = $user['User']['dashboard_tab_rotation'];
+        $dashboardLock = $user['User']['dashboard_lock'];
 
 
-        $this->set(compact(['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval']));
-        $this->set('_serialize', ['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval']);
+        $this->set(compact(['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval', 'dashboardLock']));
+        $this->set('_serialize', ['allWidgets', 'tabs', 'sharedTabs', 'tabRotateInterval', 'dashboardLock']);
 
         return;
     }
@@ -1327,6 +1329,27 @@ class DashboardsController extends AppController {
                 $this->User->saveField('dashboard_tab_rotation', $this->request->data['value']);
             }
         }
+    }
+
+    public function saveDashboardLock () {
+        if (!$this->request->is('post')) {
+            throw new MethodNotAllowedException();
+        }
+        $this->autoRender = false;
+        $userId = $this->Auth->user('id');
+        $user = $this->User->find('first', [
+            'recursive'  => -1,
+            'contain'    => [],
+            'conditions' => [
+                'User.id' => $userId,
+            ],
+            'fields'     => [
+                'User.id',
+                'User.dashboard_lock',
+            ],
+        ]);
+        $this->User->id = $user['User']['id'];
+        $this->User->saveField('dashboard_lock', $this->request->data['value']);
     }
 
     public function startSharing ($tabId) {

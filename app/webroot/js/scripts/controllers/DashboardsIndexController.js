@@ -4,6 +4,9 @@ angular.module('openITCOCKPIT')
         $scope.init = true;
         $scope.errors = null;
 
+        $scope.dashboardLock = false;
+        $scope.fullscreen = false;
+        $scope.enableFullscreenOption = true;
         $scope.sortable = null;
         $scope.tabSortStorage = [];
         $scope.tabSortDisabled = false;
@@ -39,6 +42,7 @@ angular.module('openITCOCKPIT')
                 $scope.tabs = result.data.tabs;
                 $scope.sharedTabs = result.data.sharedTabs;
                 $scope.tabRotateInterval = parseInt(result.data.tabRotateInterval);
+                $scope.dashboardLock = result.data.dashboardLock;
                 $scope.viewTabRotateInterval = parseInt(result.data.tabRotateInterval);
                 if($scope.tabs[0] && !$scope.tab.id){
                     $scope.tab.id = $scope.tabs[0].DashboardTab.id;
@@ -80,10 +84,8 @@ angular.module('openITCOCKPIT')
                         color: w.Widget.color
                     });
                 });
-
+                $scope.checkDashboardLock();
                 //$scope.loadGrid();    //loadGrid() will be called from view at the end of preparedWidgets-Iteration
-                //console.log(result.data);
-                //console.log($scope.serializedGridstackData);
             });
         };
 
@@ -340,6 +342,7 @@ angular.module('openITCOCKPIT')
                 //$scope.orderTabs();
                 $scope.checkForSharedTabUpdate(false);
                 $scope.reloadWidgets();
+                $scope.checkDashboardLock();
             }
         });
 
@@ -402,6 +405,7 @@ angular.module('openITCOCKPIT')
         };
 
         $gridstack.on('change', function(event, items){
+            $scope.checkDashboardLock();
             if($scope.ready === 1 && Array.isArray(items)){
                 $scope.serializeWidgetMap(items);
             }
@@ -411,7 +415,7 @@ angular.module('openITCOCKPIT')
             let $widget = $(this).closest(".grid-stack-item");
             if($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue) >= 0){
                 $scope.openEditModals.splice($scope.openEditModals.indexOf($widget[0].attributes['data-gs-id'].nodeValue, 1));
-                if($scope.openEditModals.length === 0){
+                if($scope.openEditModals.length === 0 && !$scope.dashboardLock){
                     $scope.gridstack.movable('.grid-stack-item', true);
                     $scope.gridstack.resizable('.grid-stack-item', true);
                 }
@@ -446,7 +450,7 @@ angular.module('openITCOCKPIT')
             if(height > height_orig || parseInt($(this).closest('.grid-stack-item-content').find('.jarviswidget-editbox').css("height")) > 0){   //will be closed
                 $scope.openEditModals.splice($scope.openEditModals.indexOf($gsi[0].attributes['data-gs-id'].nodeValue, 1));
                 $gsi[0].setAttribute("data-gs-height", (parseInt(height_orig)));
-                if($scope.openEditModals.length == 0){
+                if($scope.openEditModals.length == 0 && !$scope.dashboardLock){
                     $scope.gridstack.movable('.grid-stack-item', true);
                     $scope.gridstack.resizable('.grid-stack-item', true);
                 }
@@ -537,6 +541,35 @@ angular.module('openITCOCKPIT')
             }
         });
 
+        $scope.checkDashboardLock = function(){
+            if($scope.gridstack){
+                if($scope.dashboardLock){
+                    if($scope.sortable) $scope.sortable.option("disabled", true);
+                    $scope.gridstack.movable('.grid-stack-item', false);
+                    $scope.gridstack.resizable('.grid-stack-item', false);
+                }else{
+                    if($scope.sortable) $scope.sortable.option("disabled", false);
+                    $scope.gridstack.movable('.grid-stack-item', true);
+                    $scope.gridstack.resizable('.grid-stack-item', true);
+                }
+            }
+        };
+
+        $scope.changeDashboardLockState = function(){
+            if($scope.dashboardLock){
+                $scope.dashboardLock = false;
+            }else{
+                $scope.dashboardLock = true;
+            }
+
+            $http.post('/dashboards/saveDashboardLock.json?angular=true', {
+                'value': $scope.dashboardLock
+            });
+        };
+
+        $scope.$watch('dashboardLock', function(){
+            $scope.checkDashboardLock();
+        });
 
         $scope.tabOrder = [];
         $scope.generateSortIdsFromTabs = function(){
@@ -568,6 +601,9 @@ angular.module('openITCOCKPIT')
             if($scope.tabSortCreated == true){
                 $scope.sortable.destroy();
                 $scope.tabOrder = [];
+            }
+            if($scope.fullscreen){
+                $scope.tabSortDisabled = true;
             }
 
             $scope.tabSortCreated = true;
@@ -608,5 +644,55 @@ angular.module('openITCOCKPIT')
                 }
             });
         };
+
+        if(document.addEventListener){
+            document.addEventListener('webkitfullscreenchange', fullscreenExitHandler, false);
+            document.addEventListener('mozfullscreenchange', fullscreenExitHandler, false);
+            document.addEventListener('fullscreenchange', fullscreenExitHandler, false);
+            document.addEventListener('MSFullscreenChange', fullscreenExitHandler, false);
+        }
+
+        function fullscreenExitHandler(){
+            if(document.webkitIsFullScreen === false || document.mozFullScreen === false || document.msFullscreenElement === false){
+                $scope.fullscreen = false;
+                if(!$scope.dashboardLock){
+                    if($scope.sortable) $scope.sortable.option("disabled", false);
+                    $scope.tabSortDisabled = false;
+                }
+            }
+        }
+
+        $scope.toggleFullscreenMode = function(){
+            let elem = document.getElementById("widget-grid");
+            if($scope.fullscreen === true){
+                $scope.fullscreen = false;
+                if(document.exitFullscreen){
+                    document.exitFullscreen();
+                }else if(document.webkitExitFullscreen){
+                    document.webkitExitFullscreen();
+                }else if(document.mozCancelFullScreen){
+                    document.mozCancelFullScreen();
+                }else if(document.msExitFullscreen){
+                    document.msExitFullscreen();
+                }
+            }else{
+                if(elem.requestFullscreen){
+                    elem.requestFullscreen();
+                }else if(elem.mozRequestFullScreen){
+                    elem.mozRequestFullScreen();
+                }else if(elem.webkitRequestFullscreen){
+                    elem.webkitRequestFullscreen();
+                }else if(elem.msRequestFullscreen){
+                    elem.msRequestFullscreen();
+                }
+                $scope.fullscreen = true;
+                $scope.tabSortDisabled = true;
+                if($scope.sortable) $scope.sortable.option("disabled", true);
+            }
+        };
+
+        if(navigator.userAgent.search("Firefox") <= -1){   //fullscreen-dashboard option only for firefox
+            $scope.enableFullscreenOption = false;
+        }
 
     });
