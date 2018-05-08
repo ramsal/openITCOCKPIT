@@ -109,11 +109,19 @@
                             <button data-toggle="dropdown" class="btn dropdown-toggle btn-xs btn-success">
                                 <?php echo __('Add Widget') ?> <i class="fa fa-caret-down"></i>
                             </button>
-                            <ul class="dropdown-menu pull-right">
+                            <ul class="dropdown-menu pull-right" style="min-width:200px;">
                                 <li ng-repeat="widget in allWidgets">
                                     <a href="javascript:void(0);" class="addWidget" data-type-id="{{ widget.typeId }}">
-                                        <i class="fa {{ widget.icon }}"></i>
-                                        {{ widget.title }}
+                                        <table>
+                                            <tr>
+                                                <td width="20px" align="center">
+                                                    <i class="fa {{ widget.icon }}"></i>
+                                                </td>
+                                                <td>
+                                                    {{ widget.title }}
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </a>
                                 </li>
                                 <li class="divider"></li>
