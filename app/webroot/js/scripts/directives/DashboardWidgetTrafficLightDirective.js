@@ -192,27 +192,27 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     }
 
                     let f = 1;
-                    if(height > 18){
-                        f = 1 + (height / 150);
+                    if(height > 17){
+                        f = 1 + (height / 180);
                     }
 
-                    if(height < 15){
+                    if(height < 12){
                         f = 1 + (height / 150);
                         let p = 0;
-                        if(height > 13){
-                            p = 5;
+                        if(height > 9){
+                            p = 0;
                         }
                         if(height < 12){
-                            f = 1;
-                        }
-                        if(height < 11){
                             f = 1 - (height / 110);
                         }
                         if(height < 10){
-                            f = 0.85;
+                            f = 0.95;
                         }
                         if(height < 9){
-                            f = 0.73;
+                            f = 0.8;
+                        }
+                        if(height < 8){
+                            f = 0.75;
                         }
                         $scope.tr.parent().css({
                             'padding': p + 'px',
@@ -220,54 +220,53 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                         });
 
                         $scope.tr.css({
-                            'height': (height * 12.3636 * f) + 'px',
-                            'width': ((height * 12.3636 * f) / 2.235) + 'px'
+                            'height': (height * 15.4285 * f) + 'px',
+                            'width': ((height * 15.4285 * f) / 2.335) + 'px'
                         });
 
                         f = 1 - (height / 150);
                         if(height < 12){
-                            f = 0.8;
-                        }
-                        if(height < 11){
-                            f = 0.7;
-                        }
-                        if(height < 10){
-                            f = 0.6;
+                            f = 0.79;
                         }
                         if(height < 9){
-                            f = 0.45;
+                            f = 0.65;
+                        }
+                        if(height < 8){
+                            f = 0.55;
                         }
                     }else{
                         $scope.tr.parent().css({
-                            'padding': '13px',
+                            'padding': '0px',
                             'margin-top': '0px'
                         });
 
                         $scope.tr.css({
-                            'height': (height * 14.0625 * f) + 'px',
-                            'width': ((height * 14.0625 * f) / 2.235) + 'px',
+                            'height': (height * 16.4285 * f) + 'px',
+                            'width': ((height * 16.4285 * f) / 2.335) + 'px',
                             'padding': (height * 0.7692 * f) + 'px'
                         });
 
                     }
 
-
+                    //let bulbfactor = 3.846;
+                    let bulbfactor = 4;
+                    let bulbmargin = 1.1142;
                     $scope.redBulb.css({
-                        'height': (height * 3.846 * f) + 'px',
-                        'width': (height * 3.846 * f) + 'px',
-                        'margin-top': (height * 0.3846 * f) + 'px'
+                        'height': (height * bulbfactor * f) + 'px',
+                        'width': (height * bulbfactor * f) + 'px',
+                        'margin-top': '1'
                     });
 
                     $scope.yellowBulb.css({
-                        'height': (height * 3.846 * f) + 'px',
-                        'width': (height * 3.846 * f) + 'px',
-                        'margin-top': (height * 0.3846 * f) + 'px'
+                        'height': (height * bulbfactor * f) + 'px',
+                        'width': (height * bulbfactor * f) + 'px',
+                        'margin-top': (height * bulbmargin * f) + 'px'
                     });
 
                     $scope.greenBulb.css({
-                        'height': (height * 3.846 * f) + 'px',
-                        'width': (height * 3.846 * f) + 'px',
-                        'margin-top': (height * 0.3846 * f) + 'px'
+                        'height': (height * bulbfactor * f) + 'px',
+                        'width': (height * bulbfactor * f) + 'px',
+                        'margin-top': (height * bulbmargin * f) + 'px'
                     });
 
                 }

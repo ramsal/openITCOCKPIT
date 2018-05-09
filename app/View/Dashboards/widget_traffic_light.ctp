@@ -15,32 +15,45 @@
         <span class="note"><i class="fa fa-check text-success"></i>
             <?php echo __('Change title to update and save instantly'); ?>
         </span>
+        <hr>
+        <div class="col col-xs-12" ng-show="widget.serviceId">
+            <select id="ServiceId"
+                    data-placeholder="<?php echo __('Please select...'); ?>"
+                    class="form-control"
+                    chosen="services"
+                    callback="loadServices"
+                    ng-options="value.id as value.label group by value.group for value in services"
+                    ng-model="widget.serviceId"
+            >
+            </select>
+            <div ng-repeat="error in errors.object_id">
+                <div class="help-block text-danger">{{ error }}</div>
+            </div>
+        </div>
     </div>
 
 
     <div class="widget-body padding-0 not-draggable">
 
-        <div class="row">
-            <div class="col col-xs-12">
-                <select id="ServiceId"
-                        data-placeholder="<?php echo __('Please select...'); ?>"
-                        class="form-control"
-                        chosen="services"
-                        callback="loadServices"
-                        ng-options="value.id as value.label group by value.group for value in services"
-                        ng-model="widget.serviceId"
-                >
-                </select>
-                <div ng-repeat="error in errors.object_id">
-                    <div class="help-block text-danger">{{ error }}</div>
-                </div>
+        <div class="col col-xs-12" ng-show="!widget.serviceId && !error">
+            <select id="ServiceId"
+                    data-placeholder="<?php echo __('Please select...'); ?>"
+                    class="form-control"
+                    chosen="services"
+                    callback="loadServices"
+                    ng-options="value.id as value.label group by value.group for value in services"
+                    ng-model="widget.serviceId"
+            >
+            </select>
+            <div ng-repeat="error in errors.object_id">
+                <div class="help-block text-danger">{{ error }}</div>
             </div>
         </div>
 
-        <div>
+        <div ng-show="widget.serviceId && !error">
             <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
                 <a ng-attr-href="{{ widget.serviceId ? '/services/browser/'+widget.serviceId : '#none'}}">
-                    <div class="traffic-light" style="margin-top:-10px;" id="traffic-light{{id}}">
+                    <div class="traffic-light" style="margin-top:0px;" id="traffic-light{{id}}">
                         <div id="redLight{{id}}" class="bulb"></div>
                         <div id="yellowLight{{id}}" class="bulb"></div>
                         <div id="greenLight{{id}}" class="bulb"></div>
