@@ -13,6 +13,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
 
             $scope.widget = {};
             $scope.tabId = $scope.parentTabId;
+            $scope.url = '#none';
 
             $scope.checkAndStopWidget = function(){
                 if($scope.tabId !== $scope.parentTabId || !document.getElementById($scope.id)){
@@ -32,6 +33,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     }
                 }).then(function(result){
                     $scope.widget = result.data.traffic_light;
+                    $scope.url = '#none';
+                    if(result.data.traffic_light.serviceId){
+                        $scope.url = '/services/browser/' + result.data.traffic_light.serviceId;
+                        if(result.data.traffic_light.is_evc == 1){
+                            $scope.url = '/eventcorrelation_module/eventcorrelations/view/' + result.data.traffic_light.host_id;
+                        }
+                    }
                 }).catch(function(fallback){
                     if(fallback.data.message && fallback.data.message.toLowerCase().includes('invalid service')){
                         $scope.clearLights();
@@ -66,6 +74,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
                     }
 
                     $scope.widget = result.data.traffic_light;
+                    $scope.url = '#none';
+                    if(result.data.traffic_light.serviceId){
+                        $scope.url = '/services/browser/' + result.data.traffic_light.serviceId;
+                        if(result.data.traffic_light.is_evc == 1){
+                            $scope.url = '/eventcorrelation_module/eventcorrelations/view/' + result.data.traffic_light.host_id;
+                        }
+                    }
 
                     let nextcheckdate = new Date($scope.widget.next_check * 1000);
                     let msleft = (Date.now() - nextcheckdate);
@@ -98,10 +113,14 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTrafficLightDirective'
 
                     $scope.services = [];
                     result.data.services.forEach(function(obj, index){
+                        let servicename = obj.value.Servicetemplate.name;
+                        if(obj.value.Service.name){
+                            servicename = obj.value.Service.name;
+                        }
                         $scope.services[index] = {
                             "id": obj.value.Service.id,
                             "group": obj.value.Host.name,
-                            "label": obj.value.Host.name + "/" + obj.value.Servicetemplate.name
+                            "label": obj.value.Host.name + "/" + servicename
                         };
                     });
 

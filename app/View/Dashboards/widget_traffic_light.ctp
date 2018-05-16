@@ -52,7 +52,7 @@
 
         <div ng-show="widget.serviceId && !error">
             <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
-                <a ng-attr-href="{{ widget.serviceId ? '/services/browser/'+widget.serviceId : '#none'}}">
+                <a ng-attr-href="{{ widget.serviceId ? url : '#none'}}">
                     <div class="traffic-light" style="margin-top:0px;" id="traffic-light{{id}}">
                         <div id="redLight{{id}}" class="bulb"></div>
                         <div id="yellowLight{{id}}" class="bulb"></div>

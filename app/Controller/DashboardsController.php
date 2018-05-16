@@ -414,7 +414,9 @@ class DashboardsController extends AppController {
                                 'recursive'  => -1,
                                 'fields'     => [
                                     'Service.id',
-                                    'Service.uuid'
+                                    'Service.uuid',
+                                    'Service.service_type',
+                                    'Service.host_id'
                                 ],
                                 'conditions' => [
                                     'Service.id' => $widget['Widget']['service_id']
@@ -438,12 +440,18 @@ class DashboardsController extends AppController {
                                 $this->set('_serialize', ['error', 'traffic_light']);
                                 return;
                             }
-
+                            $is_evc = 0;
+                            $ModuleManager = new \itnovum\openITCOCKPIT\Core\ModuleManager('EventcorrelationModule');
+                            if ($service['Service']['service_type'] == EVK_SERVICE && $ModuleManager->moduleExists()) {
+                                $is_evc = 1;
+                            }
                             $traffic_light = [
                                 'serviceId'     => $widget['Widget']['service_id'],
+                                'host_id'       => $service['Service']['host_id'],
                                 'current_state' => $Servicestatus->currentState(),
                                 'next_check'    => $Servicestatus->getNextCheck(),
-                                'is_flapping'   => $Servicestatus->isFlapping()
+                                'is_flapping'   => $Servicestatus->isFlapping(),
+                                'is_evc'        => $is_evc
                             ];
                         }
 

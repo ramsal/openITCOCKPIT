@@ -105,6 +105,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetGraphgeneratorDirectiv
                                 //console.log(result.data.rrd_data[i][z]['xml_data'][y]);
                                 let ds = parseInt(result.data.rrd_data[i][z]['xml_data'][y]['ds']); //get array key for "data" value
                                 if(graphgenTmplConf[y] && graphgenTmplConf[y].data_sources.indexOf(ds) > 0){   //check if data option in configured to use in graph
+                                    //result.data.rrd_data[i][z]['xml_data'][y]['max'] = '10';
                                     arr.push({
                                         'data': result.data.rrd_data[i][z]['data'][ds],
                                         'datasource': result.data.rrd_data[i][z]['xml_data'][y]
