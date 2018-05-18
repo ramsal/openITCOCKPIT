@@ -100,7 +100,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
                     }else{
-                        $scope.loadHosts();
+                        $scope.loadServices();
                     }
                     setTimeout(function(){
                         $scope.ready = true;
@@ -138,19 +138,19 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
             $scope.doPaging = function(){
                 if($scope.pagingTimer) $interval.cancel($scope.pagingTimer);
                 if($scope.downtimeListSettings.paging_interval > 0 && $scope.paging_autostart && !$scope.downtimeListSettings.minify){
-                    $scope.pagingTimer = $interval($scope.loadPagingHosts, parseInt($scope.downtimeListSettings.paging_interval + '000'));
+                    $scope.pagingTimer = $interval($scope.loadPagingServices, parseInt($scope.downtimeListSettings.paging_interval + '000'));
                 }else{
                     $scope.paging_autostart = false;
                 }
             };
 
-            $scope.loadPagingHosts = function(){
+            $scope.loadPagingServices = function(){
                 if($scope.checkAndStopWidget() != true){
                     if($scope.paging.page == $scope.paging.pageCount){
                         if($scope.currentPage != 1){
                             $scope.currentPage = 1;
                         }else{
-                            $scope.loadHosts();
+                            $scope.loadServices();
                         }
                     }
                     if($scope.paging.page < $scope.paging.pageCount){
@@ -159,7 +159,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
                 }
             };
 
-            $scope.loadHosts = function(){
+            $scope.loadServices = function(){
 
                 let wasCancelled = '';
                 if($scope.downtimeListSettings.filter.DowntimeService.was_cancelled ^ $scope.downtimeListSettings.filter.DowntimeService.was_not_cancelled){
@@ -180,9 +180,9 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
                         'sort': sort,
                         'page': page,
                         'direction': direction,
-                        'filter[DowntimeHost.author_name]': $scope.downtimeListSettings.filter.DowntimeService.author_name,
-                        'filter[DowntimeHost.comment_data]': $scope.downtimeListSettings.filter.DowntimeService.comment_data,
-                        'filter[DowntimeHost.was_cancelled]': (wasCancelled == 1),
+                        'filter[DowntimeService.author_name]': $scope.downtimeListSettings.filter.DowntimeService.author_name,
+                        'filter[DowntimeService.comment_data]': $scope.downtimeListSettings.filter.DowntimeService.comment_data,
+                        'filter[DowntimeService.was_cancelled]': wasCancelled,
                         'filter[Host.name]': $scope.downtimeListSettings.filter.Host.name,
                         'filter[Service.name]': $scope.downtimeListSettings.filter.Service.name,
                         'filter[from]': $scope.downtimeListSettings.filter.from,
@@ -263,7 +263,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
 
             $scope.$watch('currentPage', function(){
                 if($scope.ready === true){
-                    $scope.loadHosts();
+                    $scope.loadServices();
                 }
             });
 
@@ -274,7 +274,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
                     }else{
-                        $scope.loadHosts();
+                        $scope.loadServices();
                     }
                 }
             });
@@ -319,7 +319,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetServiceDowntimeListDir
                 $scope.triggerCallback();
             };
 
-            $scope._callback = $scope.loadHosts;
+            $scope._callback = $scope.loadServices;
 
             $('.grid-stack').on('change', function(event, items){
                 if(Array.isArray(items) && $scope.ready){

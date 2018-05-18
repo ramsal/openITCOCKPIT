@@ -92,7 +92,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                     let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
                     let mobileheight = (widgetheight - 10) * 22;
                     document.getElementById("mobile_table" + $scope.id).style.height = mobileheight + "px";
-                    $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                    $scope.widgetheight = document.getElementById($scope.id).clientHeight - 60;
 
                     if($scope.currentPage != 1){
                         $scope.currentPage = 1;
@@ -164,7 +164,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                 }
                 let limit = $scope.downtimeListSettings.limit;
                 let page = $scope.currentPage;
-                let sort= $scope.sort;
+                let sort = $scope.sort;
                 let direction = $scope.direction;
                 if($scope.downtimeListSettings.minify){
                     page = 1;
@@ -329,7 +329,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetHostDowntimeListDirect
                                 $scope.downtimeListSettings.limit = Math.round((mobileheight - 44) / 35.7);
                             }
                             if(document.getElementById($scope.id)){
-                                $scope.widgetheight = document.getElementById($scope.id).clientHeight-60;
+                                $scope.widgetheight = document.getElementById($scope.id).clientHeight - 60;
                             }
                         }
                     });

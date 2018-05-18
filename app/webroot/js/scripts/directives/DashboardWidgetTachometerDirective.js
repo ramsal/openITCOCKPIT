@@ -58,7 +58,6 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         'widgetId': $scope.id
                     }
                 }).then(function(result){
-                    //console.log(result.data.tachometer);
                     $scope.widget = {
                         minval: result.data.tachometer.WidgetTacho.min,
                         maxval: result.data.tachometer.WidgetTacho.max,

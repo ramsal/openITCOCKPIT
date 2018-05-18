@@ -21,8 +21,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetNoticeDirective', func
                     }
                 }).then(function(result){
                     $scope.widget = result.data.notice;
-                    if(document.getElementById('notice-'+$scope.id)){
-                        document.getElementById('notice-'+$scope.id).innerHTML = result.data.notice.notice;
+                    if(document.getElementById('notice-' + $scope.id)){
+                        document.getElementById('notice-' + $scope.id).innerHTML = result.data.notice.notice;
                     }
                     setTimeout(function(){
                         $scope.ready = true;
@@ -39,8 +39,8 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetNoticeDirective', func
                 };
 
                 $http.post('/dashboards/saveNotice.json?angular=true', data).then(function(result){
-                    if(document.getElementById('notice-'+$scope.id)){
-                        document.getElementById('notice-'+$scope.id).innerHTML = result.data.notice;
+                    if(document.getElementById('notice-' + $scope.id)){
+                        document.getElementById('notice-' + $scope.id).innerHTML = result.data.notice;
                     }
                 });
             };
