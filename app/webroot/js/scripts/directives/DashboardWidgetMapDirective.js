@@ -50,7 +50,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetMapDirective', functio
                         $scope.getMapInterval();
 
                         let widgetheight = $("#" + $scope.id)[0].attributes['data-gs-height'].nodeValue;
-                        let mobileheight = (widgetheight * 18.6667);
+                        let mobileheight = (widgetheight * 21);
                         if(document.getElementById("map-iframe-" + $scope.id)){
                             document.getElementById("map-iframe-" + $scope.id).height = mobileheight + "px";
                         }
@@ -107,7 +107,7 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetMapDirective', functio
                 if(Array.isArray(items) && $scope.ready){
                     items.forEach(function(item){
                         if(item.id == $scope.id){
-                            let mobileheight = (item.height * 18.6667);
+                            let mobileheight = (item.height * 21);
                             if(document.getElementById("map-iframe-" + $scope.id)){
                                 document.getElementById("map-iframe-" + $scope.id).height = mobileheight + "px";
                                 if($scope.valueTimer){
