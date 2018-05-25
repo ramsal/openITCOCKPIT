@@ -359,6 +359,26 @@ class DashboardsController extends AppController {
                         ],
                     ]);
                     if ($widget['DashboardTab']['user_id'] == $userId) {
+                        $service = $this->Service->find('first', [
+                            'recursive'  => -1,
+                            'fields'     => [
+                                'Service.id',
+                                'Service.uuid',
+                                'Service.service_type',
+                                'Service.host_id'
+                            ],
+                            'conditions' => [
+                                'Service.id' => $widget['Widget']['service_id']
+                            ]
+                        ]);
+
+                        $is_evc = 0;
+                        $ModuleManager = new \itnovum\openITCOCKPIT\Core\ModuleManager('EventcorrelationModule');
+                        if ($service['Service']['service_type'] == EVK_SERVICE && $ModuleManager->moduleExists()) {
+                            $is_evc = 1;
+                            $widget['Widget']['host_id'] = $service['Service']['host_id'];
+                        }
+                        $widget['WidgetTacho']['is_evc'] = $is_evc;
                         $tachometer = $widget;
                     }
                 }
@@ -1524,7 +1544,9 @@ class DashboardsController extends AppController {
             'recursive'  => -1,
             'fields'     => [
                 'Service.id',
-                'Service.uuid'
+                'Service.uuid',
+                'Service.service_type',
+                'Service.host_id'
             ],
             'conditions' => [
                 'Service.id' => $serviceId
@@ -1574,10 +1596,18 @@ class DashboardsController extends AppController {
             }
         }
 
+        $evc = [];
+        $evc['is_evc'] = 0;
+        $ModuleManager = new \itnovum\openITCOCKPIT\Core\ModuleManager('EventcorrelationModule');
+        if ($service['Service']['service_type'] == EVK_SERVICE && $ModuleManager->moduleExists()) {
+            $evc['is_evc'] = 1;
+            $evc['host_id'] = $service['Service']['host_id'];
+        }
+
         $next_check = $Servicestatus->getNextCheck();
 
-        $this->set(compact(['perfdata', 'next_check']));
-        $this->set('_serialize', ['perfdata', 'next_check']);
+        $this->set(compact(['perfdata', 'next_check', 'evc']));
+        $this->set('_serialize', ['perfdata', 'next_check', 'evc']);
         return;
     }
 

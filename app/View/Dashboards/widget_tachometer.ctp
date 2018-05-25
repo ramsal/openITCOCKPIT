@@ -97,7 +97,7 @@
 
         <div class="text-center">
             <?php if ($this->Acl->hasPermission('browser', 'services')): ?>
-                <a ng-attr-href="{{ widget.serviceId ? '/services/browser/'+widget.serviceId : '#none'}}">
+                <a ng-attr-href="{{ widget.serviceId ? url : '#none'}}">
                     <canvas style="margin: 0px auto 0px auto;" id="canvas-{{id}}"></canvas>
                 </a>
             <?php else: ?>

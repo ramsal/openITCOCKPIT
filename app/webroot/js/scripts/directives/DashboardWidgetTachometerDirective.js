@@ -67,7 +67,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                         tachoId: result.data.tachometer.WidgetTacho.id,
                         serviceId: result.data.tachometer.Widget.service_id
                     };
-
+                    $scope.url = '#none';
+                    if(result.data.tachometer.Widget.service_id){
+                        $scope.url = '/services/browser/' + result.data.tachometer.Widget.service_id;
+                        if(result.data.tachometer.WidgetTacho.is_evc == 1){
+                            $scope.url = '/eventcorrelation_module/eventcorrelations/view/' + result.data.tachometer.Widget.host_id;
+                        }
+                    }
                     $scope.loadServices('');
 
                 });
@@ -83,11 +89,16 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                 }).then(function(result){
 
                     $scope.services = [];
+
                     result.data.services.forEach(function(obj, index){
+                        let servicename = obj.value.Servicetemplate.name;
+                        if(obj.value.Service.name){
+                            servicename = obj.value.Service.name;
+                        }
                         $scope.services[index] = {
                             "id": obj.value.Service.id,
                             "group": obj.value.Host.name,
-                            "label": obj.value.Host.name + "/" + obj.value.Servicetemplate.name
+                            "label": obj.value.Host.name + "/" + servicename
                         };
                     });
 
@@ -310,7 +321,13 @@ angular.module('openITCOCKPIT').directive('dashboardWidgetTachometerDirective', 
                                 }
                             }
 
-                            if(result.data.perfdata){
+                            $scope.url = '#none';
+                            $scope.url = '/services/browser/' + $scope.widget.serviceId;
+                            if(result.data.evc.is_evc == 1){
+                                $scope.url = '/eventcorrelation_module/eventcorrelations/view/' + result.data.evc.host_id;
+                            }
+
+                            if(result.data.perfdata || result.data.evc.is_evc == 1){
                                 $scope.perfdata = result.data.perfdata;
 
                                 $scope.datasources = [];
