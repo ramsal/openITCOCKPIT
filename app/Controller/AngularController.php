@@ -50,6 +50,11 @@ class AngularController extends AppController {
         return;
     }
 
+    public function scroll() {
+        //Return HTML Template for PaginatorDirective
+        return;
+    }
+
     public function mass_delete() {
         return;
     }
@@ -202,6 +207,11 @@ class AngularController extends AppController {
                 $servicestatusCount = $this->Servicestatus->getServicestatusCount($this->MY_RIGHTS, false);
             }
 
+            if ($this->DbBackend->isStatusengine3()) {
+                $hoststatusCount = $this->Host->getHoststatusCountStatusengine3($this->MY_RIGHTS, false);
+                $servicestatusCount = $this->Host->getServicestatusCountStatusengine3($this->MY_RIGHTS, false);
+            }
+
         }
         $this->set(compact(['showstatsinmenu', 'hoststatusCount', 'servicestatusCount']));
         $this->set('_serialize', ['showstatsinmenu', 'hoststatusCount', 'servicestatusCount']);
@@ -262,6 +272,11 @@ class AngularController extends AppController {
         if ($this->DbBackend->isCrateDb()) {
             $hoststatusCount = $this->Hoststatus->getHoststatusCount($containerIds, true);
             $servicestatusCount = $this->Servicestatus->getServicestatusCount($containerIds, true);
+        }
+
+        if ($this->DbBackend->isStatusengine3()) {
+            $hoststatusCount = $this->Host->getHoststatusCountStatusengine3($containerIds, true);
+            $servicestatusCount = $this->Host->getServicestatusCountStatusengine3($containerIds, true);
         }
 
         $hoststatusSum = array_sum($hoststatusCount);

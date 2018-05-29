@@ -29,6 +29,7 @@ $config = [
         'always_allowed' => [
             'Angular'          => [
                 'paginator',
+                'scroll',
                 'mass_delete',
                 'mass_deactivate',
                 'confirm_delete',
@@ -119,11 +120,8 @@ $config = [
                 'grapherZoomTemplate',
                 'createGrapherErrorPng',
                 'icon',
+                'servicecumulatedstatusicon',
                 'details'
-            ],
-            'Statusmaps'       => [
-                'getHostsAndConnections',
-                'clickHostStatus',
             ],
             'Graphgenerators'  => [
                 'fetchGraphData',
@@ -167,6 +165,7 @@ $config = [
             'Hosts'            => [
                 'view',
                 'icon',
+                'hostservicelist',
                 'loadParentHostsByString',
                 'loadParentHostsById'
             ]
@@ -204,8 +203,8 @@ $config = [
             ],
             'Contacts'              => [
                 'index' => ['view'],
-                'add'   => ['loadTimeperiods', 'addCustomMacro'],
-                'edit'  => ['loadTimeperiods', 'addCustomMacro'],
+                'add'   => ['loadTimeperiods', 'addCustomMacro', 'loadLdapUserByString'],
+                'edit'  => ['loadTimeperiods', 'addCustomMacro', 'loadLdapUserByString'],
             ],
             'Cronjobs'              => [
                 'add'  => ['loadTasksByPlugin'],
@@ -232,12 +231,13 @@ $config = [
             ],
             'Hostgroups'            => [
                 'index'    => ['listToPdf', 'view', 'loadHostgroupsByString', 'loadHosgroupsByContainerId'],
-                'extended' => ['listToPdf', 'loadServicesByHostId'],
+                'extended' => ['listToPdf'],
                 'add'      => ['loadHosts', 'mass_add', 'loadHosttemplates', 'loadContainers'],
                 'edit'     => ['loadHosts', 'loadHosttemplates', 'loadContainers'],
+                'extended' => ['loadHostgroupWithHostsById']
             ],
             'Hosts'                 => [
-                'index'      => ['getHostByAjax', 'listToPdf', 'ajaxList', 'loadHostsByContainerId', 'loadHostsByString', 'loadHostById', 'allocateServiceTemplateGroup', 'getServiceTemplatesfromGroup'],
+                'index'      => ['getHostByAjax', 'listToPdf', 'ajaxList', 'loadHostsByContainerId', 'loadHostsByString', 'loadHostById', 'allocateServiceTemplateGroup', 'getServiceTemplatesfromGroup', 'hoststatus'],
                 'delete'     => ['mass_delete'],
                 'deactivate' => ['mass_deactivate'],
                 'browser'    => ['longOutputByUuid'],
@@ -278,7 +278,7 @@ $config = [
             ],
             'Services'              => [
                 'deactivate'  => ['mass_deactivate'],
-                'index'       => ['serviceByHostId', 'listToPdf', 'loadServices', 'view', 'loadServicesByContainerId', 'loadServicesByString', 'getSelectedServices'],
+                'index'       => ['serviceByHostId', 'listToPdf', 'loadServices', 'view', 'loadServicesByContainerId', 'loadServicesByString','getSelectedServices'],
                 'browser'     => ['servicesByHostId', 'longOutputByUuid'],
                 'add'         => ['loadContactsAndContactgroups', 'loadParametersByCommandId', 'loadNagParametersByCommandId', 'loadArgumentsAdd', 'loadServicetemplatesArguments', 'loadTemplateData', 'addCustomMacro', 'loadTemplateMacros'],
                 'edit'        => ['loadContactsAndContactgroups', 'loadParametersByCommandId', 'loadNagParametersByCommandId', 'loadArgumentsAdd', 'loadServicetemplatesArguments', 'loadTemplateData', 'addCustomMacro', 'loadTemplateMacros'],
@@ -296,7 +296,7 @@ $config = [
             ],
             'Users'                 => [
                 'index' => ['view', 'loadUsersByContainerId'],
-                'add'   => ['addFromLdap'],
+                'add'   => ['addFromLdap', 'loadLdapUserByString'],
                 'edit'  => ['resetPassword'],
             ],
             'Tenants'               => [
@@ -379,7 +379,7 @@ $config = [
                 'Servicetemplategroups' => ['index'],
                 'Servicetemplates'      => ['index'],
                 'Statehistories'        => ['service', 'host'],
-                'Statusmaps'            => ['index', 'view'],
+                'Statusmaps'            => ['index', 'hostAndServicesSummaryStatus'],
                 'Systemdowntimes'       => ['index'],
                 'Systemfailures'        => ['index'],
                 'Systemsettings'        => ['index', 'host', 'service', 'hostgroup', 'node'],

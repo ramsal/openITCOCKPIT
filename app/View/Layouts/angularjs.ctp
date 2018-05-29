@@ -65,6 +65,11 @@ $scripts = [
     //'smartadmin/js/smartwidgets/jarvis.widget.js'
 ];
 
+if ($this->request->params['controller'] === 'statusmaps') {
+    $scripts[] = 'smartadmin/js/notification/SmartNotification.js';
+    $scripts[] = 'js/vendor/vis/vis.js';
+}
+
 App::uses('Folder', 'Utility');
 $appScripts = [];
 if (ENVIRONMENT === Environments::PRODUCTION) {
@@ -118,15 +123,18 @@ if (ENVIRONMENT === Environments::PRODUCTION) {
     echo $this->element('assets_css');
 
     foreach ($scripts as $script):
-        printf('<script src="%s/%s%s"></script>%s', Router::fullBaseUrl(), $script, $fileVersion, PHP_EOL);
+        printf('<script src="/%s%s"></script>%s', $script, $fileVersion, PHP_EOL);
     endforeach;
 
     foreach ($appScripts as $appScript):
-        printf('<script src="%s/%s%s"></script>%s', Router::fullBaseUrl(), $appScript, $fileVersion, PHP_EOL);
+        printf('<script src="/%s%s"></script>%s', $appScript, $fileVersion, PHP_EOL);
     endforeach;
     ?>
 </head>
 <body class="<?= $bodyClass ?>">
+<div id="global-loading">
+    <i class="fa fa-refresh fa-spin"></i>
+</div>
 
 <?php echo $this->element('Admin.layout/header') ?>
 <?php echo $this->element('Admin.layout/sidebar') ?>
@@ -180,9 +188,9 @@ if (ENVIRONMENT === Environments::PRODUCTION) {
     <i class="fa fa-arrow-up fa-2x" title="<?php echo __('Scroll back to top'); ?>"></i>
 </div>
 
-<?php printf('<script src="%s/%s"></script>', Router::fullBaseUrl(), 'smartadmin/js/app.js'); ?>
+<?php printf('<script src="/%s"></script>', 'smartadmin/js/app.js'); ?>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         //pageSetUp();
 
     });
