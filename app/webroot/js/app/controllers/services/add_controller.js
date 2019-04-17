@@ -877,6 +877,7 @@ App.Controllers.ServicesAddController = Frontend.AppController.extend({
                 $selector.append(list);
                 if(selectedHostId !== null){
                     $selector.val(selectedHostId);
+                    $selector.trigger('change');
                 }else{
                     $selector.val([]);
                 }
