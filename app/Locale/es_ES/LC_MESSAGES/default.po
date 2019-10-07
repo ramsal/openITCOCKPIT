@@ -57,7 +57,7 @@ msgstr "Beacon no fue eliminado"
 
 #: Plugin/Admin/Controller/LocationsController.php:39;69;94
 msgid "Invalid location"
-msgstr "Ibucación no válida"
+msgstr "Ubicación no válida"
 
 #: Plugin/Admin/Controller/LocationsController.php:52;73
 msgid "The location has been saved"
